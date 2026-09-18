@@ -354,10 +354,8 @@ func Audit(event string, actor string, fields map[string]interface{}) {
 	// Audit log is ALWAYS JSON per AI.md PART 11
 	entry := fmt.Sprintf(`{"time":"%s","event":"%s","actor":"%s"`, timestamp, event, actor)
 	
-	if fields != nil {
-		for k, v := range fields {
-			entry += fmt.Sprintf(`,"%s":"%v"`, k, v)
-		}
+	for k, v := range fields {
+		entry += fmt.Sprintf(`,"%s":"%v"`, k, v)
 	}
 	
 	entry += "}"

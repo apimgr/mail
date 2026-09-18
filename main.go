@@ -6,7 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	
+	"strconv"
+	"time"
+
 	"github.com/apimgr/mail/config"
 	"github.com/apimgr/mail/database"
 	"github.com/apimgr/mail/logger"
@@ -16,13 +18,34 @@ import (
 	"github.com/apimgr/mail/server"
 )
 
-// Build info - set via -ldflags at build time (per AI.md PART 26)
+// Build info - BuildEpoch is set via -ldflags at build time; BuildDate is
+// derived from it (per AI.md PART 26)
 var (
-	Version      = "dev"
-	CommitID     = "unknown"
-	BuildDate    = "unknown"
-	OfficialSite = "" // Empty = users must use --server flag
+	Version  = "dev"
+	CommitID = "unknown"
+	// BuildDate is derived from BuildEpoch in init(); "unknown" when BuildEpoch is unset
+	BuildDate = "unknown"
+	// BuildEpoch is the Unix build timestamp (seconds, UTC) set via -ldflags; "0" when unset
+	BuildEpoch = "0"
+	// OfficialSite is the default server URL; empty means users must use --server flag
+	OfficialSite = ""
 )
+
+// buildEpoch parses the embedded BuildEpoch ldflag; 0 when unset or invalid.
+func buildEpoch() int64 {
+	n, err := strconv.ParseInt(BuildEpoch, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return n
+}
+
+// init derives BuildDate (RFC 3339 UTC) from the embedded BuildEpoch
+func init() {
+	if n := buildEpoch(); n > 0 {
+		BuildDate = time.Unix(n, 0).UTC().Format("2006-01-02T15:04:05Z")
+	}
+}
 
 // Binary name (for display in help/error messages per AI.md PART 8)
 var binaryName = filepath.Base(os.Args[0])

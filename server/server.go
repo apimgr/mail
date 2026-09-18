@@ -50,7 +50,9 @@ func (s *Server) setupMiddleware() {
 	
 	// Standard middleware
 	s.router.Use(middleware.RequestID)
-	s.router.Use(middleware.RealIP)
+	// RealIP is deprecated (IP spoofing via unvalidated forwarding headers);
+	// ClientIPFromRemoteAddr never trusts client-supplied headers
+	s.router.Use(middleware.ClientIPFromRemoteAddr)
 	s.router.Use(middleware.Logger)
 	s.router.Use(middleware.Recoverer)
 	

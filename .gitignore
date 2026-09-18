@@ -127,5 +127,4 @@ rootfs/
 CLAUDE.local.md
 
 # Go
-go.sum
 vendor/

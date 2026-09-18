@@ -211,7 +211,7 @@ func (db *DB) execSchema(conn *sql.DB, statement string) error {
 // Per AI.md PART 10: Transaction Patterns section
 func (db *DB) WithTransaction(ctx context.Context, conn *sql.DB, fn func(*sql.Tx) error) error {
 	// Transaction timeout: 30 seconds per AI.md PART 10
-	ctx, cancel := timeoutContext(30 * time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	tx, err := conn.BeginTx(ctx, nil)
