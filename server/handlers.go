@@ -1,55 +1,64 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"runtime"
+	"runtime/debug"
+	"time"
 )
 
 // handleHealth handles /healthz endpoint
 // Per AI.md PART 13: Health endpoint for monitoring
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement full health check per AI.md PART 13
-	// For now, basic response
-	
-	health := map[string]interface{}{
-		"status": "healthy",
-		"version": "dev", // TODO: Get from build info
+	status := "healthy"
+	code := http.StatusOK
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	if s.db == nil || s.db.ServerDB == nil || s.db.UsersDB == nil || s.db.ServerDB.PingContext(ctx) != nil || (s.db.UsersDB != s.db.ServerDB && s.db.UsersDB.PingContext(ctx) != nil) {
+		status = "unhealthy"
+		code = http.StatusServiceUnavailable
 	}
-	
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(health)
+	writeJSON(w, code, map[string]string{"status": status})
 }
 
-// handleAbout handles /api/v1/server/about endpoint
-// Per AI.md PART 14: Server info routes
 func (s *Server) handleAbout(w http.ResponseWriter, r *http.Request) {
-	// TODO: Read from IDEA.md per AI.md PART 0
-	about := map[string]interface{}{
-		"name":        "mail",
-		"description": "Email Infrastructure Management Panel",
-		"version":     "dev", // TODO: Get from build info
-	}
-	
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(about)
+	writeJSON(w, http.StatusOK, map[string]string{
+		"name": "mail",
+		"description": "Web-based control panel for the complete mail server stack.",
+		"version": applicationVersion(),
+	})
 }
 
-// handleVersion handles /api/v1/server/version endpoint
-// Per AI.md PART 14: Server info routes
 func (s *Server) handleVersion(w http.ResponseWriter, r *http.Request) {
-	// TODO: Get build info from main package
-	version := map[string]interface{}{
-		"version":    "dev",
-		"commit":     "unknown",
+	version := map[string]string{
+		"version": applicationVersion(),
+		"commit": "unknown",
 		"build_date": "unknown",
 		"go_version": runtime.Version(),
-		"platform":   runtime.GOOS + "/" + runtime.GOARCH,
+		"platform": runtime.GOOS + "/" + runtime.GOARCH,
 	}
-	
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(version)
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, setting := range info.Settings {
+			switch setting.Key {
+			case "vcs.revision": version["commit"] = setting.Value
+			case "vcs.time": version["build_date"] = setting.Value
+			}
+		}
+	}
+	writeJSON(w, http.StatusOK, version)
+}
+
+func applicationVersion() string {
+	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" && info.Main.Version != "(devel)" {
+		return info.Main.Version
+	}
+	return "dev"
+}
+
+func writeJSON(w http.ResponseWriter, status int, value any) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(value)
 }

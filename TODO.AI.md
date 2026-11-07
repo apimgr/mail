@@ -78,3 +78,6 @@ packages.
 - [ ] Reconcile README claims with delivered features as each feature lands;
       current runtime only exposes health/about/version endpoints and does not
       serve the documented setup/admin/webmail interfaces.
+- mail: no src/ layout; move main.go and packages under src/
+- mail: main.go hand-rolled arg parsing, missing --color/--debug parsing and NO_COLOR
+- mail: os.Exit(1) call sites should use sysexits codes

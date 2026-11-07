@@ -474,7 +474,7 @@ func loadConfig(appPaths *paths.Paths) (*config.Config, error) {
 		
 		// Save config to file per AI.md PART 5
 		if err := saveConfig(cfg, configFile); err != nil {
-			fmt.Fprintf(os.Stderr, "[WARN] Failed to save config file: %v\n", err)
+			return nil, fmt.Errorf("saving initial config: %w", err)
 		}
 		
 		// Display setup token in console per AI.md PART 17
@@ -566,7 +566,7 @@ database:
   name: %s
 `, cfg.Server.Address, cfg.Server.Port, cfg.Server.SetupToken, cfg.Database.Driver, cfg.Database.Name)
 	
-	return os.WriteFile(path, []byte(data), 0644)
+	return os.WriteFile(path, []byte(data), 0600)
 }
 
 // initDatabase initializes database connection and schema

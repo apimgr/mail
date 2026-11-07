@@ -6,10 +6,12 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"path"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -22,8 +24,9 @@ import (
 type Server struct {
 	cfg    *config.Config
 	db     *database.DB
-	router *chi.Mux
+	router     *chi.Mux
 	httpServer *http.Server
+	serveErr   chan error
 }
 
 // New creates a new server instance
@@ -46,26 +49,45 @@ func New(cfg *config.Config, db *database.DB) *Server {
 // setupMiddleware configures middleware stack
 // Per AI.md PART 16: PathSecurityMiddleware MUST be FIRST
 func (s *Server) setupMiddleware() {
-	// TODO: Add PathSecurityMiddleware FIRST (per AI.md PART 5)
-	
-	// Standard middleware
 	s.router.Use(middleware.RequestID)
-	// RealIP is deprecated (IP spoofing via unvalidated forwarding headers);
-	// ClientIPFromRemoteAddr never trusts client-supplied headers
 	s.router.Use(middleware.ClientIPFromRemoteAddr)
+	s.router.Use(pathSecurityMiddleware)
+	s.router.Use(securityHeadersMiddleware)
 	s.router.Use(middleware.Logger)
 	s.router.Use(middleware.Recoverer)
-	
-	// Timeout per AI.md PART 10
 	s.router.Use(middleware.Timeout(60 * time.Second))
-	
-	// TODO: Add remaining middleware per AI.md PART 16
+}
+
+func pathSecurityMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw := r.URL.RawPath
+		if raw == "" { raw = r.URL.Path }
+		if strings.Contains(r.URL.Path, "..") || strings.Contains(raw, "..") || strings.Contains(strings.ToLower(raw), "%2e") {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+		cleaned := path.Clean("/" + strings.TrimLeft(r.URL.Path, "/"))
+		if strings.HasSuffix(r.URL.Path, "/") && cleaned != "/" { cleaned += "/" }
+		r.URL.Path = cleaned
+		next.ServeHTTP(w, r)
+	})
+}
+
+func securityHeadersMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'")
+		next.ServeHTTP(w, r)
+	})
 }
 
 // setupRoutes configures all HTTP routes
 // Per AI.md PART 14: All API routes must be versioned
 func (s *Server) setupRoutes() {
 	// Health endpoint (not versioned per AI.md)
+	s.router.Get("/server/healthz", s.handleHealth)
 	s.router.Get("/healthz", s.handleHealth)
 	
 	// API v1 routes
@@ -73,6 +95,7 @@ func (s *Server) setupRoutes() {
 		// Server info routes (per AI.md PART 14)
 		r.Get("/server/about", s.handleAbout)
 		r.Get("/server/version", s.handleVersion)
+		r.Get("/server/healthz", s.handleHealth)
 		
 		// TODO: Add remaining API routes per IDEA.md
 	})
@@ -85,7 +108,7 @@ func (s *Server) setupRoutes() {
 // Start starts the HTTP server
 // Per AI.md PART 8: Server Startup Sequence Phase 6, step 18
 func (s *Server) Start() error {
-	addr := fmt.Sprintf("%s:%d", s.cfg.Server.Address, s.cfg.Server.Port)
+	addr := net.JoinHostPort(strings.Trim(s.cfg.Server.Address, "[]"), fmt.Sprint(s.cfg.Server.Port))
 	
 	s.httpServer = &http.Server{
 		Addr:    addr,
@@ -98,14 +121,18 @@ func (s *Server) Start() error {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	
-	// Start server in goroutine
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		return fmt.Errorf("listen on %s: %w", addr, err)
+	}
+	s.serveErr = make(chan error, 1)
 	go func() {
 		log.Printf("[INFO] Listening on %s", addr)
-		if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("[ERROR] HTTP server error: %v", err)
+		if err := s.httpServer.Serve(listener); err != nil && err != http.ErrServerClosed {
+			s.serveErr <- err
 		}
 	}()
-	
+
 	return nil
 }
 
@@ -113,7 +140,7 @@ func (s *Server) Start() error {
 // Per AI.md PART 8: Graceful shutdown on SIGTERM/SIGINT
 func (s *Server) Shutdown(ctx context.Context) error {
 	log.Println("[INFO] Shutting down HTTP server...")
-	
+	if s.httpServer == nil { return nil }
 	if err := s.httpServer.Shutdown(ctx); err != nil {
 		return fmt.Errorf("HTTP server shutdown failed: %w", err)
 	}
@@ -130,8 +157,13 @@ func (s *Server) WaitForShutdown() {
 	// Per AI.md PART 8: SIGTERM, SIGINT, SIGQUIT for graceful shutdown
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	
-	sig := <-quit
-	log.Printf("[INFO] Received signal: %v", sig)
+	select {
+	case sig := <-quit:
+		log.Printf("[INFO] Received signal: %v", sig)
+	case err := <-s.serveErr:
+		log.Printf("[ERROR] HTTP server error: %v", err)
+		return
+	}
 	
 	// Graceful shutdown with 30 second timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

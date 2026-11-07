@@ -21,14 +21,21 @@ var serverCreateStatements = []string{
 	// Initialize config_meta with single row
 	`INSERT OR IGNORE INTO config_meta (id, version) VALUES (1, 1)`,
 
-	// Trigger to auto-increment version on config change
-	`CREATE TRIGGER IF NOT EXISTS config_version_bump
-	AFTER INSERT OR UPDATE OR DELETE ON config
+	// SQLite requires one trigger event per trigger definition.
+	`CREATE TRIGGER IF NOT EXISTS config_version_bump_insert
+	AFTER INSERT ON config
 	BEGIN
-		UPDATE config_meta SET
-			version = version + 1,
-			updated_at = strftime('%s', 'now')
-		WHERE id = 1;
+		UPDATE config_meta SET version = version + 1, updated_at = strftime('%s', 'now') WHERE id = 1;
+	END`,
+	`CREATE TRIGGER IF NOT EXISTS config_version_bump_update
+	AFTER UPDATE ON config
+	BEGIN
+		UPDATE config_meta SET version = version + 1, updated_at = strftime('%s', 'now') WHERE id = 1;
+	END`,
+	`CREATE TRIGGER IF NOT EXISTS config_version_bump_delete
+	AFTER DELETE ON config
+	BEGIN
+		UPDATE config_meta SET version = version + 1, updated_at = strftime('%s', 'now') WHERE id = 1;
 	END`,
 
 	// Index for fast config key lookups
