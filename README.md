@@ -1,39 +1,59 @@
 # Mail
 
-Mail is intended to be a web-based control panel for managing Postfix,
-Dovecot, spam filtering, virtual mailboxes, and related mail infrastructure.
-The product requirements are in [IDEA.md](IDEA.md), and [AI.md](AI.md) defines
-the implementation contract.
+[![CI](https://github.com/apimgr/mail/actions/workflows/ci.yml/badge.svg)](https://github.com/apimgr/mail/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/apimgr/mail)](https://github.com/apimgr/mail/releases)
+[![License](https://img.shields.io/github/license/apimgr/mail)](LICENSE.md)
 
-## Current implementation
+## About
 
-The current executable initializes configuration, SQLite/PostgreSQL/MySQL
-connections, database schemas, a scheduler, and an HTTP server. Its available
-HTTP endpoints are:
+Mail is a self-hosted service for managing Postfix, Dovecot, and related mail
+infrastructure. Product scope is documented in [IDEA.md](IDEA.md); [AI.md](AI.md)
+is the read-only implementation specification.
 
-- `GET /server/healthz` and `GET /healthz` for database-aware health status.
-- `GET /api/v1/server/healthz` for versioned health status.
-- `GET /api/v1/server/about` and `GET /api/v1/server/version` for application
-  metadata.
+## Features
 
-The setup wizard, authenticated administration, mail service integration,
-mailbox/domain APIs, webmail, and container packaging are not implemented yet.
-See [TODO.AI.md](TODO.AI.md) for the production implementation backlog.
+The planned product covers mail service status and control, system and virtual
+mailboxes, domains, aliases and forwarding, queue operations, spam and virus
+filtering, TLS and DKIM, DNS guidance, logs, and delivery statistics. Most of
+these features are not implemented yet; see [TODO.AI.md](TODO.AI.md).
+
+## Production
+
+Mail does not yet have a production-ready release, container image, or service
+installation package. The current code is a development scaffold and should
+not be exposed to an untrusted network.
 
 ## Configuration
 
-On first startup the program creates a `server.yml` under the operating
-system's application configuration directory and generates a setup token.
-The configuration file is written with owner-only permissions. Operating
-system-specific config, data, log, and database paths are selected by the
-`paths` package.
+The current configuration package reads YAML and applies defaults for server,
+database, SSL, and outgoing email settings. The supported configuration
+contract is incomplete and is tracked in [TODO.AI.md](TODO.AI.md).
+
+## API
+
+The scaffold includes server-rendered home, help, legal, security, preferences,
+and API reference status pages. `/server/healthz` negotiates HTML, JSON, and
+plain text. JSON health routes are `/api/healthz` and
+`/api/v1/server/healthz`; `/healthz` is an optional alias. See the [API
+documentation](docs/api.md) and [documentation index](docs/index.md). Mail
+management API routes are planned but not implemented.
+
+## Other
+
+The repository's [MkDocs documentation](docs/index.md) is configured for
+ReadTheDocs using its default project URL. The hosted documentation project is
+not confirmed as deployed, so there is no documentation badge yet.
 
 ## Development
 
-The project uses a Go module and a container-based Makefile toolchain. The
-GitHub Actions workflow performs static analysis, tests, build, vulnerability
-scanning, secret scanning, and workflow-policy checks. No test suite currently
-exists; the 0% coverage threshold is temporary and tracked in TODO.AI.md.
+The Makefile provides Docker-backed `make dev`, `make build`, and `make test`
+targets using `casjaysdev/go:latest`. Go build and test commands must not run
+directly on the host. See [development documentation](docs/development.md).
+
+## Disclaimer
+
+The current scaffold is incomplete and is not suitable for production mail
+administration. Verify behavior and service integration before relying on it.
 
 ## License
 

@@ -1,555 +1,221 @@
-# mail - Email Stack Management Panel
-
-**Project**: mail  
-**Organization**: apimgr  
-**Type**: Web Administration Panel for Mail Infrastructure
-
----
-
-## Overview
-
-A unified web management interface for controlling and configuring the traditional mail server stack (Postfix, Dovecot, SpamAssassin, ClamAV, etc.). Provides a single pane of glass for managing all email infrastructure components.
-
-## Tagline
-
-Web-based control panel for the complete mail server stack.
-
-## Description
-
-mail is a Go-based administration panel that simplifies managing complex mail server infrastructure. Instead of manually editing dozens of configuration files across multiple services, administrators use a clean web interface to configure Postfix, Dovecot, spam filtering, virus scanning, and more. Handles both system users and virtual users, supports multiple domains, and provides real-time monitoring of mail queue, delivery stats, and security metrics.
-
----
-
-## Core Features
-
-### Service Management
-- **Component Detection**: Auto-detect installed mail services (Postfix, Dovecot, SpamAssassin, etc.)
-- **Service Control**: Start, stop, restart, reload mail services
-- **Configuration Editor**: Web-based config file editing with validation
-- **Template System**: Pre-configured templates for common setups
-- **Backup/Restore**: Save and restore complete mail stack configurations
-
-### User Management
-- **System Users**: Manage Unix system users with email access
-- **Virtual Users**: Database-backed virtual mailboxes (no shell access)
-- **User Mapping**: Map between system users and email identities
-- **Bulk Operations**: Import/export users from CSV
-- **Password Management**: Change passwords, enforce policies
-
-### Domain Management
-- **Virtual Domains**: Host multiple email domains on one server
-- **Domain Aliases**: Mirror one domain to another
-- **Catchall Addresses**: Catch-all inbox for undefined addresses
-- **Domain DKIM**: Per-domain DKIM signing keys
-- **DNS Helper**: Show required DNS records (MX, SPF, DKIM, DMARC)
-
-### Alias & Forwarding
-- **Email Aliases**: Create aliases pointing to local or remote addresses
-- **Forwarding Rules**: Forward mail to multiple destinations
-- **Vacation Messages**: Auto-reply configuration
-- **Sieve Filters**: Advanced mail filtering rules (if Dovecot supports)
-
-### Spam & Virus Protection
-- **SpamAssassin**: Configure spam detection rules and scores
-- **Rspamd**: Alternative modern spam filtering
-- **Pyzor/Razor**: Collaborative spam detection networks
-- **Amavisd-new**: Content filter integration
-- **ClamAV**: Virus scanning for attachments
-- **Greylisting**: Temporary rejection for spam reduction
-- **Blocklists**: DNS-based blocklists (RBL/DNSBL)
-- **Whitelists**: Trusted sender lists
-
-### Security & Authentication
-- **TLS/SSL**: Configure TLS for SMTP, IMAP, POP3
-- **Let's Encrypt**: Automatic certificate generation and renewal
-- **DKIM**: DomainKeys Identified Mail signing
-- **SPF**: Sender Policy Framework validation
-- **DMARC**: Domain-based Message Authentication
-- **SASL**: SMTP authentication configuration
-- **Fail2ban**: Brute force protection (if installed)
-
-### Monitoring & Logs
-- **Mail Queue**: View and manage Postfix queue
-- **Delivery Stats**: Success/failure rates, bounce tracking
-- **Spam Statistics**: Detection rates, false positives
-- **Service Status**: Real-time health of all components
-- **Log Viewer**: Search and filter mail logs
-- **Alerts**: Email/webhook notifications for issues
-
----
-
-## Managed Components
-
-### Core Mail Services
-| Component | Purpose | Config Files Managed |
-|-----------|---------|---------------------|
-| **Postfix** | SMTP server (MTA) | main.cf, master.cf, virtual, transport, etc. |
-| **Dovecot** | IMAP/POP3 server | dovecot.conf, conf.d/*, protocols, auth |
-
-### Spam & Content Filtering
-| Component | Purpose | Config Files Managed |
-|-----------|---------|---------------------|
-| **SpamAssassin** | Content-based spam filter | local.cf, rules |
-| **Rspamd** | Fast spam filter (alternative) | rspamd.conf, modules.d/* |
-| **Amavisd-new** | Content filter interface | amavisd.conf |
-| **Pyzor** | Collaborative spam detection | servers |
-| **Razor** | Spam signature database | razor-agent.conf |
-| **ClamAV** | Antivirus scanner | clamd.conf, freshclam.conf |
-
-### Optional Components
-| Component | Purpose | Config Files Managed |
-|-----------|---------|---------------------|
-| **OpenDKIM** | DKIM signing daemon | opendkim.conf, keys |
-| **Fail2ban** | Brute force protection | jail.local (mail sections) |
-| **Policyd** | Policy server | policyd.conf |
-| **Postgrey** | Greylisting daemon | postgrey.conf |
-
----
-
-## Package Mapping
-
-### Alpine Linux (apk)
-```
-postfix
-dovecot
-dovecot-pigeonhole-plugin
-spamassassin
-amavisd-new
-pyzor
-razor
-rspamd
-clamav
-clamav-daemon
-opendkim
-opendkim-utils
-fail2ban
-```
-
-### Debian/Ubuntu (apt)
-```
-postfix
-postfix-mysql
-postfix-pgsql
-dovecot-core
-dovecot-imapd
-dovecot-pop3d
-dovecot-lmtpd
-dovecot-managesieved
-spamassassin
-amavisd-new
-pyzor
-razor
-rspamd
-clamav
-clamav-daemon
-opendkim
-opendkim-tools
-fail2ban
-```
-
-### RHEL/CentOS/Rocky/Alma (yum/dnf)
-```
-postfix
-dovecot
-dovecot-mysql
-dovecot-pgsql
-dovecot-pigeonhole
-spamassassin
-amavisd-new
-pyzor
-razor
-rspamd
-clamav
-clamav-server
-clamav-update
-opendkim
-fail2ban
-```
-
-### FreeBSD (pkg)
-```
-postfix
-dovecot
-dovecot-pigeonhole
-spamassassin
-amavisd-new
-pyzor
-razor
-rspamd
-clamav
-opendkim
-fail2ban
-```
-
-### User Mapping
-
-| Component | Alpine | Debian/Ubuntu | RHEL/CentOS | FreeBSD |
-|-----------|--------|---------------|-------------|---------|
-| **Postfix** | postfix:postfix | postfix:postfix | postfix:postfix | postfix:postfix |
-| **Dovecot** | dovecot:dovecot | dovecot:dovecot | dovecot:dovecot | dovecot:dovecot |
-| **Amavis** | amavis:amavis | amavis:amavis | amavis:amavis | vscan:vscan |
-| **ClamAV** | clamav:clamav | clamav:clamav | clam:clam | clamav:clamav |
-| **Virtual Mail** | vmail:vmail | vmail:vmail | vmail:vmail | vmail:vmail |
-| **OpenDKIM** | opendkim:opendkim | opendkim:opendkim | opendkim:opendkim | opendkim:opendkim |
-
-**Note:** Virtual mail user (vmail) is created by the management panel for virtual mailbox storage.
-
----
-
-## Setup Wizard
-
-### Initial Configuration Flow
-
-**Step 1: System Detection**
-- Detect OS (Alpine, Debian, Ubuntu, RHEL, CentOS, Rocky, Alma, FreeBSD)
-- Scan for existing mail components
-- Check installed packages
-- Identify running services
-- Display findings to user
-
-**Step 2: Component Selection**
-Present configuration profiles:
-- **Minimal** (Postfix + Dovecot only)
-- **Standard** (Postfix + Dovecot + SpamAssassin + ClamAV)
-- **Advanced** (Postfix + Dovecot + Rspamd + ClamAV + DKIM)
-- **Custom** (User selects individual components)
-
-For each missing component, offer:
-- Install automatically (if admin/root)
-- Show installation commands (if no install permission)
-- Skip component
-
-**Step 3: Service User Setup**
-- Create vmail user (UID 5000, GID 5000) for virtual mailboxes
-- Set mailbox base directory (default: /var/vmail)
-- Set permissions
-
-**Step 4: Domain Configuration**
-- Add first domain
-- Set admin email address
-- Generate DKIM keys
-- Show DNS records to configure (MX, SPF, DKIM, DMARC)
-
-**Step 5: Authentication Method**
-Choose user storage:
-- **System Users** (Unix /etc/passwd)
-- **Virtual Users** (Database: SQLite, MySQL, PostgreSQL)
-- **Both** (Mixed mode)
-
-For database:
-- Create database schema
-- Set connection details
-- Test connection
-
-**Step 6: TLS/SSL**
-- Scan for existing certificates
-- Offer Let's Encrypt setup
-- Manual certificate upload
-- Generate self-signed (dev only)
-
-**Step 7: First User**
-- Create admin account (for this panel)
-- Create first email account
-- Send test email
-
-**Step 8: Review & Apply**
-- Show summary of changes
-- Preview generated config files
-- Apply configuration
-- Start/restart services
-- Verify services running
-
----
-
-## API Endpoints
-
-### Service Management
-- `GET /api/v1/services` - List all mail services
-- `GET /api/v1/services/{service}` - Get service status
-- `POST /api/v1/services/{service}/start` - Start service
-- `POST /api/v1/services/{service}/stop` - Stop service
-- `POST /api/v1/services/{service}/restart` - Restart service
-- `POST /api/v1/services/{service}/reload` - Reload config
-
-### User Management
-- `GET /api/v1/users` - List users (system + virtual)
-- `GET /api/v1/users/{id}` - Get user details
-- `POST /api/v1/users` - Create user
-- `PUT /api/v1/users/{id}` - Update user
-- `DELETE /api/v1/users/{id}` - Delete user
-- `POST /api/v1/users/{id}/password` - Change password
-- `POST /api/v1/users/import` - Bulk import from CSV
-
-### Domain Management
-- `GET /api/v1/domains` - List domains
-- `GET /api/v1/domains/{domain}` - Get domain details
-- `POST /api/v1/domains` - Add domain
-- `PUT /api/v1/domains/{domain}` - Update domain
-- `DELETE /api/v1/domains/{domain}` - Delete domain
-- `GET /api/v1/domains/{domain}/dns` - Get DNS records
-- `GET /api/v1/domains/{domain}/dkim` - Get DKIM keys
-- `POST /api/v1/domains/{domain}/dkim/generate` - Generate DKIM keys
-
-### Alias & Forwarding
-- `GET /api/v1/aliases` - List aliases
-- `POST /api/v1/aliases` - Create alias
-- `DELETE /api/v1/aliases/{id}` - Delete alias
-- `GET /api/v1/forwards` - List forwards
-- `POST /api/v1/forwards` - Create forward
-- `DELETE /api/v1/forwards/{id}` - Delete forward
-
-### Queue Management
-- `GET /api/v1/queue` - List mail queue
-- `GET /api/v1/queue/{id}` - Get message details
-- `POST /api/v1/queue/{id}/flush` - Force delivery
-- `POST /api/v1/queue/{id}/hold` - Hold message
-- `POST /api/v1/queue/{id}/release` - Release held message
-- `DELETE /api/v1/queue/{id}` - Delete from queue
-- `POST /api/v1/queue/flush-all` - Flush entire queue
-
-### Configuration
-- `GET /api/v1/config/{component}` - Get component config
-- `PUT /api/v1/config/{component}` - Update component config
-- `POST /api/v1/config/{component}/validate` - Validate config
-- `GET /api/v1/config/{component}/templates` - List templates
-- `POST /api/v1/config/{component}/backup` - Backup config
-- `POST /api/v1/config/{component}/restore` - Restore from backup
-
-### Monitoring
-- `GET /api/v1/stats/delivery` - Delivery statistics
-- `GET /api/v1/stats/spam` - Spam statistics
-- `GET /api/v1/stats/queue` - Queue statistics
-- `GET /api/v1/logs/{component}` - Get component logs
-- `GET /api/v1/health` - Overall system health
-
----
-
-## Deployment
-
-- Single static binary
-- Docker image with docker-compose
-- Systemd service support
-- Let's Encrypt automatic TLS
-- Support for 8 platforms: linux, darwin, windows, freebsd × amd64, arm64
-
----
-
-## Future Considerations
-
-- CalDAV/CardDAV support for calendars and contacts
-- Sieve filtering support
-- OAuth2 authentication
-- S3-compatible storage backend
-- Full-text search with advanced query syntax
-- Two-factor authentication
-
----
-
-## Notes
-
-This project follows the AI.md specification (PARTS 0-37) for all implementation details.
-
-All features are free and open source (MIT license). No premium tiers, no feature gating, no usage limits beyond server protection (rate limiting, quotas for stability).
-
----
-
-## Data Models
-
-### Virtual User (Database)
-```go
-type VirtualUser struct {
-    ID           int64
-    Email        string    // Full email address
-    LocalPart    string    // Username part
-    Domain       string    // Domain part
-    PasswordHash string    // Argon2id for panel, crypt for Dovecot
-    Quota        int64     // Bytes (0 = unlimited)
-    Enabled      bool
-    CreatedAt    time.Time
-    UpdatedAt    time.Time
-}
-```
-
-### System User (Unix)
-```go
-type SystemUser struct {
-    Username     string
-    UID          int
-    GID          int
-    HomeDir      string
-    Shell        string
-    MailEnabled  bool      // Whether this user should receive mail
-    Quota        int64
-}
-```
-
-### Virtual Domain
-```go
-type VirtualDomain struct {
-    ID           int64
-    Domain       string
-    Active       bool
-    DKIMEnabled  bool
-    DKIMSelector string    // e.g., "mail", "default"
-    DKIMPrivateKey string  // PEM format
-    DKIMPublicKey  string  // TXT record value
-    CreatedAt    time.Time
-    UpdatedAt    time.Time
-}
-```
-
-### Alias
-```go
-type Alias struct {
-    ID          int64
-    Source      string    // Alias email address
-    Destination string    // Target email address (can be multiple, comma-separated)
-    Domain      string
-    Active      bool
-    CreatedAt   time.Time
-}
-```
-
-### Mail Forward
-```go
-type Forward struct {
-    ID          int64
-    Source      string    // Source email address
-    Destinations []string // List of forward destinations
-    KeepLocal   bool      // Also keep copy in local mailbox
-    Active      bool
-    CreatedAt   time.Time
-}
-```
-
-### Transport (Routing)
-```go
-type Transport struct {
-    ID          int64
-    Domain      string    // Domain or email pattern
-    Transport   string    // e.g., "smtp:[relay.example.com]:587"
-    NextHop     string    // Relay host
-    Username    string    // SMTP auth username
-    Password    string    // SMTP auth password
-    Active      bool
-}
-```
-
-### Queue Entry (Read-only, from Postfix)
-```go
-type QueueEntry struct {
-    ID          string    // Postfix queue ID
-    Size        int64     // Message size in bytes
-    From        string    // Sender address
-    Recipients  []string  // Recipient addresses
-    ArrivalTime time.Time // When entered queue
-    Status      string    // active, deferred, hold
-    Reason      string    // Delivery status/error
-}
-```
-
-### Service Status
-```go
-type ServiceStatus struct {
-    Name        string    // postfix, dovecot, etc.
-    Running     bool
-    Enabled     bool      // Auto-start on boot
-    PID         int
-    Uptime      time.Duration
-    Version     string    // Component version
-}
-```
-
-### Mail Statistics
-```go
-type MailStats struct {
-    Period      string    // hour, day, week, month
-    Sent        int64     // Messages sent
-    Received    int64     // Messages received
-    Bounced     int64     // Bounce messages
-    Rejected    int64     // Rejected by policy
-    SpamBlocked int64     // Blocked as spam
-    VirusBlocked int64    // Blocked by antivirus
-    QueueSize   int64     // Current queue size
-}
-```
-
----
-
-## Configuration Details
-
-See AI.md PART 5 for full configuration specification.
-
-### Panel Configuration (server.yml)
-
-```yaml
-server:
-  port: 64580
-  admin_path: admin
-
-mail:
-  # Base directory for virtual mailboxes
-  mailbox_base: /var/vmail
-  
-  # Virtual mail user (created by setup wizard)
-  vmail_user: vmail
-  vmail_uid: 5000
-  vmail_gid: 5000
-  
-  # User authentication mode
-  auth_mode: virtual  # system, virtual, both
-  
-  # Database for virtual users (only if auth_mode = virtual or both)
-  database:
-    driver: postgres
-    host: localhost
-    port: 5432
-    name: mailserver
-    username: mailuser
-    password: ${DB_PASSWORD}
-  
-  # Component paths (auto-detected, can override)
-  postfix:
-    config_dir: /etc/postfix
-    queue_dir: /var/spool/postfix
-  
-  dovecot:
-    config_dir: /etc/dovecot
-    
-  spamassassin:
-    config_dir: /etc/mail/spamassassin
-    
-  clamav:
-    config_dir: /etc/clamav
-```
-
-### Generated Postfix main.cf (examples)
-
-**Virtual users mode:**
-```
-virtual_mailbox_domains = proxy:pgsql:/etc/postfix/pgsql-virtual-mailbox-domains.cf
-virtual_mailbox_maps = proxy:pgsql:/etc/postfix/pgsql-virtual-mailbox-maps.cf
-virtual_alias_maps = proxy:pgsql:/etc/postfix/pgsql-virtual-alias-maps.cf
-virtual_transport = lmtp:unix:private/dovecot-lmtp
-```
-
-**System users mode:**
-```
-local_recipient_maps = unix:passwd.byname $alias_maps
-mailbox_transport = lmtp:unix:private/dovecot-lmtp
-```
-
-### Generated Dovecot conf.d/auth-sql.conf.ext (virtual users)
-
-```
-passdb {
-  driver = sql
-  args = /etc/dovecot/dovecot-sql.conf.ext
-}
-
-userdb {
-  driver = sql
-  args = /etc/dovecot/dovecot-sql.conf.ext
-}
-```
-
+## Project description
+
+Mail is a self-hosted management service for administrators who configure and
+monitor Postfix, Dovecot, and related mail infrastructure. It brings mail
+service status, domains, mailboxes, routing, spam and virus controls, TLS,
+queue operations, and delivery monitoring into one product. The management
+surface is the documented API and command line; the browser provides the
+public information pages defined by AI.md.
+
+## Project variables
+
+project_name: mail
+project_org: apimgr
+# STABLE — set at first-time setup; change only on an explicit rename or fork reset
+internal_name: mail
+# STABLE — set at first-time setup; change only on an explicit rename or fork reset
+internal_org: apimgr
+
+## Business logic
+
+### Product scope & non-goals
+
+Mail manages traditional mail infrastructure, including Postfix, Dovecot,
+SpamAssassin, Rspamd, Amavisd-new, Pyzor, Razor, ClamAV, OpenDKIM, Fail2ban,
+Policyd, and Postgrey when present. It supports system and virtual users,
+multiple domains, aliases, forwarding, queue operations, component
+configuration, backups, DNS guidance, TLS, DKIM, SPF, DMARC, SASL, service
+health, logs, delivery statistics, spam statistics, and alerts. Optional
+integrations are available only when their corresponding service is installed
+and configured. CalDAV/CardDAV, OAuth2, S3 storage, full-text search, and
+two-factor authentication are future considerations, not current requirements.
+
+The product provides public server information pages and API/CLI access. It
+does not add a browser-based administration dashboard or account login; the
+operator manages the service using the API and CLI credentials defined by
+AI.md.
+
+All features are free and open source under MIT, with no premium tiers,
+feature gating, or usage limits beyond stability protections such as rate
+limits and quotas.
+
+### Roles & permissions
+
+- **Operator:** configures the mail stack and can perform privileged service,
+  configuration, queue, user, domain, backup, and security operations.
+- **Mail recipient:** may be represented by a Unix system account or a virtual
+  mailbox; virtual mailboxes have no shell access.
+- **Unauthenticated caller:** may access only endpoints AI.md defines as
+  public, such as public server information and health surfaces.
+
+The project has no panel-specific user account or login role. API credential
+and endpoint authorization rules follow AI.md.
+
+### Data model & sensitivity
+
+Mail data includes system users, virtual users, virtual domains, aliases,
+forwards, transports, queue entries, service status, and delivery/spam/queue
+statistics. Virtual users include an email address, domain, password hash,
+mailbox quota, and enabled status. Domains include activation status and
+optional DKIM key material. Transports may contain relay credentials. Queue
+records include sender, recipients, arrival time, status, and delivery reason.
+
+The product-level record fields are:
+
+- **Virtual user:** ID, full email, local part, domain, panel password hash,
+  quota in bytes (zero means unlimited), enabled flag, and created/updated
+  timestamps. The mail service may require a separate compatible password
+  representation.
+- **System user:** username, UID/GID, home directory, shell, mail-enabled
+  flag, and quota.
+- **Virtual domain:** ID, domain, active flag, DKIM-enabled flag, selector,
+  private/public DKIM key material, and created/updated timestamps.
+- **Alias:** ID, source address, one or more destinations, domain, active
+  flag, and creation time.
+- **Forward:** ID, source, destination list, keep-local flag, active flag,
+  and creation time.
+- **Transport:** ID, domain/pattern, transport, next hop, optional SMTP
+  username/password, and active flag.
+- **Queue entry:** Postfix queue ID, size, sender, recipients, arrival time,
+  state, and delivery reason. It is read-only except for supported queue
+  actions.
+- **Service status:** component name, running/enabled flags, PID, uptime, and
+  version.
+- **Mail statistics:** period, sent/received/bounced/rejected counts,
+  spam/virus blocked counts, and current queue size.
+
+Passwords, private DKIM keys, relay credentials, access tokens, and mail
+content are sensitive. Queue metadata, user addresses, domain configuration,
+and logs may also contain personal or operationally sensitive information.
+Secrets must not be exposed through public health pages, API errors, or logs.
+
+### Trust boundaries & external services
+
+The application manages external mail daemons and operating-system services;
+it does not own their SMTP, IMAP, filtering, or queue protocols. Installed
+Postfix, Dovecot, spam-filter, antivirus, DNS, certificate, and database
+services are external dependencies whose availability and configuration are
+not trusted implicitly. The application must report unavailable or
+unsupported components and preserve existing configuration when an operation
+fails. Remote mail relays and DNS responses are untrusted inputs.
+
+### Threat model & abuse cases
+
+Protected assets include mailbox credentials, DKIM private keys, relay
+credentials, mail routing/configuration, queued message metadata, and service
+availability. Attackers may attempt unauthorized service control, mailbox
+creation or deletion, credential theft, queue deletion, configuration
+injection, log disclosure, or resource exhaustion through bulk operations,
+logs, or API requests. Mail addresses, uploaded CSV values, configuration
+content, DNS answers, and mail-service output are untrusted. Authorization,
+input validation, safe configuration writes, rate and size limits, redaction,
+and the security controls in AI.md are required defenses. The product does
+not claim to prevent spam or malware beyond the installed and configured
+filtering services.
+
+### Security decisions & exceptions
+
+- System-user management and mail-service control are privileged operations
+  and require the operator authorization defined by AI.md.
+- System-user and virtual-mailbox modes are both supported; selecting system
+  users does not grant the panel permission to weaken operating-system account
+  security.
+- Component detection is informational. A missing optional daemon does not
+  prevent the management service from starting.
+- The product does not expose a browser administration UI. This keeps
+  administration on the AI.md-defined API/CLI authorization paths.
+
+### API routes
+
+Project routes below use `/api/v1`. Read-only mail data routes require the
+authorization defined by AI.md; state-changing and operator-only operations
+require the operator credential. Requests and responses use the API formats
+defined by AI.md.
+
+| Method and path | Purpose and request/response summary |
+|---|---|
+| `GET /services` | List detected mail services and status. |
+| `GET /services/{service}` | Return one service's status. |
+| `POST /services/{service}/start`, `/stop`, `/restart`, `/reload` | Control a service; return the operation result and status. |
+| `GET /users` | List system and virtual users. |
+| `GET /users/{id}` | Return one user's details. |
+| `POST /users` | Create a user from the supplied user fields. |
+| `PUT /users/{id}` | Update user fields. |
+| `DELETE /users/{id}` | Delete a user. |
+| `POST /users/{id}/password` | Change a user's password. |
+| `POST /users/import` | Import users from CSV and report per-row results. |
+| `GET /domains` | List virtual domains. |
+| `GET /domains/{domain}` | Return one domain. |
+| `POST /domains` | Add a domain. |
+| `PUT /domains/{domain}` | Update a domain. |
+| `DELETE /domains/{domain}` | Delete a domain. |
+| `GET /domains/{domain}/dns` | Return required DNS records. |
+| `GET /domains/{domain}/dkim` | Return public DKIM record details; never disclose a private key. |
+| `POST /domains/{domain}/dkim/generate` | Generate and store DKIM key material; return public DNS data. |
+| `GET /aliases` | List aliases. |
+| `POST /aliases` | Create an alias from a source and destination. |
+| `DELETE /aliases/{id}` | Delete an alias. |
+| `GET /forwards` | List forwarding rules. |
+| `POST /forwards` | Create a forward with destinations and local-copy behavior. |
+| `DELETE /forwards/{id}` | Delete a forward. |
+| `GET /queue` | List queue entries and delivery status. |
+| `GET /queue/{id}` | Return queue entry details. |
+| `POST /queue/{id}/flush`, `/hold`, `/release` | Perform the requested queue operation. |
+| `DELETE /queue/{id}` | Delete a queued message. |
+| `POST /queue/flush-all` | Flush the full queue. |
+| `GET /config/{component}` | Return the component configuration, with secrets redacted. |
+| `PUT /config/{component}` | Validate and update component configuration. |
+| `POST /config/{component}/validate` | Validate submitted component configuration without applying it. |
+| `GET /config/{component}/templates` | List available configuration templates. |
+| `POST /config/{component}/backup` | Back up component configuration. |
+| `POST /config/{component}/restore` | Restore a component configuration backup. |
+| `GET /stats/delivery`, `/stats/spam`, `/stats/queue` | Return delivery, spam, or queue statistics. |
+| `GET /logs/{component}` | Search/filter logs for a component. |
+| `GET /health` | Return overall mail-system health. |
+
+The template's own server, health, version, and discovery endpoints are
+defined by AI.md and are not repeated here.
+
+### Setup and operator flows
+
+Initial setup detects the supported operating system and installed mail
+services, presents minimal/standard/advanced/custom component profiles,
+configures virtual-mail storage and domains, selects system/virtual/mixed user
+storage, configures TLS, creates the first operator and mailbox credentials,
+previews changes, applies configuration, and verifies services. When automatic
+installation is unavailable, setup presents installation instructions and
+allows the operator to skip a component.
+
+Operators can review DNS records for MX, SPF, DKIM, and DMARC; inspect and
+manage mail queues; configure aliases and forwarding; and monitor component
+health, delivery, spam, and logs.
+
+### Supported component packages
+
+Package names and service account mappings are distribution-specific. The
+supported platforms and component/package mappings are retained in the
+project's original feature plan; unavailable optional components are skipped
+and reported. The application does not claim a uniform package name across
+distributions.
+
+The planned package names are distribution-specific:
+
+| Platform | Core and optional packages |
+|---|---|
+| Alpine | `postfix`, `dovecot`, `dovecot-pigeonhole-plugin`, `spamassassin`, `amavisd-new`, `pyzor`, `razor`, `rspamd`, `clamav`, `clamav-daemon`, `opendkim`, `opendkim-utils`, `fail2ban` |
+| Debian/Ubuntu | `postfix`, `postfix-mysql`, `postfix-pgsql`, `dovecot-core`, `dovecot-imapd`, `dovecot-pop3d`, `dovecot-lmtpd`, `dovecot-managesieved`, `spamassassin`, `amavisd-new`, `pyzor`, `razor`, `rspamd`, `clamav`, `clamav-daemon`, `opendkim`, `opendkim-tools`, `fail2ban` |
+| RHEL family | `postfix`, `dovecot`, `dovecot-mysql`, `dovecot-pgsql`, `dovecot-pigeonhole`, `spamassassin`, `amavisd-new`, `pyzor`, `razor`, `rspamd`, `clamav`, `clamav-server`, `clamav-update`, `opendkim`, `fail2ban` |
+| FreeBSD | `postfix`, `dovecot`, `dovecot-pigeonhole`, `spamassassin`, `amavisd-new`, `pyzor`, `razor`, `rspamd`, `clamav`, `opendkim`, `fail2ban` |
+
+The expected service accounts are `postfix:postfix`, `dovecot:dovecot`,
+`amavis:amavis` (FreeBSD: `vscan:vscan`), ClamAV's distribution account,
+`vmail:vmail`, and `opendkim:opendkim`. The setup flow creates the virtual
+mail user with UID/GID 5000 when that identity is available.
+
+### Product constraints
+
+- The server is distributed as a single static binary and supports Linux,
+  macOS, Windows, and FreeBSD on amd64 and arm64.
+- The product is free and open source under MIT, with no premium tiers or
+  feature gating.
+- Mail services are configured only when present and supported on the host.
