@@ -10,8 +10,9 @@ its implementation is complete and committed.
   packages and complete the mandatory project structure from AI.md PART 3.
 - [ ] Complete the runtime initialization, configuration, CLI flags, modes,
   path handling, and platform behavior in AI.md PARTS 4–8.
-- [ ] Finish service management, maintenance, update, daemon, and status CLI
-  behavior; remove placeholder TODOs from production code when completed.
+- [ ] Finish service management, maintenance, update, and daemon CLI behavior;
+  remove placeholder TODOs from production code when completed. `--status` now
+  queries the local JSON health endpoint with a bounded timeout.
 
 ## Data, security, and API
 
@@ -56,14 +57,19 @@ its implementation is complete and committed.
 
 - [ ] Complete the required Makefile targets, safe temporary build output, and
   all-platform static release builds from AI.md PART 25.
-- [ ] Add the required Dockerfiles, rootfs, Compose files, and runtime
-  configuration from AI.md PART 26.
-- [ ] Reconcile GitHub workflows, pinned actions, security scans, matrix
-  coverage, release artifacts, and post-push CI requirements with AI.md PART
-  27 and GitHub conventions.
+- [ ] Complete container integration from AI.md PART 26: devel/release image
+  publishing, privilege setup/drop, service-aware startup, and Valkey
+  integration. Dockerfiles, Compose files, OCI annotations, and the basic
+  isolated Docker test harness now exist.
+- [ ] Finish CI and release alignment from AI.md PART 27: verify the workflows
+  on every provider, satisfy CODEOWNERS and branch-protection rules, complete
+  the release flow, and resolve post-push CI results. GitHub private
+  vulnerability reporting, secret scanning, and push protection are enabled;
+  CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
   required by AI.md PART 28. `make test` now passes the 60% statement-coverage
-  gate, but the suite does not yet cover all required behavior.
+  gate, and the basic Docker binary smoke suite exists, but Incus and browser
+  E2E coverage and tests for the complete product behavior are still missing.
 
 ## Documentation and compliance
 

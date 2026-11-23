@@ -19,9 +19,10 @@ these features are not implemented yet; see [TODO.AI.md](TODO.AI.md).
 
 ## Production
 
-Mail does not yet have a production-ready release, container image, or service
-installation package. The current code is a development scaffold and should
-not be exposed to an untrusted network.
+Mail does not yet have a production-ready release, published container image,
+or service installation package. Docker build and Compose definitions are
+provided, but the application is a development scaffold and should not be
+exposed to an untrusted network.
 
 ## Configuration
 
