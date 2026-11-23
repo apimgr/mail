@@ -35,11 +35,12 @@ its implementation is complete and committed.
   scaffold content; the contact workflows, configurable page content, MCP help
   guidance, health details, token/preferences subpages, and full route-to-page
   parity are still missing.
-- [ ] Complete the shared page shell's navigation, language discoverability,
-  preference controls, theme contrast, mobile and RTL review, SEO metadata,
+- [ ] Complete the shared shell: final navigation and route parity, complete
+  theme persistence/contrast review, mobile and RTL review, SEO edge cases,
   error/maintenance states, and full no-JavaScript behavior from PART 16.
-- [ ] Add embedded translations and the required locale coverage, plural
-  handling, and accessibility behavior from AI.md PART 30.
+- [ ] Complete embedded locales with exact key parity validation, CLDR plural
+  handling, localized formats, and full accessibility coverage from PART 30.
+  Current pages load six JSON locales with English fallback and Arabic RTL.
 - [ ] Implement component detection and mail service control for supported
   platforms without assuming optional daemons are installed.
 - [ ] Implement virtual/system users, domains, aliases, forwards, transports,
@@ -60,9 +61,9 @@ its implementation is complete and committed.
 - [ ] Reconcile GitHub workflows, pinned actions, security scans, matrix
   coverage, release artifacts, and post-push CI requirements with AI.md PART
   27 and GitHub conventions.
-- [ ] Implement the required unit and integration coverage and coverage gate
-  from AI.md PART 28. The current repository has tests, but coverage and route
-  coverage have not been established in this task.
+- [ ] Expand the unit, integration, browser, and cross-platform coverage
+  required by AI.md PART 28. `make test` now passes the 60% statement-coverage
+  gate, but the suite does not yet cover all required behavior.
 
 ## Documentation and compliance
 
