@@ -5,5 +5,7 @@ listed in the [project definition](https://github.com/apimgr/mail/blob/main/IDEA
 services, ClamAV, DKIM signing, databases, and DNS. Those integrations are not
 implemented in the current server scaffold.
 
-No public webhook, identity provider, federation, or external discovery
-integration is currently enabled by the code in this repository.
+The public web shell currently serves a PWA manifest at `/manifest.json`, a
+service worker at `/sw.js`, and an offline fallback at `/offline.html`. No
+mail-service webhook, identity provider, federation, or protocol discovery
+integration is enabled yet.

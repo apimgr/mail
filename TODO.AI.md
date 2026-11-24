@@ -87,6 +87,8 @@ its implementation is complete and committed.
 - [ ] Review and expand the `.claude/rules/` summaries so each contains the
   required non-negotiable rules extracted from its assigned AI.md PARTs.
 - [ ] Reconcile remaining repository files with AI.md FINAL CHECKPOINT,
-  including service files, assets, PWA resources, workflows, and deployment
-  artifacts.
+  including service files, complete PWA assets/update recovery, workflows, and
+  deployment artifacts. The installable manifest, service worker, offline page,
+  and versioned static asset handling are now present, but full icon variants,
+  robust update/recovery behavior, metadata, and browser verification remain.
 - [ ] Keep README.md and docs/ synchronized after every feature change.

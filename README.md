@@ -33,8 +33,9 @@ contract is incomplete and is tracked in [TODO.AI.md](TODO.AI.md).
 ## API
 
 The scaffold includes server-rendered home, help, legal, security, preferences,
-and API reference status pages. `/server/healthz` negotiates HTML, JSON, and
-plain text. JSON health routes are `/api/healthz` and
+and API reference status pages. Preferences work through no-JavaScript POST
+forms, and the public shell includes a PWA manifest, service worker, and offline
+fallback. `/server/healthz` negotiates HTML, JSON, and plain text. JSON health routes are `/api/healthz` and
 `/api/v1/server/healthz`; `/healthz` is an optional alias. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md). Mail
 management API routes are planned but not implemented. A companion `mail-cli`
