@@ -53,7 +53,8 @@ its implementation is complete and committed.
   aliases are registered and override `Accept`. Privacy, DPO, and disclosure
   policy JSON mirrors are present; help also has a Markdown mirror and a
   registered-page list. Runtime metadata still lacks
-  branding values, Tor/I2P/GeoIP providers, actual cache/disk/scheduler checks,
+  branding values, Tor/I2P/GeoIP providers, cache-provider and disk-capacity
+  probes (current checks report directory accessibility and scheduler state),
   durable request counters and live connection tracking; public-page API
   mirrors beyond privacy/DPO/policy/help and the rest of PART 14 are missing.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
@@ -73,8 +74,9 @@ its implementation is complete and committed.
   CCPA controls. DPO and disclosure policy pages now reflect configuration;
   the help page accepts configured Markdown and publishes its registered links.
   Other information pages remain scaffold content. The
-  contact workflows, complete configurable page-content integration (about,
-  privacy, terms, header and footer now support localized safe rendering), full
+  contact workflows, the full configurable page-content integration (about,
+  privacy, terms, header and footer support localized safe rendering, but config
+  validation, hot reload and warning/default behavior are incomplete), full
   MCP help guidance, token management, security-report flow, complete page
   registry and route parity remain missing. Consent controls and the first sync
   page are present but still need the full AI.md behavior. The current token
@@ -87,8 +89,10 @@ its implementation is complete and committed.
   theme persistence/contrast review, mobile and RTL review, SEO edge cases,
   error/maintenance states, and full no-JavaScript behavior from PART 16.
   First middleware now canonicalizes trailing slashes; CORS, robots allow/deny
-  and sitemap filtering are implemented with tests, but complete SEO and
-  middleware integration remain.
+  and sitemap filtering are implemented with tests. A rendered-page conformance
+  test now checks the current page set for the shared shell, controls, CSRF,
+  scripts, styles, tables, and internal route links, but the full registry-driven
+  test matrix and complete SEO/middleware integration remain.
 - [ ] Complete embedded locales with exact key parity validation, CLDR plural
   handling, localized formats, and full accessibility coverage from PART 30.
   The shared registry and embed loader now verify all six locale files and key
