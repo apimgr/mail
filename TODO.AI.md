@@ -24,7 +24,14 @@ its implementation is complete and committed.
 - [ ] Reconcile database drivers, schemas, migrations, timeouts, and models
   with AI.md PART 10 and mail's data requirements in IDEA.md.
 - [ ] Implement the API token model, authorization, audit/security logging,
-  rate limits, and middleware required by AI.md PART 11.
+  rate limits, and middleware required by AI.md PART 11. This includes the
+  owner and linked-token lifecycle, `/server/preferences/tokens` page, API
+  mirrors, token restore/reveal/rotate/revoke behavior, and API/MCP bearer
+  authorization; none is implemented yet.
+- [ ] Implement the debug mode endpoints in AI.md PART 6. `/debug/*` must be
+  absent unless debug mode is enabled and every endpoint must require the
+  operator bearer token; pprof, expvar, sanitized configuration, route, cache,
+  database, scheduler, memory, and goroutine views are missing.
 - [ ] Complete the public guest-token and cookie-consent flows from AI.md
   PARTS 8, 12, and 16. CSRF forms, consent banner/state, CCPA controls,
   consent-gated theme/language writes, reset and initial preference-sync
@@ -47,7 +54,9 @@ its implementation is complete and committed.
   scaffold content; the contact workflows, configurable page content, full
   MCP help guidance, token management, security-report flow, complete page
   registry and route parity remain missing. Consent controls and the first sync
-  page are present but still need the full AI.md behavior.
+  page are present but still need the full AI.md behavior. The current token
+  page requirements specify owner/linked token workflows, one-time secret
+  delivery, restore, and primary-token revocation; all remain absent.
 - [ ] Complete the shared shell: final navigation and route parity, complete
   theme persistence/contrast review, mobile and RTL review, SEO edge cases,
   error/maintenance states, and full no-JavaScript behavior from PART 16.
