@@ -11,6 +11,7 @@ implemented yet.
 | `GET` | `/api/v1/server/healthz.txt` | Returns the same health data as flat text; the `.txt` suffix overrides `Accept`. |
 | `GET` | `/api/v1/server/about` | Returns application name, description, and version. |
 | `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
+| `GET` | `/api/v1/server/privacy` | Returns the public privacy policy data, configured cookie descriptions, retention details, tracking state, and consent/CCPA state. |
 | `GET` | `/api/v1/server/preferences` | Returns the current browser theme, language, and empty app-specific preference map. |
 | `GET` | `/api/v1/server/preferences/sync` | Returns current preferences plus a shareable URL and short code. |
 | `GET` | `/api/v1/server/preferences/sync/import` | Applies valid theme/language values only when preference-cookie consent is enabled; otherwise reports `consent_required`. Returns `applied` and `ignored` arrays, including when empty. |
