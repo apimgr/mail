@@ -73,7 +73,8 @@ its implementation is complete and committed.
   CCPA controls. DPO and disclosure policy pages now reflect configuration;
   the help page accepts configured Markdown and publishes its registered links.
   Other information pages remain scaffold content. The
-  contact workflows, configurable page content, full
+  contact workflows, complete configurable page-content integration (about,
+  privacy, terms, header and footer now support localized safe rendering), full
   MCP help guidance, token management, security-report flow, complete page
   registry and route parity remain missing. Consent controls and the first sync
   page are present but still need the full AI.md behavior. The current token
