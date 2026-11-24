@@ -9,9 +9,13 @@ implemented yet.
 |---|---|---|
 | `GET` | `/api/v1/server/healthz` | Returns the public health payload; HTTP 503 indicates unhealthy or maintenance state. It includes project/build/runtime metadata, feature states, coarse checks, and counter fields (currently not backed by request tracking). |
 | `GET` | `/api/v1/server/healthz.txt` | Returns the same health data as flat text; the `.txt` suffix overrides `Accept`. |
-| `GET` | `/api/v1/server/about` | Returns application name, description, and version. |
+| `GET` | `/api/v1/server/about` | Returns localized title, project Markdown/content, and format, using configured About content when present. |
 | `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
 | `GET` | `/api/v1/server/privacy` | Returns the public privacy policy data, configured cookie descriptions, retention details, tracking state, and consent/CCPA state. |
+| `GET` | `/api/v1/server/dpo` | Returns the configured DPO name, DPO-or-general contact email, and request-derived absolute privacy URL. |
+| `GET` | `/api/v1/server/security/policy` | Returns the configured disclosure policy Markdown or the built-in coordinated-disclosure policy. |
+| `GET` | `/api/v1/server/help` | Returns the localized help title, Markdown content, format, and registered help links. |
+| `GET` | `/api/v1/server/terms` | Returns localized terms title, Markdown content, and configured/default format. |
 | `GET` | `/api/v1/server/preferences` | Returns the current browser theme, language, and empty app-specific preference map. |
 | `GET` | `/api/v1/server/preferences/sync` | Returns current preferences plus a shareable URL and short code. |
 | `GET` | `/api/v1/server/preferences/sync/import` | Applies valid theme/language values only when preference-cookie consent is enabled; otherwise reports `consent_required`. Returns `applied` and `ignored` arrays, including when empty. |

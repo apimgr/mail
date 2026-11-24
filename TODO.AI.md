@@ -50,12 +50,12 @@ its implementation is complete and committed.
   13–14. The health payload now has canonical fields and JSON/text/API
   negotiation; the page renders project/build/runtime/features/checks/stats,
   uses human-readable values, and has translated labels. The `.txt` API
-  aliases are registered and override `Accept`. A privacy JSON mirror is now
-  registered and reflects consent, retention, tracking, sharing, and configured
-  third-party services. Runtime metadata still lacks
+  aliases are registered and override `Accept`. Privacy, DPO, and disclosure
+  policy JSON mirrors are present; help also has a Markdown mirror and a
+  registered-page list. Runtime metadata still lacks
   branding values, Tor/I2P/GeoIP providers, actual cache/disk/scheduler checks,
   durable request counters and live connection tracking; public-page API
-  mirrors beyond privacy and the rest of PART 14 are missing.
+  mirrors beyond privacy/DPO/policy/help and the rest of PART 14 are missing.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
   database persistence, system integration, safe config updates, and error
   responses.
@@ -66,10 +66,13 @@ its implementation is complete and committed.
 
 - [ ] Complete AI.md PART 16's server-rendered page behavior. The base shell and
   initial home, about, privacy, contact, help, legal, security, preferences,
-  health, and API reference status pages now exist. The health page shares its
+  health, and API reference status pages now exist. The DPO page now reflects
+  configured DPO/general contact details. The health page shares its
   runtime result across HTML/text/JSON, and the privacy page now renders its
   configured data, cookies, retention, tracking, third parties, rights and
-  CCPA controls. The other information pages remain scaffold content. The
+  CCPA controls. DPO and disclosure policy pages now reflect configuration;
+  the help page accepts configured Markdown and publishes its registered links.
+  Other information pages remain scaffold content. The
   contact workflows, configurable page content, full
   MCP help guidance, token management, security-report flow, complete page
   registry and route parity remain missing. Consent controls and the first sync
