@@ -14,8 +14,11 @@ database-aware health and application metadata routes:
 - `/server/about`, `/server/privacy`, `/server/contact`, `/server/help`,
   `/server/help/mcp`, `/server/terms`, `/server/dpo`
 - `/server/security`, `/server/security/policy`, `/server/security/thanks`
-- `/server/preferences`, `/server/docs/swagger`, `/server/docs/graphql`
+- `/server/preferences`, `/server/preferences/sync`, `/server/docs/swagger`,
+  `/server/docs/graphql`
 - `/manifest.json`, `/sw.js`, `/offline.html`, and versioned `/static/*` assets
+- `/robots.txt`, `/sitemap.xml`, `/feed.xml`, `/rss.xml`, `/llms.txt`,
+  `/.well-known/security.txt`, and `/.well-known/llms.txt`
 - `GET /server/healthz`
 - `GET /healthz` only when `server.healthz.root.enabled` is true
 - `GET /api/healthz`
@@ -26,10 +29,13 @@ database-aware health and application metadata routes:
 The information routes return server-rendered HTML. The `/server/healthz`
 route negotiates HTML, JSON, or plain text based on the request's `Accept`
 header. Mail administration pages and the mail-specific API are not available
-yet. Preferences use normal POST forms with no-JavaScript operation; the
-language selector supports Automatic, and `?lang=` remains a shareable
-one-shot override. The public shell includes an installable manifest and a
-network-first service worker with an offline fallback.
+yet. Preferences use CSRF-protected POST forms without JavaScript; theme and
+language persistence requires cookie consent. The sync page supports
+shareable preference exports and imports. The public shell includes a consent
+banner, installable manifest, and network-first service worker with an offline
+fallback. The first HTML response sets a device-local build stamp; a changed
+stamp sends `Clear-Site-Data` for cache and storage so stale app assets are
+purged.
 
 ## Guides
 

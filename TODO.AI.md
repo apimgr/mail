@@ -25,6 +25,12 @@ its implementation is complete and committed.
   with AI.md PART 10 and mail's data requirements in IDEA.md.
 - [ ] Implement the API token model, authorization, audit/security logging,
   rate limits, and middleware required by AI.md PART 11.
+- [ ] Complete the public guest-token and cookie-consent flows from AI.md
+  PARTS 8, 12, and 16. CSRF forms, consent banner/state, CCPA controls,
+  consent-gated theme/language writes, reset and initial preference-sync
+  routes now exist. The API token model and token-management page are absent;
+  preference sync still needs the full validation/redirect/cookie-attribute
+  contract, API parity and complete edge-case coverage.
 - [ ] Implement the complete health, version, API, and content-negotiation
   behavior required by AI.md PARTS 13–14.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
@@ -38,9 +44,10 @@ its implementation is complete and committed.
 - [ ] Complete AI.md PART 16's server-rendered page behavior. The base shell and
   initial home, about, privacy, contact, help, legal, security, preferences,
   health, and API reference status pages now exist, but they remain static
-  scaffold content; the contact workflows, configurable page content, MCP help
-  guidance, health details, token/preferences subpages, and full route-to-page
-  parity are still missing.
+  scaffold content; the contact workflows, configurable page content, full
+  MCP help guidance, token management, security-report flow, complete page
+  registry and route parity remain missing. Consent controls and the first sync
+  page are present but still need the full AI.md behavior.
 - [ ] Complete the shared shell: final navigation and route parity, complete
   theme persistence/contrast review, mobile and RTL review, SEO edge cases,
   error/maintenance states, and full no-JavaScript behavior from PART 16.
@@ -76,9 +83,10 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. `make test` now passes the 60% statement-coverage
-  gate, and the basic Docker binary smoke suite exists, but Incus and browser
-  E2E coverage and tests for the complete product behavior are still missing.
+  required by AI.md PART 28. The current `make test` passes its 60% statement
+  coverage gate (66.4% in this work session), and the basic Docker binary
+  smoke suite exists, but Incus and browser E2E coverage and tests for the
+  complete product behavior are still missing.
 
 ## Documentation and compliance
 
@@ -89,6 +97,7 @@ its implementation is complete and committed.
 - [ ] Reconcile remaining repository files with AI.md FINAL CHECKPOINT,
   including service files, complete PWA assets/update recovery, workflows, and
   deployment artifacts. The installable manifest, service worker, offline page,
-  and versioned static asset handling are now present, but full icon variants,
-  robust update/recovery behavior, metadata, and browser verification remain.
+  versioned static assets, build-stamp cache purge, robots/sitemap/feed,
+  security.txt and llms.txt now exist, but full icon variants, robust
+  update/recovery behavior, metadata, and browser verification remain.
 - [ ] Keep README.md and docs/ synchronized after every feature change.
