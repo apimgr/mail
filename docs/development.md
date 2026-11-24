@@ -1,0 +1,34 @@
+# Development
+
+## Repository
+
+Mail is a Go project. The current code is a scaffold and its supported API is
+limited to the routes in [API documentation](api.md). Product requirements
+are maintained in [IDEA.md](https://github.com/apimgr/mail/blob/main/IDEA.md),
+implementation requirements in
+[AI.md](https://github.com/apimgr/mail/blob/main/AI.md), and verified remaining
+work in [TODO.AI.md](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
+
+## Build and checks
+
+The Makefile provides `make dev`, `make local`, `make build`, `make test`,
+`make lint`, `make release`, and `make docker`; Go commands run inside the
+`casjaysdev/go:latest` Docker image. Go commands must not run directly on the
+host. `make test` runs tests, vet, and the 60% coverage gate. `make local`
+builds local server and client binaries, `make build` builds both for all eight release platforms,
+`make lint` runs vet, Staticcheck, and govulncheck. `make release` creates a
+stable GitHub release, and `make docker` publishes
+multi-platform images to `ghcr.io/apimgr/mail` by default; set `REGISTRY` to
+publish to a different registry.
+
+GitHub Actions has a Docker workflow that builds multi-architecture images on
+pushes and publishes the `devel` image on its daily schedule and default-branch
+updates. Tagged image publication includes version, `latest`, year-month, and
+commit tags. Registry publication is performed by CI and requires the
+repository's normal GitHub Packages permissions.
+
+## Contributions
+
+Keep implementation and documentation aligned with AI.md and IDEA.md. Do not
+add runtime data, build outputs, credentials, or generated files to the source
+tree.

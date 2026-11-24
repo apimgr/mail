@@ -37,7 +37,9 @@ and API reference status pages. `/server/healthz` negotiates HTML, JSON, and
 plain text. JSON health routes are `/api/healthz` and
 `/api/v1/server/healthz`; `/healthz` is an optional alias. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md). Mail
-management API routes are planned but not implemented.
+management API routes are planned but not implemented. A companion `mail-cli`
+currently supports the public `status` and `about` API operations; the complete
+command set is tracked in [TODO.AI.md](TODO.AI.md).
 
 ## Other
 

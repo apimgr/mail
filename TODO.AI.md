@@ -6,13 +6,18 @@ its implementation is complete and committed.
 
 ## Product foundation
 
-- [ ] Replace the current root-level prototype layout with the required `src/`
-  packages and complete the mandatory project structure from AI.md PART 3.
+- [ ] Complete the mandatory project structure from AI.md PART 3. Go packages
+  and the server entrypoint now live under `src/`; `src/common/i18n` provides
+  the shared locale catalog, and `src/client/` provides basic status/about
+  commands. The full client/TUI, other shared packages, `src/swagger`,
+  `src/graphql`, and remaining required structure are incomplete.
 - [ ] Complete the runtime initialization, configuration, CLI flags, modes,
   path handling, and platform behavior in AI.md PARTS 4–8.
 - [ ] Finish service management, maintenance, update, and daemon CLI behavior;
   remove placeholder TODOs from production code when completed. `--status` now
-  queries the local JSON health endpoint with a bounded timeout.
+  queries the local JSON health endpoint with a bounded timeout. The companion
+  client currently supports only status/about; the required client command set,
+  config management, update flow, and interactive TUI remain incomplete.
 
 ## Data, security, and API
 
@@ -41,7 +46,11 @@ its implementation is complete and committed.
   error/maintenance states, and full no-JavaScript behavior from PART 16.
 - [ ] Complete embedded locales with exact key parity validation, CLDR plural
   handling, localized formats, and full accessibility coverage from PART 30.
-  Current pages load six JSON locales with English fallback and Arabic RTL.
+  The shared registry and embed loader now verify all six locale files and key
+  parity, provide English fallback, named interpolation and CLDR plural
+  selection, and drive the SSR language selector. Human-readable output across
+  the whole server/client/API, plural message coverage, localized dates/numbers,
+  and complete WCAG review remain outstanding.
 - [ ] Implement component detection and mail service control for supported
   platforms without assuming optional daemons are installed.
 - [ ] Implement virtual/system users, domains, aliases, forwards, transports,
