@@ -27,7 +27,12 @@ its implementation is complete and committed.
   rate limits, and middleware required by AI.md PART 11. This includes the
   owner and linked-token lifecycle, `/server/preferences/tokens` page, API
   mirrors, token restore/reveal/rotate/revoke behavior, and API/MCP bearer
-  authorization; none is implemented yet.
+  authorization. The `owners` and `api_tokens` tables now exist, but token
+  issuance, lookup, encryption, expiry, management and authorization do not.
+  CORS now has wildcard-by-default,
+  explicit-origin credentials, `DOMAIN` and trusted-proxy origin resolution,
+  preflight handling, and regression tests; it still needs the full global
+  middleware and security-policy integration.
 - [ ] Implement the debug mode endpoints in AI.md PART 6. `/debug/*` must be
   absent unless debug mode is enabled and every endpoint must require the
   operator bearer token; pprof, expvar, sanitized configuration, route, cache,
@@ -56,10 +61,16 @@ its implementation is complete and committed.
   registry and route parity remain missing. Consent controls and the first sync
   page are present but still need the full AI.md behavior. The current token
   page requirements specify owner/linked token workflows, one-time secret
-  delivery, restore, and primary-token revocation; all remain absent.
+  delivery, restore, and primary-token revocation; all remain absent. A first
+  generated sitemap and configurable `web.robots` allow/deny rules now exist;
+  route-registry generation, full SEO metadata and the remaining discovery
+  contract are still incomplete.
 - [ ] Complete the shared shell: final navigation and route parity, complete
   theme persistence/contrast review, mobile and RTL review, SEO edge cases,
   error/maintenance states, and full no-JavaScript behavior from PART 16.
+  First middleware now canonicalizes trailing slashes; CORS, robots allow/deny
+  and sitemap filtering are implemented with tests, but complete SEO and
+  middleware integration remain.
 - [ ] Complete embedded locales with exact key parity validation, CLDR plural
   handling, localized formats, and full accessibility coverage from PART 30.
   The shared registry and embed loader now verify all six locale files and key

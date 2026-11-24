@@ -13,7 +13,7 @@ implemented yet.
 | `GET` | `/api/v1/server/preferences` | Returns the current browser theme, language, and empty app-specific preference map. |
 | `GET` | `/api/v1/server/preferences/sync` | Returns current preferences plus a shareable URL and short code. |
 | `GET` | `/api/v1/server/preferences/sync/import` | Applies valid theme/language values only when preference-cookie consent is enabled; otherwise reports `consent_required`. Returns `applied` and `ignored` arrays, including when empty. |
-| `POST` | `/api/v1/server/preferences` | Applies a partial theme/language update from JSON or form data. No cookie consent or CSRF token is accepted by this API route. |
+| `POST` | `/api/v1/server/preferences` | Applies a partial theme/language update from JSON or form data. It accepts no consent controls or CSRF token; writes still require existing preference-cookie consent. |
 | `GET` | `/api/healthz` | Direct versionless JSON health alias. |
 | `GET` | `/server/healthz` | Content-negotiated health page: HTML for browsers, JSON or text for clients. |
 | `GET` | `/healthz` | Optional alias to the same content-negotiated handler; disabled unless `server.healthz.root.enabled` is true. |

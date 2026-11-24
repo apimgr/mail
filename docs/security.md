@@ -1,11 +1,14 @@
 # Security
 
-The current scaffold adds HTTP security headers, rejects path traversal
-patterns, and uses a stateless double-submit CSRF token for server-rendered
-POST forms. Preference and consent changes remain browser-local. The
-production token model, complete middleware chain, rate limiting, audit
-events, PGP-encrypted reporting, and mail-service authorization required by
-AI.md are not complete. The application is not ready for production exposure.
+The current scaffold normalizes trailing slashes before request-ID and path
+security middleware, adds HTTP security headers, rejects path traversal
+patterns, applies the configured CORS policy, and uses a stateless
+double-submit CSRF token for server-rendered POST forms. CORS defaults to `*`
+without credentials; credentialed responses require an explicitly allowed
+origin. Preference and consent changes remain browser-local. The production
+token model, complete middleware chain, rate limiting, audit events,
+PGP-encrypted reporting, and mail-service authorization required by AI.md are
+not complete. The application is not ready for production exposure.
 
 Current health routes return only a generic status string and do not reveal
 configuration values. Do not add credentials, internal paths, or mail content
