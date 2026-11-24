@@ -22,7 +22,10 @@ its implementation is complete and committed.
 ## Data, security, and API
 
 - [ ] Reconcile database drivers, schemas, migrations, timeouts, and models
-  with AI.md PART 10 and mail's data requirements in IDEA.md.
+  with AI.md PART 10 and mail's data requirements in IDEA.md. The SQLite
+  connection now applies the required busy timeout, WAL, synchronous and
+  foreign-key pragmas; the read/write store split, full migration strategy,
+  retry/backup behavior and mail models remain incomplete.
 - [ ] Implement the API token model, authorization, audit/security logging,
   rate limits, and middleware required by AI.md PART 11. This includes the
   owner and linked-token lifecycle, `/server/preferences/tokens` page, API
