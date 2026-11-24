@@ -64,8 +64,9 @@ its implementation is complete and committed.
 
 - [ ] Complete AI.md PART 16's server-rendered page behavior. The base shell and
   initial home, about, privacy, contact, help, legal, security, preferences,
-  health, and API reference status pages now exist, but they remain static
-  scaffold content; the contact workflows, configurable page content, full
+  health, and API reference status pages now exist. The health page now shares
+  its runtime result across HTML/text/JSON; the other information pages remain
+  scaffold content. The contact workflows, configurable page content, full
   MCP help guidance, token management, security-report flow, complete page
   registry and route parity remain missing. Consent controls and the first sync
   page are present but still need the full AI.md behavior. The current token
@@ -113,7 +114,7 @@ its implementation is complete and committed.
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
   required by AI.md PART 28. The current `make test` passes its 60% statement
-  coverage gate (66.4% in this work session), and the basic Docker binary
+  coverage gate, and the basic Docker binary
   smoke suite exists, but Incus and browser E2E coverage and tests for the
   complete product behavior are still missing.
 
