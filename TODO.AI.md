@@ -46,8 +46,14 @@ its implementation is complete and committed.
   routes now exist. The API token model and token-management page are absent;
   preference sync still needs the full validation/redirect/cookie-attribute
   contract, API parity and complete edge-case coverage.
-- [ ] Implement the complete health, version, API, and content-negotiation
-  behavior required by AI.md PARTS 13–14.
+- [ ] Complete health, version, API, and content negotiation per AI.md PARTS
+  13–14. The health payload now has canonical fields and JSON/text/API
+  negotiation; the page renders project/build/runtime/features/checks/stats,
+  uses human-readable values, and has translated labels. The `.txt` API
+  aliases are registered and override `Accept`. Runtime metadata still lacks
+  branding values, Tor/I2P/GeoIP providers, actual cache/disk/scheduler checks,
+  durable request counters and live connection tracking; public-page API
+  mirrors and the rest of PART 14 are missing.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
   database persistence, system integration, safe config updates, and error
   responses.

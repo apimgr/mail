@@ -10,9 +10,12 @@ token model, complete middleware chain, rate limiting, audit events,
 PGP-encrypted reporting, and mail-service authorization required by AI.md are
 not complete. The application is not ready for production exposure.
 
-Current health routes return only a generic status string and do not reveal
-configuration values. Do not add credentials, internal paths, or mail content
-to health responses or logs.
+Health routes return public project/build/runtime metadata, coarse dependency
+checks, and aggregate counters. Database, cache, disk, and scheduler details
+must stay vague; credentials, internal paths, configuration values, and mail
+content must never appear in health responses or logs. Some providers and
+persistent counters required by AI.md are not implemented yet, so this health
+response is not a production readiness signal.
 
 For vulnerability reports, use GitHub's private vulnerability reporting for
 the [apimgr/mail repository](https://github.com/apimgr/mail/security/advisories/new).

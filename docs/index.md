@@ -22,13 +22,18 @@ database-aware health and application metadata routes:
 - `GET /server/healthz`
 - `GET /healthz` only when `server.healthz.root.enabled` is true
 - `GET /api/healthz`
+- `GET /api/healthz.txt`
 - `GET /api/v1/server/healthz`
+- `GET /api/v1/server/healthz.txt`
 - `GET /api/v1/server/about`
 - `GET /api/v1/server/version`
 
 The information routes return server-rendered HTML. The `/server/healthz`
 route negotiates HTML, JSON, or plain text based on the request's `Accept`
-header. Mail administration pages and the mail-specific API are not available
+header and client type. Health responses contain public project/build/runtime
+metadata, feature states, coarse checks, and counter fields. Providers,
+request tracking, and durable counters are incomplete, so health is not a production readiness
+signal. Mail administration pages and the mail-specific API are not available
 yet. Preferences use CSRF-protected POST forms without JavaScript; theme and
 language persistence requires cookie consent. The sync page supports
 shareable preference exports and imports. The public shell includes a consent

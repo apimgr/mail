@@ -38,10 +38,13 @@ language cookies, cookie-consent and CCPA controls, reset, and a stateless
 cross-device sync page. A server-rendered consent banner and CSRF protection
 work without JavaScript. The public shell includes a PWA manifest, service
 worker, and offline fallback. `/server/healthz` negotiates HTML, JSON, and
-plain text. Public `robots.txt`, sitemap, feed, and AI/security discovery
-resources are also served. JSON health
-routes are `/api/healthz` and `/api/v1/server/healthz`; `/healthz` is an
-optional alias. See the [API
+plain text. The health payload includes project/build/runtime information,
+feature states, coarse component checks, and request-counter fields;
+runtime providers and request tracking remain incomplete, so it is not a
+production readiness signal. API text aliases are `/api/healthz.txt` and
+`/api/v1/server/healthz.txt`; JSON health routes are `/api/healthz` and
+`/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
+sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md). Mail
 management API routes are planned but not implemented. A companion `mail-cli`
 currently supports the public `status` and `about` API operations; the complete
