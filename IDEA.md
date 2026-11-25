@@ -4,8 +4,8 @@ Mail is a self-hosted management service for administrators who configure and
 monitor Postfix, Dovecot, and related mail infrastructure. It brings mail
 service status, domains, mailboxes, routing, spam and virus controls, TLS,
 queue operations, and delivery monitoring into one product. The management
-surface is the documented API and command line; the browser provides the
-public information pages defined by AI.md.
+surface includes the documented API, command line, and server-rendered browser
+workflows for user-facing mail features required by AI.md.
 
 ## Project variables
 
@@ -31,10 +31,10 @@ integrations are available only when their corresponding service is installed
 and configured. CalDAV/CardDAV, OAuth2, S3 storage, full-text search, and
 two-factor authentication are future considerations, not current requirements.
 
-The product provides public server information pages and API/CLI access. It
-does not add a browser-based administration dashboard or account login; the
-operator manages the service using the API and CLI credentials defined by
-AI.md.
+The product provides public server information pages, browser workflows for
+user-facing mail features, and API/CLI access. It does not add an
+account-based administration dashboard. Operator-only actions follow the
+authorization requirements defined by AI.md.
 
 All features are free and open source under MIT, with no premium tiers,
 feature gating, or usage limits beyond stability protections such as rate
@@ -123,8 +123,9 @@ filtering services.
   security.
 - Component detection is informational. A missing optional daemon does not
   prevent the management service from starting.
-- The product does not expose a browser administration UI. This keeps
-  administration on the AI.md-defined API/CLI authorization paths.
+- The product does not expose an account-based administration dashboard.
+  Browser workflows for user-facing features follow the authorization model
+  defined by AI.md.
 
 ### API routes
 
