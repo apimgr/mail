@@ -95,7 +95,10 @@ its implementation is complete and committed.
   configured DPO/general contact details. The health page shares its
   runtime result across HTML/text/JSON, and the privacy page now renders its
   configured data, cookies, retention, tracking, third parties, rights and
-  CCPA controls. DPO and disclosure policy pages now reflect configuration;
+  CCPA controls. Built-in collection, usage, and security text now uses the
+  six-locale catalog in both the privacy page and the privacy API; the sold-data
+  notice and consent-banner accessible name are localized too. DPO and
+  disclosure policy pages now reflect configuration;
   the help page accepts configured Markdown and publishes its registered links.
   Other information pages remain scaffold content. The
   contact workflows, the full configurable page-content integration (about,
@@ -128,8 +131,10 @@ its implementation is complete and committed.
   The shared registry and embed loader now verify all six locale files and key
   parity, provide English fallback, named interpolation and CLDR plural
   selection, and drive the SSR language selector. Human-readable output across
-  the whole server/client/API, plural message coverage, localized dates/numbers,
-  and complete WCAG review remain outstanding. The preferences language selector
+  the whole server/client/API, broader plural message coverage, other
+  localized dates, and complete WCAG review remain outstanding. The shared
+  formatter now renders health uptime plurals, locale-aware health counts, and
+  localized dates in health/privacy views. The preferences language selector
   now labels Automatic with the negotiated language and marks each native-name
   option with its language tag.
 - [ ] Implement component detection and mail service control for supported
@@ -168,7 +173,7 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest `make test` passes with 72.6% statement
+  required by AI.md PART 28. The latest `make test` passes with 72.3% statement
   coverage, and the basic Docker binary
   smoke suite exists, but Incus and browser E2E coverage and tests for the
   complete product behavior are still missing.
