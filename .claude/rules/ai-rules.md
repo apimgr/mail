@@ -12,8 +12,28 @@
 
 ## Key rules summary
 
-- AI.md is read-only. Use project documentation and existing code as evidence; report template defects to the parent TODO.API.md without modifying that aggregate file.
+- AI.md is read-only. Search `~/Projects/github/apimgr/TODO.API.md` before logging an AI.md-only defect; keep project implementation gaps in `TODO.AI.md`.
 - Check cross-references in AI.md before implementing a dependent feature.
 - Update README.md and docs/ whenever shipped behavior changes.
+
+## KEY DECISIONS
+
+| Question | Answer | Spec reference |
+|---|---|---|
+| Can AI.md be edited? | No; record product scope in IDEA.md and template defects in the designated aggregate after searching for duplicates. | PART 0, 1 |
+| Which document defines behavior? | AI.md defines HOW; IDEA.md defines product WHAT. | PART 0 |
+
+## TERMINOLOGY
+
+| Term | Meaning |
+|---|---|
+| AI.md | Read-only implementation specification |
+| IDEA.md | Product scope and canonical project variables |
+
+## QUICK REFERENCE
+
+- Read relevant sections and cross-references before coding.
+- Keep project gaps in TODO.AI.md; report only AI.md defects to TODO.API.md.
+- Do not guess behavior or claim checks that were not run.
 
 For complete details, see AI.md PART 0, 1.

@@ -15,6 +15,7 @@ project_org: apimgr
 internal_name: mail
 # STABLE — set at first-time setup; change only on an explicit rename or fork reset
 internal_org: apimgr
+owner_token: mail_owner_token_aqhqfbeq
 
 ## Business logic
 

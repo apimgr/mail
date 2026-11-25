@@ -31,9 +31,10 @@ database-aware health and application metadata routes:
 The information routes return server-rendered HTML. The `/server/healthz`
 route negotiates HTML, JSON, or plain text based on the request's `Accept`
 header and client type. Health responses contain public project/build/runtime
-metadata, feature states, coarse checks, and counter fields. Providers,
-request tracking, and durable counters are incomplete, so health is not a production readiness
-signal. Mail administration pages and the mail-specific API are not available
+metadata, feature states, cached checks, persisted aggregate request counters,
+and in-flight request counts. Mail-service probes and Tor/I2P/GeoIP providers
+are incomplete, so health is not a production readiness signal. Mail
+administration pages and the mail-specific API are not available
 yet. Preferences use CSRF-protected POST forms without JavaScript; theme and
 language persistence requires cookie consent. The sync page supports
 shareable preference exports and imports. The public shell includes a consent

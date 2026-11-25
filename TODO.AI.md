@@ -24,22 +24,39 @@ its implementation is complete and committed.
 - [ ] Reconcile database drivers, schemas, migrations, timeouts, and models
   with AI.md PART 10 and mail's data requirements in IDEA.md. The SQLite
   connection now applies the required busy timeout, WAL, synchronous and
-  foreign-key pragmas; the read/write store split, full migration strategy,
-  retry/backup behavior and mail models remain incomplete.
+  foreign-key pragmas, and idempotently adds the previous-window rate-limit
+  counter; the read/write store split, full migration strategy, retry/backup
+  behavior and mail models remain incomplete.
 - [ ] Implement the API token model, authorization, audit/security logging,
   rate limits, and middleware required by AI.md PART 11. This includes the
   owner and linked-token lifecycle, `/server/preferences/tokens` page, API
   mirrors, token restore/reveal/rotate/revoke behavior, and API/MCP bearer
-  authorization. The `owners` and `api_tokens` tables now exist, but token
-  issuance, lookup, encryption, expiry, management and authorization do not.
+  authorization. Transactional owner/primary-token persistence, active-token
+  lookup, unbiased token generation, hashing and AES-GCM helpers now exist,
+  and legacy token rows receive UUIDv7 public identifiers without losing their
+  prior numeric key. The preserved legacy key still needs final schema
+  reconciliation; user-facing issuance, expiry lifecycle, management and
+  middleware authorization remain absent. Startup now
+  also creates the version 1 32-byte AES key in `secrets.yml`, but sensitive
+  data is not persisted with encryption yet; owner-token generation, hashing,
+  and AES-GCM encode/decode primitives now have isolated tests.
+  Startup now generates a base62 `server.token`, writes it atomically to
+  `secrets.yml` with mode `0600`, migrates it out of `server.yml` and drop-ins,
+  and prints it only on generation. The AES key is also generated there and
+  audited by key name only. Secret rotation, operator-token audit coverage and
+  the rest of secret-file lifecycle remain incomplete.
   CORS now has wildcard-by-default,
   explicit-origin credentials, `DOMAIN` and trusted-proxy origin resolution,
   preflight handling, and regression tests; it still needs the full global
-  middleware and security-policy integration.
-- [ ] Implement the debug mode endpoints in AI.md PART 6. `/debug/*` must be
-  absent unless debug mode is enabled and every endpoint must require the
-  operator bearer token; pprof, expvar, sanitized configuration, route, cache,
-  database, scheduler, memory, and goroutine views are missing.
+  middleware and security-policy integration. The MCP transport, protocol
+  validation and route-derived tool registry are also absent; the current MCP
+  help page only reports that no endpoint exists.
+- [ ] Finish debug-mode alignment in AI.md PART 6. `/debug/*` is now absent
+  unless enabled and its pprof, expvar, sanitized config, route, cache,
+  database, scheduler, memory, goroutine, and themed-error endpoints require
+  the operator Bearer token. The CLI flag/environment precedence is covered;
+  remaining mode flag parsing, runtime redaction review, and end-to-end
+  diagnostics coverage are incomplete.
 - [ ] Complete the public guest-token and cookie-consent flows from AI.md
   PARTS 8, 12, and 16. CSRF forms, consent banner/state, CCPA controls,
   consent-gated theme/language writes, reset and initial preference-sync
@@ -54,8 +71,10 @@ its implementation is complete and committed.
   policy JSON mirrors are present; help also has a Markdown mirror and a
   registered-page list. Runtime metadata still lacks
   branding values, Tor/I2P/GeoIP providers, cache-provider and disk-capacity
-  probes (current checks report directory accessibility and scheduler state),
-  durable request counters and live connection tracking; public-page API
+  probes. Current checks confirm configured directory presence and scheduler
+  state only. Aggregate request counters now persist in `server.db` with
+  minute-batched writes and shutdown flushing; in-flight HTTP requests are
+  tracked at the outer handler. Public-page API
   mirrors beyond privacy/DPO/policy/help and the rest of PART 14 are missing.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
   database persistence, system integration, safe config updates, and error
@@ -78,7 +97,11 @@ its implementation is complete and committed.
   privacy, terms, header and footer support localized safe rendering, but config
   validation, hot reload and warning/default behavior are incomplete), full
   MCP help guidance, token management, security-report flow, complete page
-  registry and route parity remain missing. Consent controls and the first sync
+  registry and route parity remain missing. A shared page registry now covers
+  the current server-rendered GET routes and drives sub-page routes, hub/footer
+  links, the help API list, and sitemap inclusion. State-changing web routes,
+  API mirrors, and the larger API route inventory are not yet in that registry.
+  Consent controls and the first sync
   page are present but still need the full AI.md behavior. The current token
   page requirements specify owner/linked token workflows, one-time secret
   delivery, restore, and primary-token revocation; all remain absent. A first
@@ -91,15 +114,19 @@ its implementation is complete and committed.
   First middleware now canonicalizes trailing slashes; CORS, robots allow/deny
   and sitemap filtering are implemented with tests. A rendered-page conformance
   test now checks the current page set for the shared shell, controls, CSRF,
-  scripts, styles, tables, and internal route links, but the full registry-driven
-  test matrix and complete SEO/middleware integration remain.
+  duplicate attributes, scripts, styles, tables, and internal route links. The
+  header theme form now appears on Preferences and labels its next mode, but the
+  full registry-driven test matrix and complete SEO/middleware integration
+  remain.
 - [ ] Complete embedded locales with exact key parity validation, CLDR plural
   handling, localized formats, and full accessibility coverage from PART 30.
   The shared registry and embed loader now verify all six locale files and key
   parity, provide English fallback, named interpolation and CLDR plural
   selection, and drive the SSR language selector. Human-readable output across
   the whole server/client/API, plural message coverage, localized dates/numbers,
-  and complete WCAG review remain outstanding.
+  and complete WCAG review remain outstanding. The preferences language selector
+  now labels Automatic with the negotiated language and marks each native-name
+  option with its language tag.
 - [ ] Implement component detection and mail service control for supported
   platforms without assuming optional daemons are installed.
 - [ ] Implement virtual/system users, domains, aliases, forwards, transports,
@@ -109,12 +136,23 @@ its implementation is complete and committed.
   AI.md PARTS 17–24.
 - [ ] Implement scheduler persistence, catch-up behavior, health checks,
   certificate tasks, GeoIP, metrics, and backups required by AI.md PARTS
-  18–21.
+  18–21. Task state and execution history now persist in `server.db`, stale
+  `running` tasks recover as `interrupted`, and the default one-hour catch-up
+  window dispatches recent missed runs. Five-field cron and interval parsing
+  use embedded timezone data and the America/New_York default. The token
+  cleanup task now removes expired CAPTCHA challenges from `server.db` using
+  the required indexed table. The obsolete session-cleanup task and new
+  `admin_sessions` table creation were removed to match the token-only identity
+  model. Per-task and timezone configuration overrides, owner idle purge,
+  remaining required tasks, retry behavior, and functional task handlers are
+  still incomplete.
 
 ## Build, packaging, and release
 
 - [ ] Complete the required Makefile targets, safe temporary build output, and
-  all-platform static release builds from AI.md PART 25.
+  all-platform static release builds from AI.md PART 25. `make build` now
+  succeeds for the host binaries and all eight OS/architecture targets; target
+  safety, release behavior and remaining required targets are still incomplete.
 - [ ] Complete container integration from AI.md PART 26: devel/release image
   publishing, privilege setup/drop, service-aware startup, and Valkey
   integration. Dockerfiles, Compose files, OCI annotations, and the basic
@@ -125,8 +163,8 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The current `make test` passes its 60% statement
-  coverage gate, and the basic Docker binary
+  required by AI.md PART 28. The latest `make test` passes with 72.5% statement
+  coverage, and the basic Docker binary
   smoke suite exists, but Incus and browser E2E coverage and tests for the
   complete product behavior are still missing.
 
@@ -134,8 +172,11 @@ its implementation is complete and committed.
 
 - [ ] Expand the new ReadTheDocs pages so they document every shipped browser,
   CLI, API, configuration, and integration behavior as implementation lands.
-- [ ] Review and expand the `.claude/rules/` summaries so each contains the
-  required non-negotiable rules extracted from its assigned AI.md PARTs.
+- [ ] Finish reviewing the `.claude/rules/` summaries against their assigned
+  AI.md PARTs. All 13 now include the required structural sections, and stale
+  Docker, CI-provider, test-validation, route-exception, and template-issue
+  guidance was corrected; each rule still needs a detailed per-PART coverage
+  review.
 - [ ] Reconcile remaining repository files with AI.md FINAL CHECKPOINT,
   including service files, complete PWA assets/update recovery, workflows, and
   deployment artifacts. The installable manifest, service worker, offline page,

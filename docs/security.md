@@ -1,8 +1,24 @@
 # Security
 
+Startup now generates `server.token` when missing, saves it in `secrets.yml`
+with mode `0600`, and prints it once to stdout. Later starts log only a masked
+form. When debug mode is enabled, every `/debug/*` diagnostics route requires
+that token in an `Authorization: Bearer` header. Operator authorization for
+the mail-management API and the owner/linked token lifecycle are not
+implemented, so this credential does not yet protect those APIs.
+
+Startup also generates a version 1, base64-encoded 32-byte AES key at
+`server.security.encryption_key` when missing and stores it in the same
+protected secrets file. Token and report storage do not use the key yet.
+
+Access logs remove query parameters whose names indicate credentials or
+one-time tokens (`token`, `code`, `password`, `secret`, `access_token`, and
+related aliases). Request handlers still receive the original URL.
+
 The current scaffold normalizes trailing slashes before request-ID and path
-security middleware, adds HTTP security headers, rejects path traversal
-patterns, applies the configured CORS policy, and uses a stateless
+security middleware, emits the required baseline HTTP security headers,
+rejects path traversal patterns, applies the configured CORS policy, and uses
+a stateless
 double-submit CSRF token for server-rendered POST forms. CORS defaults to `*`
 without credentials; credentialed responses require an explicitly allowed
 origin. Preference and consent changes remain browser-local. The production
@@ -10,12 +26,21 @@ token model, complete middleware chain, rate limiting, audit events,
 PGP-encrypted reporting, and mail-service authorization required by AI.md are
 not complete. The application is not ready for production exposure.
 
-Health routes return public project/build/runtime metadata, coarse dependency
-checks, and aggregate counters. Database, cache, disk, and scheduler details
-must stay vague; credentials, internal paths, configuration values, and mail
-content must never appear in health responses or logs. Some providers and
-persistent counters required by AI.md are not implemented yet, so this health
-response is not a production readiness signal.
+The baseline response headers include `X-Content-Type-Options`,
+`X-Frame-Options: SAMEORIGIN`, `X-XSS-Protection`,
+`Referrer-Policy: strict-origin-when-cross-origin`,
+`X-Permitted-Cross-Domain-Policies`, `Origin-Agent-Cluster`, a restrictive
+`Permissions-Policy`, and a same-origin Content Security Policy. Configurable
+HSTS, request reporting endpoints, and the complete policy integration from
+AI.md remain incomplete.
+
+Health routes return public project/build/runtime metadata, cached coarse
+dependency checks, persisted aggregate request counters, and live in-flight
+request counts. Database, cache, disk, and scheduler details stay vague;
+credentials, internal paths, configuration values, and mail content must
+never appear in health responses or logs. Mail-service probes and Tor/I2P/
+GeoIP providers are incomplete, so this health response is not a production
+readiness signal.
 
 For vulnerability reports, use GitHub's private vulnerability reporting for
 the [apimgr/mail repository](https://github.com/apimgr/mail/security/advisories/new).

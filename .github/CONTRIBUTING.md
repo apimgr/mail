@@ -7,15 +7,15 @@ workflow.
 
 ```sh
 make test
-make lint
 make build
 ./tests/run_tests.sh
 mkdocs build --strict
 ```
 
-The test and lint targets run through `casjaysdev/go:latest`. `make build`
-produces the supported platform binaries. `tests/run_tests.sh` runs the basic
-Docker integration suite. `mkdocs build --strict` checks the documentation.
+The test target runs through `casjaysdev/go:latest`; CI runs vet, Staticcheck,
+and govulncheck in separate jobs. `make build` produces the supported platform
+binaries. `tests/run_tests.sh` runs the basic Docker integration suite.
+`mkdocs build --strict` checks the documentation.
 
 ## Changes
 

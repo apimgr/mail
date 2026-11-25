@@ -16,4 +16,24 @@
 - Check cross-references in AI.md before implementing a dependent feature.
 - Update README.md and docs/ whenever shipped behavior changes.
 
+## KEY DECISIONS
+
+| Question | Answer | Spec reference |
+|---|---|---|
+| Does core behavior require JavaScript? | No. Use native links and standard POST forms with CSRF protection. | PART 16 |
+| Is an administrative dashboard allowed? | No; the browser surface is limited to the documented public pages and flows. | PART 16 |
+
+## TERMINOLOGY
+
+| Term | Meaning |
+|---|---|
+| Server-rendered | HTML is produced from Go templates before reaching the browser |
+| No-JavaScript flow | Navigation and form submissions work without client-side code |
+
+## QUICK REFERENCE
+
+- Reuse the shared page shell, registry, localization, and accessible controls.
+- Escape and sanitize content by context; keep internal routes and API mirrors in parity.
+- Test pages for keyboard use, responsive behavior, and no-JavaScript operation.
+
 For complete details, see AI.md PART 16.

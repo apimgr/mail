@@ -26,9 +26,12 @@ exposed to an untrusted network.
 
 ## Configuration
 
-The current configuration package reads YAML and applies defaults for server,
-database, SSL, and outgoing email settings. The supported configuration
-contract is incomplete and is tracked in [TODO.AI.md](TODO.AI.md).
+The current configuration package reads `server.yml`, ordered `yaml.d/`
+drop-ins, and `secrets.yml`, applying defaults for implemented settings. It
+generates the operator token and version 1, 32-byte AES encryption key into
+`secrets.yml` with private file permissions. The encryption key is not yet used
+for token or report storage; the broader configuration contract remains
+incomplete and is tracked in [TODO.AI.md](TODO.AI.md).
 
 ## API
 
@@ -39,9 +42,9 @@ cross-device sync page. A server-rendered consent banner and CSRF protection
 work without JavaScript. The public shell includes a PWA manifest, service
 worker, and offline fallback. `/server/healthz` negotiates HTML, JSON, and
 plain text. The health payload includes project/build/runtime information,
-feature states, coarse component checks, and request-counter fields;
-runtime providers and request tracking remain incomplete, so it is not a
-production readiness signal. API text aliases are `/api/healthz.txt` and
+feature states, cached component checks, persisted aggregate request counts,
+and in-flight request counts; runtime providers and full mail-service checks
+remain incomplete, so it is not a production readiness signal. API text aliases are `/api/healthz.txt` and
 `/api/v1/server/healthz.txt`; JSON health routes are `/api/healthz` and
 `/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
 sitemap, feed, and AI/security discovery resources are also served. See the [API

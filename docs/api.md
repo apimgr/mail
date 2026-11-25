@@ -7,7 +7,7 @@ implemented yet.
 
 | Method | Path | Current behavior |
 |---|---|---|
-| `GET` | `/api/v1/server/healthz` | Returns the public health payload; HTTP 503 indicates unhealthy or maintenance state. It includes project/build/runtime metadata, feature states, coarse checks, and counter fields (currently not backed by request tracking). |
+| `GET` | `/api/v1/server/healthz` | Returns the public health payload; HTTP 503 indicates unhealthy or maintenance state. It includes project/build/runtime metadata, feature states, cached checks, persisted aggregate request counts, and the in-flight request count. |
 | `GET` | `/api/v1/server/healthz.txt` | Returns the same health data as flat text; the `.txt` suffix overrides `Accept`. |
 | `GET` | `/api/v1/server/about` | Returns localized title, project Markdown/content, and format, using configured About content when present. |
 | `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
@@ -30,9 +30,14 @@ Public discovery resources include `/robots.txt`, `/sitemap.xml`, `/feed.xml`,
 `/llms.txt`. They accept `GET` and `HEAD` only. Preference sync responses are
 not cacheable and never include consent or credential cookies in an export.
 
+The public health statistics count completed non-health and non-metrics
+requests. Lifetime totals persist in the database; the 24-hour total uses
+hourly buckets. Updates flush at most once a minute and during graceful
+shutdown. The in-flight request count includes the current health request.
+
 The current health response reports unavailable runtime providers as errors;
-the Tor/I2P/GeoIP managers, cache/disk/scheduler probes, and durable request
-counters are not implemented yet. The current scaffold also does not yet
+the Tor/I2P/GeoIP managers and mail-service probes are not implemented yet.
+The current scaffold also does not yet
 provide the final token authorization,
 error envelope, and request ID behavior required by AI.md. Do not treat this
 development API as a stable production contract.

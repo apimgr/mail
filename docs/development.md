@@ -12,11 +12,12 @@ work in [TODO.AI.md](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
 ## Build and checks
 
 The Makefile provides `make dev`, `make local`, `make build`, `make test`,
-`make lint`, `make release`, and `make docker`; Go commands run inside the
+`make release`, and `make docker`; Go commands run inside the
 `casjaysdev/go:latest` Docker image. Go commands must not run directly on the
 host. `make test` runs tests, vet, and the 60% coverage gate. `make local`
-builds local server and client binaries, `make build` builds both for all eight release platforms,
-`make lint` runs vet, Staticcheck, and govulncheck. `make release` creates a
+builds local server and client binaries, and `make build` builds both for all
+eight release platforms. CI runs vet, Staticcheck, and govulncheck in its
+dedicated lint and vulnerability jobs. `make release` creates a
 stable GitHub release, and `make docker` publishes
 multi-platform images to `ghcr.io/apimgr/mail` by default; set `REGISTRY` to
 publish to a different registry.
