@@ -20,6 +20,9 @@ implemented yet.
 | `GET` | `/api/v1/server/preferences/sync` | Returns current preferences plus a shareable URL and short code. |
 | `GET` | `/api/v1/server/preferences/sync/import` | Applies valid theme/language values only when preference-cookie consent is enabled; otherwise reports `consent_required`. Returns `applied` and `ignored` arrays, including when empty. |
 | `POST` | `/api/v1/server/preferences` | Applies a partial theme/language update from JSON or form data. It accepts no consent controls or CSRF token; writes still require existing preference-cookie consent. |
+| `POST` | `/api/v1/server/preferences/tokens/primary` | Creates the initial owner and primary token and returns the secret once. A valid operator or owner Bearer token returns `409`; per-IP strict limiting returns `429` with `Retry-After`. |
+| `GET` | `/api/v1/server/preferences/tokens` | Lists masked owner-token metadata for a primary-token Bearer credential. Missing/invalid credentials return `401`; linked tokens return `403`. |
+| `POST` | `/api/v1/server/preferences/tokens/primary/reveal` | Returns the encrypted primary token to its primary-token holder, audits the reveal, and sets `Cache-Control: no-store`; strict per-IP limiting applies. |
 | `GET` | `/api/healthz` | Direct versionless health alias; JSON by explicit `Accept`, plain text for non-interactive clients. |
 | `GET` | `/api/healthz.txt` | Direct versionless plain-text health alias; `.txt` overrides `Accept`. |
 | `GET` | `/server/healthz` | Content-negotiated health page: HTML for browsers, JSON or text for clients. |
@@ -32,12 +35,11 @@ not cacheable and never include consent or credential cookies in an export.
 
 The public health statistics count completed non-health and non-metrics
 requests. Lifetime totals persist in the database; the 24-hour total uses
-hourly buckets. Updates flush at most once a minute and during graceful
+hourly buckets. Updates flush every 30 seconds and during graceful
 shutdown. The in-flight request count includes the current health request.
 
 The current health response reports unavailable runtime providers as errors;
 the Tor/I2P/GeoIP managers and mail-service probes are not implemented yet.
-The current scaffold also does not yet
-provide the final token authorization,
-error envelope, and request ID behavior required by AI.md. Do not treat this
-development API as a stable production contract.
+The primary-token issuance endpoint is implemented, but token authorization
+for mail resources and the remaining API contract are incomplete. Do not treat
+this development API as a stable production contract.

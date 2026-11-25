@@ -32,14 +32,19 @@ its implementation is complete and committed.
   owner and linked-token lifecycle, `/server/preferences/tokens` page, API
   mirrors, token restore/reveal/rotate/revoke behavior, and API/MCP bearer
   authorization. Transactional owner/primary-token persistence, active-token
-  lookup, unbiased token generation, hashing and AES-GCM helpers now exist,
-  and legacy token rows receive UUIDv7 public identifiers without losing their
+  lookup, initial-token issuance, strict per-IP limiting, auditing, unbiased
+  token generation, hashing and AES-GCM helpers now exist. The initial token
+  endpoint returns the secret once and persists an encrypted recovery copy.
+  The API token-list endpoint returns masked metadata with primary-token
+  Bearer authorization; primary reveal decrypts only on request, audits it,
+  and sets `no-store`. Rotation, revocation, linked-token lifecycle, and the
+  required server-rendered token page remain incomplete.
+  Legacy token rows receive UUIDv7 public identifiers without losing their
   prior numeric key. The preserved legacy key still needs final schema
-  reconciliation; user-facing issuance, expiry lifecycle, management and
-  middleware authorization remain absent. Startup now
-  also creates the version 1 32-byte AES key in `secrets.yml`, but sensitive
-  data is not persisted with encryption yet; owner-token generation, hashing,
-  and AES-GCM encode/decode primitives now have isolated tests.
+  reconciliation; expiry lifecycle, management, full middleware authorization,
+  and general rate-limit classes remain absent. Startup creates the version 1
+  32-byte AES key in `secrets.yml`; report encryption and other sensitive-data
+  encryption remain unimplemented.
   Startup now generates a base62 `server.token`, writes it atomically to
   `secrets.yml` with mode `0600`, migrates it out of `server.yml` and drop-ins,
   and prints it only on generation. The AES key is also generated there and
@@ -60,7 +65,7 @@ its implementation is complete and committed.
 - [ ] Complete the public guest-token and cookie-consent flows from AI.md
   PARTS 8, 12, and 16. CSRF forms, consent banner/state, CCPA controls,
   consent-gated theme/language writes, reset and initial preference-sync
-  routes now exist. The API token model and token-management page are absent;
+  routes now exist. Initial owner-token issuance exists, but the token-management page is absent;
   preference sync still needs the full validation/redirect/cookie-attribute
   contract, API parity and complete edge-case coverage.
 - [ ] Complete health, version, API, and content negotiation per AI.md PARTS
@@ -103,8 +108,8 @@ its implementation is complete and committed.
   API mirrors, and the larger API route inventory are not yet in that registry.
   Consent controls and the first sync
   page are present but still need the full AI.md behavior. The current token
-  page requirements specify owner/linked token workflows, one-time secret
-  delivery, restore, and primary-token revocation; all remain absent. A first
+  page requirements specify owner/linked token workflows, restore, and
+  primary-token revocation; these remain absent. A first
   generated sitemap and configurable `web.robots` allow/deny rules now exist;
   route-registry generation, full SEO metadata and the remaining discovery
   contract are still incomplete.
@@ -163,7 +168,7 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest `make test` passes with 72.5% statement
+  required by AI.md PART 28. The latest `make test` passes with 72.6% statement
   coverage, and the basic Docker binary
   smoke suite exists, but Incus and browser E2E coverage and tests for the
   complete product behavior are still missing.

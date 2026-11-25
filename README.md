@@ -29,9 +29,10 @@ exposed to an untrusted network.
 The current configuration package reads `server.yml`, ordered `yaml.d/`
 drop-ins, and `secrets.yml`, applying defaults for implemented settings. It
 generates the operator token and version 1, 32-byte AES encryption key into
-`secrets.yml` with private file permissions. The encryption key is not yet used
-for token or report storage; the broader configuration contract remains
-incomplete and is tracked in [TODO.AI.md](TODO.AI.md).
+`secrets.yml` with private file permissions. The encryption key protects the
+encrypted recovery copy of the initial owner token; report storage and the
+broader configuration contract remain incomplete and are tracked in
+[TODO.AI.md](TODO.AI.md).
 
 ## API
 
@@ -49,7 +50,10 @@ remain incomplete, so it is not a production readiness signal. API text aliases 
 `/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
 sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md). Mail
-management API routes are planned but not implemented. A companion `mail-cli`
+mail-management routes are planned but not implemented. Initial owner-token
+issuance and the masked token-list API are available; token reveal, rotation,
+revocation, linked-token management, and the server-rendered token page remain
+incomplete. A companion `mail-cli`
 currently supports the public `status` and `about` API operations; the complete
 command set is tracked in [TODO.AI.md](TODO.AI.md).
 

@@ -3,13 +3,16 @@
 Startup now generates `server.token` when missing, saves it in `secrets.yml`
 with mode `0600`, and prints it once to stdout. Later starts log only a masked
 form. When debug mode is enabled, every `/debug/*` diagnostics route requires
-that token in an `Authorization: Bearer` header. Operator authorization for
-the mail-management API and the owner/linked token lifecycle are not
-implemented, so this credential does not yet protect those APIs.
+that token in an `Authorization: Bearer` header. Initial owner-token issuance
+is available at `POST /api/v1/server/preferences/tokens/primary`; a valid
+operator or owner Bearer token prevents duplicate issuance, and a strict
+per-IP rate limit applies. Mail-resource authorization and linked-token
+lifecycle remain unimplemented.
 
 Startup also generates a version 1, base64-encoded 32-byte AES key at
 `server.security.encryption_key` when missing and stores it in the same
-protected secrets file. Token and report storage do not use the key yet.
+protected secrets file. Owner-token recovery data is encrypted with this key;
+security-report storage and other sensitive data do not use the key yet.
 
 Access logs remove query parameters whose names indicate credentials or
 one-time tokens (`token`, `code`, `password`, `secret`, `access_token`, and
@@ -19,10 +22,13 @@ The current scaffold normalizes trailing slashes before request-ID and path
 security middleware, emits the required baseline HTTP security headers,
 rejects path traversal patterns, applies the configured CORS policy, and uses
 a stateless
-double-submit CSRF token for server-rendered POST forms. CORS defaults to `*`
+double-submit CSRF token for server-rendered POST forms. The initial token
+issuance endpoint has strict per-IP rate limiting; general read, write, health,
+and authentication-failure limits are not yet enforced. CORS defaults to `*`
 without credentials; credentialed responses require an explicitly allowed
-origin. Preference and consent changes remain browser-local. The production
-token model, complete middleware chain, rate limiting, audit events,
+origin. Preference and consent changes remain browser-local. The complete
+token lifecycle and authorization middleware, general rate limiting, full
+audit coverage,
 PGP-encrypted reporting, and mail-service authorization required by AI.md are
 not complete. The application is not ready for production exposure.
 
