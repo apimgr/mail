@@ -33,8 +33,14 @@ Bearer security; `llms.txt` uses the shared API registry.
 | `POST` | `/api/v1/server/preferences/tokens/{id}/rotate` | Rotates a linked token; primary-token authorization is required. |
 | `PATCH` | `/api/v1/server/preferences/tokens/{id}` | Updates a linked token's name or expiry; primary-token authorization is required. |
 | `DELETE` | `/api/v1/server/preferences/tokens/{id}` | Revokes a linked token; primary-token authorization is required. |
-| `GET` | `/api/v1/domains` | Lists configured mail domains. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
-| `GET` | `/api/v1/domains/{domain}` | Returns one configured mail domain. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
+| `GET` | `/api/v1/domains` | Lists configured mail domains with opaque UUIDv7 IDs. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
+| `GET` | `/api/v1/domains/{domain}` | Returns one configured mail domain with an opaque UUIDv7 ID. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
+| `POST` | `/api/v1/domains` | Creates a system-owned virtual domain. Requires the operator Bearer token. |
+| `PUT` | `/api/v1/domains/{domain}` | Replaces virtual domain metadata. Requires the operator Bearer token. |
+| `DELETE` | `/api/v1/domains/{domain}` | Deletes a domain only when it has no dependent mail resources. Requires the operator Bearer token. |
+| `GET` | `/api/v1/domains/{domain}/dns` | Returns DNS records currently stored for the domain. Requires the operator Bearer token. |
+| `GET` | `/api/v1/domains/{domain}/dkim` | Returns enabled public DKIM records. Requires the operator Bearer token; private keys are never returned. |
+| `POST` | `/api/v1/domains/{domain}/dkim/generate` | Generates a 2048-bit RSA DKIM key and returns its public DNS value. Requires the operator Bearer token; the private key is stored server-side. |
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |

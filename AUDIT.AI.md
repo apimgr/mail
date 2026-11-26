@@ -7,7 +7,7 @@ These are confirmed open implementation gaps against read-only `AI.md` and
 implemented, verified, and committed.
 
 ## Pass 1: Security
-- [ ] API authorization and ownership are incomplete across the IDEA mail API. The current registry includes public domain reads and operator-protected services, but most routes and ownership checks do not exist (`src/server/api_routes.go`; IDEA.md API routes). AI.md itself leaves operator-created resource ownership undefined; see the AI.md-only note in `~/Projects/github/apimgr/TODO.API.md`.
+- [ ] API authorization and ownership are incomplete across the IDEA mail API. The current registry includes operator-protected domain reads and services, but most routes and ownership checks do not exist (`src/server/api_routes.go`; IDEA.md API routes). Mail infrastructure resources are now declared system-owned in IDEA.md per AI.md PART 11.
 - [ ] Update installation is not service-account-safe. The direct updater replaces the executable in-process, while AI.md PART 22 requires a service-user staging phase and root re-verification before replacement (`src/update/update.go:168-192`; AI.md PART 22, “Update Privileges”).
 
 ## Pass 2: Code Quality
@@ -28,7 +28,7 @@ implemented, verified, and committed.
 ## Pass 5: Spec Compliance
 - [ ] AI.md PARTS 8, 21–24 require complete service, maintenance, backup/restore, update, privilege-drop, and service-supervision behavior. The CLI handlers and scheduled providers remain partial (`src/main.go`, `src/update`, `src/scheduler`).
 - [ ] AI.md PARTS 14–17 and IDEA.md require complete mail/API behavior, TLS, mail integrations, notifications, and page flows; only portions of service, token, domain-read, and public-page behavior exist (`src/server`, `src/mailservice`, `src/email`).
-- [ ] AI.md PARTS 25–32 still require final build/release, container, CI provider, test/browser coverage, i18n/accessibility, overlay network, and client alignment. The latest passing unit test run reported 60.4% statement coverage; several release and browser checks remain (`Makefile`, `.github/`, `docker/`, `src/client`, `src/common/i18n`; TODO.AI.md).
+- [ ] AI.md PARTS 25–32 still require final build/release, container, CI provider, test/browser coverage, i18n/accessibility, overlay network, and client alignment. The latest passing unit and combined Docker smoke test reported 60.7% statement coverage; several release and browser checks remain (`Makefile`, `.github/`, `docker/`, `src/client`, `src/common/i18n`; TODO.AI.md).
 
 ## Pass 6: Code Flow Trace
 - [ ] Client commands describe server operations whose corresponding API handlers are absent, so CLI calls cannot complete their advertised user/domain/alias/forward/queue/config/statistics/log flows (`src/client/cobra_cli.go`, `src/server/api_routes.go`).

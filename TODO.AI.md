@@ -110,11 +110,13 @@ its implementation is complete and committed.
   policy/help, full route metadata and the rest of PART 14 are missing.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
   database persistence, system integration, safe config updates, and error
-  responses. Operator-protected `GET /domains` and `GET /domains/{domain}` now
-  return metadata without owner IDs or DKIM private material; all domain writes
-  and the user, alias, forward, queue, config, stats, and log routes remain
-  absent. IDEA.md now identifies mail infrastructure records as system-owned
-  per AI.md's operator/owner model.
+  responses. Operator-protected domain list/read/create/update/delete and
+  public-only DKIM read/key generation now exist, with opaque UUIDv7 IDs,
+  system ownership, input validation, and dependency-safe deletion. The DNS
+  endpoint currently returns an empty record set; usable MX/SPF/DKIM/DMARC
+  guidance and safe mail-service integration remain. User, alias, forward,
+  queue, config, stats, and log routes remain absent. IDEA.md identifies mail
+  infrastructure records as system-owned per AI.md's operator/owner model.
 - [ ] Implement TLS/certificate management and required discovery behavior
   from AI.md PART 15.
 
@@ -217,12 +219,10 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest unit test run passed with 60.4%
-  statement coverage; the most recent combined Docker smoke gate passed at
-  61.4%. The Docker binary smoke suite verifies CLI/server startup, health,
-  API, and rendered-page shells. Incus
-  and browser E2E coverage and tests for the
-  complete product behavior are still missing.
+  required by AI.md PART 28. The latest unit test and combined Docker smoke
+  gate passed with 60.7% statement coverage. The Docker binary smoke suite
+  verifies CLI/server startup, health, API, and rendered-page shells. Incus and
+  browser E2E coverage and tests for the complete product behavior are missing.
 
 ## Documentation and compliance
 

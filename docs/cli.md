@@ -13,7 +13,8 @@ application container. `--update check`, `--update yes`, and
 verification before replacement. The updater still lacks the scheduled
 service-user staging, privileged re-verification, deferred update policy, and
 service-manager restart flow required by AI.md PART 22. Service and maintenance
-operations remain incomplete.
+operations remain incomplete. `--maintenance update [CMD]` dispatches to the
+same updater and defaults to `yes` when no command is supplied.
 
 ## Client binary
 
