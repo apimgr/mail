@@ -8,8 +8,9 @@ its implementation is complete and committed.
 
 - [ ] Complete the mandatory project structure from AI.md PART 3. Go packages
   and the server entrypoint now live under `src/`; `src/common/i18n` provides
-  the shared locale catalog, and `src/client/` includes a Cobra command tree
-  for IDEA's mail API. The interactive TUI/setup wizard, other shared
+  the shared locale catalog and `src/common/theme` the unified theme palette.
+  `src/client/` includes a Cobra command tree and Bubble Tea setup/menu for
+  IDEA's mail API. Remaining TUI requirements, other shared
   packages, `src/swagger`, `src/graphql`, and remaining required structure are
   incomplete.
 - [ ] Complete the runtime initialization, configuration, CLI flags, modes,
@@ -22,8 +23,8 @@ its implementation is complete and committed.
   remove placeholder TODOs from production code when completed. `--status` now
   queries the local JSON health endpoint with a bounded timeout. The companion
   client exposes service, domain, user, alias, forwarding, queue, config, stats,
-  logs, and health commands; matching server routes, full config management,
-  update flow, and interactive TUI remain incomplete.
+  logs, and health commands, with an interactive setup and API menu. Matching
+  server routes, full config management, and the update flow remain incomplete.
 
 ## Data, security, and API
 
@@ -69,7 +70,8 @@ its implementation is complete and committed.
   preflight handling, and regression tests; it still needs the full global
   middleware and security-policy integration. The MCP transport, protocol
   validation and route-derived tool registry are also absent; the current MCP
-  help page only reports that no endpoint exists.
+  help page only reports that no endpoint exists. A rate-limited machine-only
+  `/server/auth/check` now returns the validated operator or owner token kind.
 - [ ] Finish debug-mode alignment in AI.md PART 6. `/debug/*` is now absent
   unless enabled and its pprof, expvar, sanitized config, route, cache,
   database, scheduler, memory, goroutine, and themed-error endpoints require
@@ -92,12 +94,14 @@ its implementation is complete and committed.
   policy JSON mirrors are present; help also has a Markdown mirror and a
   registered-page list. Runtime metadata still lacks
   branding values, Tor/I2P/GeoIP providers, cache-provider and disk-capacity
-  probes. Current public checks confirm configured directory presence and
+  probes. A shared registry now mounts current API routes and generates
+  OpenAPI JSON at `/api/v1/server/swagger` and `/api/swagger`; its schemas and
+  metadata remain incomplete, and GraphQL is unavailable. Current public checks confirm configured directory presence and
   scheduler state; a separate operator-only mail health route reports
   detected component states. Aggregate request counters now persist in `server.db` with
   minute-batched writes and shutdown flushing; in-flight HTTP requests are
-  tracked at the outer handler. Public-page API
-  mirrors beyond privacy/DPO/policy/help and the rest of PART 14 are missing.
+  tracked at the outer handler. Public-page API mirrors beyond privacy/DPO/
+  policy/help, full route metadata and the rest of PART 14 are missing.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
   database persistence, system integration, safe config updates, and error
   responses. Public `GET /domains` and `GET /domains/{domain}` now return
@@ -127,14 +131,16 @@ its implementation is complete and committed.
   registry and route parity remain missing. A shared page registry now covers
   the current server-rendered GET routes and drives sub-page routes, hub/footer
   links, the help API list, and sitemap inclusion. State-changing web routes,
-  API mirrors, and the larger API route inventory are not yet in that registry.
+  API mirrors, and the larger API route inventory are not yet in that page
+  registry. An API registry covers current routes but is not build-generated
+  and lacks exact schemas and route-drift tests.
   Consent controls and the first sync
   page are present but still need the full AI.md behavior. The token page
   supports owner/linked token workflows, restore, reveal, rotation, and
   revocation, but full route parity and the remaining credential lifecycle
   requirements are still incomplete. A first
   generated sitemap and configurable `web.robots` allow/deny rules now exist;
-  route-registry generation, full SEO metadata and the remaining discovery
+  unified page/API route registry, full SEO metadata and the remaining discovery
   contract are still incomplete.
 - [ ] Complete the shared shell: final navigation and route parity, complete
   theme persistence/contrast review, mobile and RTL review, SEO edge cases,
@@ -199,7 +205,7 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest `make test` passes with 64.0% statement
+  required by AI.md PART 28. The latest `make test` passes with 61.2% statement
   coverage, and the basic Docker binary
   smoke suite exists, but Incus and browser E2E coverage and tests for the
   complete product behavior are still missing.

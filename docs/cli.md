@@ -24,18 +24,30 @@ mail-cli --server https://mail.example status
 mail-cli about --server https://mail.example
 ```
 
-The server URL can also come from `MAIL_SERVER_PRIMARY` or
-`~/.config/apimgr/mail/cli.yml` (`server.primary`). A token can come from
+The server URL can also come from `MAIL_SERVER_PRIMARY`,
+`~/.config/apimgr/mail/cli.yml` (`server.primary`), `OFFICIAL_SITE`, or the
+embedded official site. The API version comes from `server.api_version` and
+defaults to `v1`. A token can come from
 `MAIL_TOKEN`, `auth.token`, `auth.token_file`, `--token TOKEN`, or
 `--token-file PATH`; it is sent as a Bearer credential. Use `--config PATH` to
 select another YAML file. The client also supports `--help`, `--version`,
 `--shell completions [SHELL]`, and `--shell init [SHELL]`. Completions include
 the client commands and flags currently implemented.
 
+With no command in an interactive terminal, the Bubble Tea interface opens.
+When no server is configured, it prompts for a URL and optional token, checks
+the server and token, and saves the profile with owner-only permissions. The
+menu exposes the API command tree and a Preferences screen. Preference values
+are persisted in `cli.yml`; mouse, theme, cache, log, pager, and several
+display settings are not all active in the request/UI behavior yet. GUI mode
+is unavailable in the static build.
+
 Output supports table, JSON, YAML, plain text, and CSV formats. Destructive
 commands require `--force` in non-interactive runs or a confirmation at the
-terminal. CLI config persistence, retries, automatic updates, the full
-interactive TUI/setup wizard, and GUI remain incomplete and are tracked in
+terminal. Config writes are atomic; server and token command-line values are
+saved only when their configured values are empty or invalid. Retry execution,
+automatic update checking/downloading/checksum verification/re-exec, complete
+TUI preference behavior, and GUI remain incomplete and are tracked in
 [TODO.AI.md](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
 
 Use `make dev` to build the server and client binaries in a project-scoped

@@ -2,14 +2,17 @@
 
 This page describes the API handlers currently registered in the server. The
 mail-management route inventory is in the
-[project definition](https://github.com/apimgr/mail/blob/main/IDEA.md); only
-public domain reads and the operator service/health routes are implemented so
-far.
+[project definition](https://github.com/apimgr/mail/blob/main/IDEA.md). The
+registered routes currently cover public server pages, browser preferences,
+owner-token management, public domain reads, and operator service status and
+control. OpenAPI JSON and `llms.txt` use the shared API registry.
 
 | Method | Path | Current behavior |
 |---|---|---|
 | `GET` | `/api/v1/server/healthz` | Returns the public health payload; HTTP 503 indicates unhealthy or maintenance state. It includes project/build/runtime metadata, feature states, cached checks, persisted aggregate request counts, and the in-flight request count. |
 | `GET` | `/api/v1/server/healthz.txt` | Returns the same health data as flat text; the `.txt` suffix overrides `Accept`. |
+| `GET` | `/api/v1/server/auth/check` | Machine-only token check. Requires one Bearer credential, returns `{ "kind": "operator" }` or `{ "kind": "owner" }`; invalid credentials return 401. Rate limited and never echoes the token. |
+| `GET` | `/api/v1/server/swagger` | Generates an OpenAPI JSON document from routes currently registered by the server. Operator-only routes are excluded. |
 | `GET` | `/api/v1/server/about` | Returns localized title, project Markdown/content, and format, using configured About content when present. |
 | `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
 | `GET` | `/api/v1/server/privacy` | Returns the public privacy policy data, configured cookie descriptions, retention details, tracking state, and consent/CCPA state. |
@@ -37,6 +40,7 @@ far.
 | `POST` | `/api/v1/services/{service}/start`, `/stop`, `/restart`, `/reload` | Requests an allow-listed service operation; operator Bearer authorization is required. Unsupported service managers and missing services return explicit errors. |
 | `GET` | `/api/healthz` | Direct versionless health alias; JSON by explicit `Accept`, plain text for non-interactive clients. |
 | `GET` | `/api/healthz.txt` | Direct versionless plain-text health alias; `.txt` overrides `Accept`. |
+| `GET` | `/api/swagger` | Direct alias of `/api/v1/server/swagger`. |
 | `GET` | `/server/healthz` | Content-negotiated health page: HTML for browsers, JSON or text for clients. |
 | `GET` | `/healthz` | Optional alias to the same content-negotiated handler; disabled unless `server.healthz.root.enabled` is true. |
 
@@ -59,7 +63,9 @@ The service API detects and controls allow-listed local daemons when a
 supported service manager is available. Domain reads are public and return
 metadata only. Mail-user management, domain writes, DNS/DKIM operations,
 aliases, forwarding, queue, component configuration, statistics, and log
-management are not implemented. Health checks do not yet probe the mail
-daemons; Tor/I2P/GeoIP providers also remain incomplete. Mail-resource write
-authorization is not implemented. Do not treat this development API as a
-stable production contract.
+management are not implemented. The generated OpenAPI schemas are generic for
+several responses and omit complete query parameters and error metadata. The
+GraphQL endpoint and interface are unavailable. Health checks do not yet probe
+the mail daemons; Tor/I2P/GeoIP providers also remain incomplete. Mail-resource
+write authorization is not implemented. Do not treat this development API as
+a stable production contract.

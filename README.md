@@ -54,10 +54,13 @@ sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md).
 Mail-management write routes are planned but not implemented. Initial owner-token
 issuance, token reveal/rotation/revocation, linked-token management, and the
-server-rendered token page are available. A companion `mail-cli`
-exposes the planned mail API command tree; only `status`, `about`, and domain
-reads currently have matching server routes. The complete client workflows
-are tracked in [TODO.AI.md](TODO.AI.md).
+server-rendered token page are available. A companion `mail-cli` provides the
+Cobra command tree and an interactive Bubble Tea setup/menu. It supports
+server/token profiles and output preferences; automatic updates and complete
+TUI preference behavior remain tracked in [TODO.AI.md](TODO.AI.md). Only
+`status`, `about`, token, service, and domain-read commands currently have
+matching server routes. The OpenAPI document and machine-only token check are
+generated from the registered API routes.
 
 ## Other
 
@@ -67,11 +70,16 @@ not confirmed as deployed, so there is no documentation badge yet.
 
 ## Development
 
-The Makefile provides Docker-backed `make dev`, `make build`, and `make test`
+The Makefile provides Docker-backed `make dev`, `make build`, `make test`, and
+`make test-smoke`
 targets using `casjaysdev/go:latest`. Go build and test commands must not run
 directly on the host. See [development documentation](docs/development.md).
 `make test` verifies dependency licenses, runs vet and govulncheck, runs unit
 tests, and enforces the 60% coverage floor.
+`make test-smoke` builds in `BINDIR` when needed and exercises the server,
+client, APIs, and rendered pages in an isolated Docker container.
+Set `SMOKE=1` on `make test` to include the same integration suite; pass an
+isolated `BINDIR` to preserve existing binaries.
 
 ## Disclaimer
 
