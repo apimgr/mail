@@ -17,8 +17,12 @@ its implementation is complete and committed.
   path handling, and platform behavior in AI.md PARTS 4–8. Built-in shell init
   and completion generation now exists for the server/client binaries, and
   `server.logs.level` follows the configured level or runtime mode. Unix manual
-  `--daemon` now re-executes in a detached session; config-driven daemonization,
-  service-aware behavior, and the remaining startup behaviors are incomplete.
+  `--daemon` now re-executes in a detached session; path discovery follows the
+  system-manager/container precedence, private security paths are corrected,
+  and PID checks now validate process identity and skip containers. Backup
+  directory validation is warning-only, but privilege dropping, post-drop
+  service-user write verification, config-driven daemonization, service-aware
+  behavior, and remaining startup behaviors are incomplete.
 - [ ] Finish service management, maintenance, update, and daemon CLI behavior;
   remove placeholder TODOs from production code when completed. `--status` now
   queries the local JSON health endpoint with a bounded timeout. The companion
@@ -113,8 +117,8 @@ its implementation is complete and committed.
   policy/help, full route metadata and the rest of PART 14 are missing.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
   database persistence, system integration, safe config updates, and error
-  responses. Operator-protected domain list/read/create/update/delete and
-  public-only DKIM read/key generation now exist, with opaque UUIDv7 IDs,
+  responses. Operator-protected, paginated domain list, read, create, update,
+  delete, and public-only DKIM read/key generation now exist, with opaque UUIDv7 IDs,
   system ownership, input validation, dependency-safe deletion, and direct
   lifecycle/DNS persistence tests. Domain renames transactionally update
   configured mail-server domain mappings. The DNS endpoint returns configured
@@ -188,8 +192,11 @@ its implementation is complete and committed.
   package-name mappings cover Alpine, Debian-family, RHEL-family, and FreeBSD.
   Broader platform coverage, service-specific probes, and end-to-end control
   verification remain.
-- [ ] Implement virtual/system users, domains, aliases, forwards, transports,
-  queue operations, configuration validation, and DNS record guidance.
+- [ ] Implement virtual/system users, forwards, transports, queue operations,
+  and configuration validation. Operator-only domain CRUD/DNS/DKIM guidance
+  and alias list/create/delete now have persisted API and CLI paths; live MTA
+  synchronization, user-facing mailbox workflows, and the remaining resources
+  are incomplete.
 - [ ] Implement spam/virus integrations, DKIM key management, TLS, logs,
   delivery statistics, alerts, and backup/restore according to IDEA.md and
   AI.md PARTS 17–24.

@@ -4,9 +4,9 @@ This page describes the API handlers currently registered in the server. The
 mail-management route inventory is in the
 [project definition](https://github.com/apimgr/mail/blob/main/IDEA.md). The
 registered routes currently cover public server pages, browser preferences,
-owner-token management, operator-protected domain reads, and operator service
-status and control. OpenAPI JSON includes protected routes and declares their
-Bearer security; `llms.txt` uses the shared API registry.
+owner-token management, operator-protected domain and alias operations, and
+operator service status and control. OpenAPI JSON includes protected routes
+and declares their Bearer security; `llms.txt` uses the shared API registry.
 
 | Method | Path | Current behavior |
 |---|---|---|
@@ -33,7 +33,7 @@ Bearer security; `llms.txt` uses the shared API registry.
 | `POST` | `/api/v1/server/preferences/tokens/{id}/rotate` | Rotates a linked token; primary-token authorization is required. |
 | `PATCH` | `/api/v1/server/preferences/tokens/{id}` | Updates a linked token's name or expiry; primary-token authorization is required. |
 | `DELETE` | `/api/v1/server/preferences/tokens/{id}` | Revokes a linked token; primary-token authorization is required. |
-| `GET` | `/api/v1/domains` | Lists configured mail domains with opaque UUIDv7 IDs. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
+| `GET` | `/api/v1/domains` | Lists configured mail domains with opaque UUIDv7 IDs and standard page/limit pagination. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
 | `GET` | `/api/v1/domains/{domain}` | Returns one configured mail domain with an opaque UUIDv7 ID. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
 | `POST` | `/api/v1/domains` | Creates a system-owned virtual domain. Requires the operator Bearer token. |
 | `PUT` | `/api/v1/domains/{domain}` | Replaces virtual domain metadata. Requires the operator Bearer token. |
@@ -53,6 +53,21 @@ Bearer security; `llms.txt` uses the shared API registry.
 | `GET` | `/api/swagger` | Direct alias of `/api/v1/server/swagger`. |
 | `GET` | `/server/healthz` | Content-negotiated health page: HTML for browsers, JSON or text for clients. |
 | `GET` | `/healthz` | Optional alias to the same content-negotiated handler; disabled unless `server.healthz.root.enabled` is true. |
+
+Mail domain and alias list endpoints default to `page=1&limit=250`; `limit`
+must be between 1 and 250. Responses include `data` and sibling `pagination`
+metadata. Alias creation accepts a source address on a configured mail domain
+and one destination address:
+
+```json
+{
+  "source": "info@example.test",
+  "destination": "operations@example.test"
+}
+```
+
+Alias IDs are opaque UUIDv7 values. Create and delete actions are recorded in
+the audit log by alias ID; addresses are not copied into audit details.
 
 Public discovery resources include `/robots.txt`, `/sitemap.xml`, `/feed.xml`,
 `/rss.xml`, `/.well-known/security.txt`, `/.well-known/llms.txt`, and
