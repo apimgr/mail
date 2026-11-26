@@ -2,8 +2,9 @@
 
 This page describes the API handlers currently registered in the server. The
 mail-management route inventory is in the
-[project definition](https://github.com/apimgr/mail/blob/main/IDEA.md); most of
-those routes are still unimplemented.
+[project definition](https://github.com/apimgr/mail/blob/main/IDEA.md); only
+public domain reads and the operator service/health routes are implemented so
+far.
 
 | Method | Path | Current behavior |
 |---|---|---|
@@ -28,10 +29,11 @@ those routes are still unimplemented.
 | `POST` | `/api/v1/server/preferences/tokens/{id}/rotate` | Rotates a linked token; primary-token authorization is required. |
 | `PATCH` | `/api/v1/server/preferences/tokens/{id}` | Updates a linked token's name or expiry; primary-token authorization is required. |
 | `DELETE` | `/api/v1/server/preferences/tokens/{id}` | Revokes a linked token; primary-token authorization is required. |
+| `GET` | `/api/v1/domains` | Lists configured mail domains. Public; response omits owner identifiers and private DKIM material. |
+| `GET` | `/api/v1/domains/{domain}` | Returns one configured mail domain. Public; response omits owner identifiers and private DKIM material. |
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
-| `GET` | `/api/v1/health` | Returns mail component health status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
 | `POST` | `/api/v1/services/{service}/start`, `/stop`, `/restart`, `/reload` | Requests an allow-listed service operation; operator Bearer authorization is required. Unsupported service managers and missing services return explicit errors. |
 | `GET` | `/api/healthz` | Direct versionless health alias; JSON by explicit `Accept`, plain text for non-interactive clients. |
 | `GET` | `/api/healthz.txt` | Direct versionless plain-text health alias; `.txt` overrides `Accept`. |
@@ -54,9 +56,10 @@ hourly buckets. Updates flush every 30 seconds and during graceful
 shutdown. The in-flight request count includes the current health request.
 
 The service API detects and controls allow-listed local daemons when a
-supported service manager is available. It does not implement mail-user,
-domain, alias, forwarding, queue, component-configuration, statistics, or log
-management. Health checks do not yet probe the mail daemons; Tor/I2P/GeoIP
-providers also remain incomplete. Mail-resource authorization and the rest of
-the API contract are incomplete. Do not treat this development API as a stable
-production contract.
+supported service manager is available. Domain reads are public and return
+metadata only. Mail-user management, domain writes, DNS/DKIM operations,
+aliases, forwarding, queue, component configuration, statistics, and log
+management are not implemented. Health checks do not yet probe the mail
+daemons; Tor/I2P/GeoIP providers also remain incomplete. Mail-resource write
+authorization is not implemented. Do not treat this development API as a
+stable production contract.

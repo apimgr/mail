@@ -8,27 +8,30 @@ its implementation is complete and committed.
 
 - [ ] Complete the mandatory project structure from AI.md PART 3. Go packages
   and the server entrypoint now live under `src/`; `src/common/i18n` provides
-  the shared locale catalog, and `src/client/` provides basic status/about
-  commands. The full client/TUI, other shared packages, `src/swagger`,
-  `src/graphql`, and remaining required structure are incomplete.
+  the shared locale catalog, and `src/client/` includes a Cobra command tree
+  for IDEA's mail API. The interactive TUI/setup wizard, other shared
+  packages, `src/swagger`, `src/graphql`, and remaining required structure are
+  incomplete.
 - [ ] Complete the runtime initialization, configuration, CLI flags, modes,
   path handling, and platform behavior in AI.md PARTS 4–8. Built-in shell init
   and completion generation now exists for the server/client binaries, and
-  `server.logs.level` follows the configured level or runtime mode. Daemon
-  mode, service/maintenance/update operations, and the remaining startup
-  behaviors are still incomplete.
+  `server.logs.level` follows the configured level or runtime mode. Unix manual
+  `--daemon` now re-executes in a detached session; config-driven daemonization,
+  service-aware behavior, and the remaining startup behaviors are incomplete.
 - [ ] Finish service management, maintenance, update, and daemon CLI behavior;
   remove placeholder TODOs from production code when completed. `--status` now
   queries the local JSON health endpoint with a bounded timeout. The companion
-  client currently supports only status/about; the required client command set,
-  full config management, update flow, and interactive TUI remain incomplete.
+  client exposes service, domain, user, alias, forwarding, queue, config, stats,
+  logs, and health commands; matching server routes, full config management,
+  update flow, and interactive TUI remain incomplete.
 
 ## Data, security, and API
 
 - [ ] Reconcile database drivers, schemas, migrations, timeouts, and models
   with AI.md PART 10 and mail's data requirements in IDEA.md. SQLite and the
   required remote libSQL driver are registered, and libSQL requires a remote
-  URL; remote table/index name mapping, schema initialization and live-server
+  URL; startup now creates the declared mail tables and applies mail schema
+  updates idempotently. Remote table/index name mapping and live-server
   verification are still outstanding. SQLite applies the required busy
   timeout, WAL, synchronous and foreign-key pragmas, and idempotently adds the previous-window rate-limit counter. The full
   read/write store split, migration strategy, retry/backup behavior and mail
@@ -97,7 +100,9 @@ its implementation is complete and committed.
   mirrors beyond privacy/DPO/policy/help and the rest of PART 14 are missing.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
   database persistence, system integration, safe config updates, and error
-  responses.
+  responses. Public `GET /domains` and `GET /domains/{domain}` now return
+  metadata without owner IDs or DKIM private material; all domain writes and
+  the user, alias, forward, queue, config, stats, and log routes remain absent.
 - [ ] Implement TLS/certificate management and required discovery behavior
   from AI.md PART 15.
 
@@ -168,14 +173,15 @@ its implementation is complete and committed.
   certificate tasks, GeoIP, metrics, and backups required by AI.md PARTS
   18–21. Task state and execution history now persist in `server.db`, stale
   `running` tasks recover as `interrupted`, and the default one-hour catch-up
-  window dispatches recent missed runs. Five-field cron and interval parsing
-  use embedded timezone data and the America/New_York default. The token
+  window dispatches recent missed runs. The scheduler now loads configured
+  timezone, catch-up window, task schedules and enabled flags; it preserves
+  required tasks as enabled. Five-field cron and interval parsing use embedded
+  timezone data and the America/New_York default. The token
   cleanup task now removes expired CAPTCHA challenges from `server.db` using
   the required indexed table. The obsolete session-cleanup task and new
   `admin_sessions` table creation were removed to match the token-only identity
-  model. Per-task and timezone configuration overrides, owner idle purge,
-  remaining required tasks, retry behavior, and functional task handlers are
-  still incomplete.
+  model. Owner idle purge, remaining required tasks, retry behavior, and
+  functional task handlers are still incomplete.
 
 ## Build, packaging, and release
 
@@ -193,7 +199,7 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest `make test` passes with 65.0% statement
+  required by AI.md PART 28. The latest `make test` passes with 64.0% statement
   coverage, and the basic Docker binary
   smoke suite exists, but Incus and browser E2E coverage and tests for the
   complete product behavior are still missing.

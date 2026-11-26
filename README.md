@@ -15,9 +15,9 @@ is the read-only implementation specification.
 The product covers mail service status and control, system and virtual
 mailboxes, domains, aliases and forwarding, queue operations, spam and virus
 filtering, TLS and DKIM, DNS guidance, logs, and delivery statistics. Most of
-these features are not implemented yet. Service discovery/control, health and
-server information routes, and owner-token management are implemented; see
-[TODO.AI.md](TODO.AI.md) for the remaining work.
+these features are not implemented yet. Service discovery/control, health,
+server information routes, public domain reads, and owner-token management are
+implemented; see [TODO.AI.md](TODO.AI.md) for the remaining work.
 
 ## Production
 
@@ -51,12 +51,13 @@ a production readiness signal. API text aliases are `/api/healthz.txt` and
 `/api/v1/server/healthz.txt`; JSON health routes are `/api/healthz` and
 `/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
 sitemap, feed, and AI/security discovery resources are also served. See the [API
-documentation](docs/api.md) and [documentation index](docs/index.md). Mail
-mail-management routes are planned but not implemented. Initial owner-token
+documentation](docs/api.md) and [documentation index](docs/index.md).
+Mail-management write routes are planned but not implemented. Initial owner-token
 issuance, token reveal/rotation/revocation, linked-token management, and the
 server-rendered token page are available. A companion `mail-cli`
-currently supports the public `status` and `about` API operations; the complete
-command set is tracked in [TODO.AI.md](TODO.AI.md).
+exposes the planned mail API command tree; only `status`, `about`, and domain
+reads currently have matching server routes. The complete client workflows
+are tracked in [TODO.AI.md](TODO.AI.md).
 
 ## Other
 
