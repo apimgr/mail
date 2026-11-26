@@ -68,9 +68,7 @@ not confirmed as deployed, so there is no documentation badge yet.
 The Makefile provides Docker-backed `make dev`, `make build`, and `make test`
 targets using `casjaysdev/go:latest`. Go build and test commands must not run
 directly on the host. See [development documentation](docs/development.md).
-Dependency license verification is available with
-`bash scripts/verify-licenses.sh` inside `casjaysdev/go:latest`; it checks the
-shipped Go packages and writes its temporary inventory outside the repository.
+`make test` also verifies dependency licenses for the shipped Go packages.
 
 ## Disclaimer
 
