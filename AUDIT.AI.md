@@ -17,7 +17,7 @@ implemented, verified, and committed.
 ## Pass 3: Logic
 - [ ] Update flow lacks scheduled staging, root-start detection, privileged digest re-fetch, exit-75 restart handoff, failure cleanup, notifications, defer filtering, and service-manager restart behavior (`src/update/update.go`; AI.md PART 22).
 - [ ] Scheduler registration includes 14 tasks but several handlers have no provider; Tor/I2P tasks and owner idle purge remain absent (`src/scheduler/scheduler.go:308-329,753-766`; AI.md PARTS 18, 19, 21, 31).
-- [ ] Mail-management routes and persistence remain absent for users, domain writes/DNS/DKIM, aliases, forwards, transports, queue operations, configuration, statistics, and logs (`src/server/api_routes.go`; IDEA.md API routes).
+- [ ] Mail-management routes and persistence remain absent for users, aliases, forwards, transports, queue operations, configuration, statistics, and logs (`src/server/api_routes.go`; IDEA.md API routes). Domain CRUD, stored DNS records, and public DKIM read/key generation have been added in the current uncommitted work and still need final full-suite verification.
 - [ ] TLS/certificate lifecycle and discovery are not implemented (`src/server/server.go`, `src/mailservice`; AI.md PART 15 and IDEA.md).
 - [ ] API projects still lack the required MCP transport/tool registry and a working Swagger UI and GraphQL/GraphiQL endpoint; the current pages report unavailable status (`src/server/openapi.go`, `src/server/api_routes.go`, locale status strings; AI.md PART 14).
 
@@ -27,12 +27,12 @@ implemented, verified, and committed.
 
 ## Pass 5: Spec Compliance
 - [ ] AI.md PARTS 8, 21–24 require complete service, maintenance, backup/restore, update, privilege-drop, and service-supervision behavior. The CLI handlers and scheduled providers remain partial (`src/main.go`, `src/update`, `src/scheduler`).
-- [ ] AI.md PARTS 14–17 and IDEA.md require complete mail/API behavior, TLS, mail integrations, notifications, and page flows; only portions of service, token, domain-read, and public-page behavior exist (`src/server`, `src/mailservice`, `src/email`).
-- [ ] AI.md PARTS 25–32 still require final build/release, container, CI provider, test/browser coverage, i18n/accessibility, overlay network, and client alignment. The latest passing unit and combined Docker smoke test reported 60.7% statement coverage; several release and browser checks remain (`Makefile`, `.github/`, `docker/`, `src/client`, `src/common/i18n`; TODO.AI.md).
+- [ ] AI.md PARTS 14–17 and IDEA.md require complete mail/API behavior, TLS, mail integrations, notifications, and page flows; only portions of service, token, domain, and public-page behavior exist (`src/server`, `src/mailservice`, `src/email`).
+- [ ] AI.md PARTS 25–32 still require final build/release, container, CI provider, test/browser coverage, i18n/accessibility, overlay network, and client alignment. A full test gate passed at 60.3% statement coverage before the latest DNS/pagination edits; final verification remains pending (`Makefile`, `.github/`, `docker/`, `src/client`, `src/common/i18n`; TODO.AI.md).
 
 ## Pass 6: Code Flow Trace
 - [ ] Client commands describe server operations whose corresponding API handlers are absent, so CLI calls cannot complete their advertised user/domain/alias/forward/queue/config/statistics/log flows (`src/client/cobra_cli.go`, `src/server/api_routes.go`).
-- [ ] `update.Check` resolves cumulative channels by the running release's position in GitHub's first releases page and falls back to tag numbers or the embedded build epoch when that release is absent; it does not paginate the releases API (`src/update/update.go`; AI.md PART 22, “Channel Semantics”).
+- [ ] `update.Check` now follows same-origin GitHub release pagination until it finds the running version, but scheduled defer selection, privileged staging/re-verification, and completion behavior remain absent (`src/update/update.go`; AI.md PART 22, “Channel Semantics”). Pagination changes have focused tests but still need the full final gate.
 
 ## Completed
 - Existing findings about domain reads, shell integration, current public SSR pages, scheduler state persistence, locale parity, and partial service control were rechecked against the current worktree and folded into the open findings above where gaps remain.

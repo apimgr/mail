@@ -38,9 +38,12 @@ Bearer security; `llms.txt` uses the shared API registry.
 | `POST` | `/api/v1/domains` | Creates a system-owned virtual domain. Requires the operator Bearer token. |
 | `PUT` | `/api/v1/domains/{domain}` | Replaces virtual domain metadata. Requires the operator Bearer token. |
 | `DELETE` | `/api/v1/domains/{domain}` | Deletes a domain only when it has no dependent mail resources. Requires the operator Bearer token. |
-| `GET` | `/api/v1/domains/{domain}/dns` | Returns DNS records currently stored for the domain. Requires the operator Bearer token. |
+| `GET` | `/api/v1/domains/{domain}/dns` | Returns configured MX/SPF/DKIM/DMARC records (including MX preference) and the record types still missing. Requires the operator Bearer token. |
 | `GET` | `/api/v1/domains/{domain}/dkim` | Returns enabled public DKIM records. Requires the operator Bearer token; private keys are never returned. |
-| `POST` | `/api/v1/domains/{domain}/dkim/generate` | Generates a 2048-bit RSA DKIM key and returns its public DNS value. Requires the operator Bearer token; the private key is stored server-side. |
+| `POST` | `/api/v1/domains/{domain}/dkim/generate` | Generates a 2048-bit RSA DKIM key and returns its public DNS value. Requires the operator Bearer token; the private key is AES-256-GCM encrypted at rest and never returned. |
+| `GET` | `/api/v1/aliases` | Lists mail aliases with opaque UUIDv7 IDs and standard page/limit pagination. Requires the operator Bearer token. |
+| `POST` | `/api/v1/aliases` | Creates an alias from a valid source address on a configured domain to a destination address. Requires the operator Bearer token. |
+| `DELETE` | `/api/v1/aliases/{id}` | Deletes one alias by opaque UUIDv7 ID. Requires the operator Bearer token. |
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
@@ -67,12 +70,18 @@ hourly buckets. Updates flush every 30 seconds and during graceful
 shutdown. The in-flight request count includes the current health request.
 
 The service API detects and controls allow-listed local daemons when a
-supported service manager is available. Domain reads require operator
-authorization and return metadata only. Mail-user management, domain writes, DNS/DKIM operations,
-aliases, forwarding, queue, component configuration, statistics, and log
-management are not implemented. The generated OpenAPI schemas are generic for
-several responses and omit complete query parameters and error metadata. The
-GraphQL endpoint and interface are unavailable. Health checks do not yet probe
-the mail daemons; Tor/I2P/GeoIP providers also remain incomplete. Mail-resource
-write authorization is not implemented. Do not treat this development API as
-a stable production contract.
+supported service manager is available. Domain list, read, create, update,
+delete, DNS guidance, and DKIM key generation are operator-authorized. Domain
+records use opaque UUIDv7 IDs and the reserved `system` owner; private DKIM
+keys are encrypted at rest and never returned. Deletion is rejected while
+mailboxes, aliases, DKIM/SPF/DMARC/archive policies, or mail-server mappings
+depend on the domain. DNS records are derived from the current database
+configuration and missing record types are reported. Basic alias list/create/
+delete API operations are available; user-facing alias pages and integration
+with the live MTA configuration remain incomplete. Mail-user management,
+forwarding, queue operations, component configuration, statistics, and log
+management are not implemented. The generated OpenAPI schemas are
+generic for several responses and omit complete query parameters and error
+metadata. The GraphQL endpoint and interface are unavailable. Health checks do
+not yet probe the mail daemons; Tor/I2P/GeoIP providers also remain incomplete.
+Do not treat this development API as a stable production contract.

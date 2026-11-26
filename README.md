@@ -14,11 +14,14 @@ is the read-only implementation specification.
 
 The product covers mail service status and control, system and virtual
 mailboxes, domains, aliases and forwarding, queue operations, spam and virus
-filtering, TLS and DKIM, DNS guidance, logs, and delivery statistics. Most of
-these features are not implemented yet. Service discovery/control, health,
-server information routes, operator-protected domain reads, and owner-token
-management are implemented; see [TODO.AI.md](TODO.AI.md) for the remaining
-work.
+filtering, TLS and DKIM, DNS guidance, logs, and delivery statistics. Current
+implementation includes service discovery/control, health and server
+information routes, owner-token management, and operator-protected domain
+create/read/update/delete, DNS guidance, public DKIM operations, and basic
+operator-only alias list/create/delete APIs. Mailbox, alias browser and MTA
+integration, forwarding, queue, spam/virus, TLS, log, and delivery-statistics
+workflows remain incomplete; see [TODO.AI.md](TODO.AI.md) for the verified
+backlog.
 
 ## Production
 
@@ -53,13 +56,14 @@ a production readiness signal. API text aliases are `/api/healthz.txt` and
 `/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
 sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md).
-Mail-management write routes are planned but not implemented. Initial owner-token
-issuance, token reveal/rotation/revocation, linked-token management, and the
+Mail-user and other mail-resource workflows remain incomplete. Domain
+management and DNS/DKIM routes are implemented. Initial owner-token issuance,
+token reveal/rotation/revocation, linked-token management, and the
 server-rendered token page are available. A companion `mail-cli` provides the
 Cobra command tree and an interactive Bubble Tea setup/menu. It supports
 server/token profiles and output preferences; automatic updates and complete
-TUI preference behavior remain tracked in [TODO.AI.md](TODO.AI.md). Only
-`status`, `about`, token, service, and domain-read commands currently have
+TUI preference behavior remain tracked in [TODO.AI.md](TODO.AI.md). The
+`status`, `about`, token, service, domain, DNS, and DKIM CLI operations have
 matching server routes. The OpenAPI document and machine-only token check are
 generated from the registered API routes.
 

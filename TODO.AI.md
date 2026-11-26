@@ -25,8 +25,9 @@ its implementation is complete and committed.
   client exposes service, domain, user, alias, forwarding, queue, config, stats,
   logs, and health commands, with an interactive setup and API menu. Matching
   server routes and full config management remain incomplete. The server
-  updater now supports stable/beta/devel channel selection, release checks,
-  bounded streamed binary downloads, SHA-256 verification, and replacement;
+  updater now supports stable/beta/devel channel selection, paginated release
+  checks through the running version, bounded streamed binary downloads,
+  SHA-256 verification, and replacement;
   scheduled staging, privileged re-verification, defer/auto-install policy,
   notifications, and service-manager restart behavior remain incomplete.
 
@@ -64,8 +65,10 @@ its implementation is complete and committed.
   prior numeric key. The preserved legacy key still needs final schema
   reconciliation; expiry lifecycle, management, full middleware authorization,
   and rate-limit cache fallback remain incomplete. Startup creates the version 1
-  32-byte AES key in `secrets.yml`; report encryption and other sensitive-data
-  encryption remain unimplemented.
+  32-byte AES key in `secrets.yml`; generated DKIM private keys now use
+  versioned AES-256-GCM ciphertext at rest. Security-report encryption,
+  encryption coverage for other sensitive data, and key rotation/re-encryption
+  remain incomplete.
   Startup now generates a base62 `server.token`, writes it atomically to
   `secrets.yml` with mode `0600`, migrates it out of `server.yml` and drop-ins,
   and prints it only on generation. The AES key is also generated there and
@@ -112,11 +115,16 @@ its implementation is complete and committed.
   database persistence, system integration, safe config updates, and error
   responses. Operator-protected domain list/read/create/update/delete and
   public-only DKIM read/key generation now exist, with opaque UUIDv7 IDs,
-  system ownership, input validation, and dependency-safe deletion. The DNS
-  endpoint currently returns an empty record set; usable MX/SPF/DKIM/DMARC
-  guidance and safe mail-service integration remain. User, alias, forward,
-  queue, config, stats, and log routes remain absent. IDEA.md identifies mail
-  infrastructure records as system-owned per AI.md's operator/owner model.
+  system ownership, input validation, dependency-safe deletion, and direct
+  lifecycle/DNS persistence tests. Domain renames transactionally update
+  configured mail-server domain mappings. The DNS endpoint returns configured
+  MX/SPF/DKIM/DMARC records and identifies missing
+  record types; safe DNS derivation from complete mail-service configuration
+  remains. Operator-only alias list/create/delete routes now use opaque UUIDv7
+  IDs with bounded pagination; live MTA integration and user-facing workflows
+  remain. User, forward, queue, config, stats, and log routes are absent.
+  IDEA.md identifies mail infrastructure records as system-owned per
+  AI.md's operator/owner model.
 - [ ] Implement TLS/certificate management and required discovery behavior
   from AI.md PART 15.
 
