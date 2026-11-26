@@ -69,7 +69,8 @@ not confirmed as deployed, so there is no documentation badge yet.
 The Makefile provides Docker-backed `make dev`, `make build`, and `make test`
 targets using `casjaysdev/go:latest`. Go build and test commands must not run
 directly on the host. See [development documentation](docs/development.md).
-`make test` also verifies dependency licenses for the shipped Go packages.
+`make test` verifies dependency licenses, runs vet and govulncheck, runs unit
+tests, and enforces the 60% coverage floor.
 
 ## Disclaimer
 

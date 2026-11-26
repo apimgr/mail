@@ -193,7 +193,7 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest `make test` passes with 72.3% statement
+  required by AI.md PART 28. The latest `make test` passes with 65.0% statement
   coverage, and the basic Docker binary
   smoke suite exists, but Incus and browser E2E coverage and tests for the
   complete product behavior are still missing.
