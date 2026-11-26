@@ -1,9 +1,12 @@
 # Integrations
 
-The intended product integrates with mail daemons and supporting services
-listed in the [project definition](https://github.com/apimgr/mail/blob/main/IDEA.md), including Postfix, Dovecot, spam-filtering
-services, ClamAV, DKIM signing, databases, and DNS. Those integrations are not
-implemented in the current server scaffold.
+The product scope includes mail daemons and supporting services listed in the
+[project definition](https://github.com/apimgr/mail/blob/main/IDEA.md), including
+Postfix, Dovecot, spam-filtering services, ClamAV, DKIM signing, databases, and
+DNS. The server currently detects an allow-list of mail components and can
+inspect or operate supported services through the host's service manager.
+Mail-user and domain configuration, queue management, DKIM key management,
+delivery-statistic ingestion, and DNS record guidance are not implemented.
 
 The public web shell currently serves a PWA manifest at `/manifest.json`, a
 service worker at `/sw.js`, and an offline fallback at `/offline.html`. No

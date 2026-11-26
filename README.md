@@ -12,10 +12,12 @@ is the read-only implementation specification.
 
 ## Features
 
-The planned product covers mail service status and control, system and virtual
+The product covers mail service status and control, system and virtual
 mailboxes, domains, aliases and forwarding, queue operations, spam and virus
 filtering, TLS and DKIM, DNS guidance, logs, and delivery statistics. Most of
-these features are not implemented yet; see [TODO.AI.md](TODO.AI.md).
+these features are not implemented yet. Service discovery/control, health and
+server information routes, and owner-token management are implemented; see
+[TODO.AI.md](TODO.AI.md) for the remaining work.
 
 ## Production
 
@@ -43,17 +45,16 @@ cross-device sync page. A server-rendered consent banner and CSRF protection
 work without JavaScript. The public shell includes a PWA manifest, service
 worker, and offline fallback. `/server/healthz` negotiates HTML, JSON, and
 plain text. The health payload includes project/build/runtime information,
-feature states, cached component checks, persisted aggregate request counts,
-and in-flight request counts; runtime providers and full mail-service checks
-remain incomplete, so it is not a production readiness signal. API text aliases are `/api/healthz.txt` and
+feature states, cached dependency checks, persisted aggregate request counts,
+and in-flight request counts; health does not yet probe mail daemons and is not
+a production readiness signal. API text aliases are `/api/healthz.txt` and
 `/api/v1/server/healthz.txt`; JSON health routes are `/api/healthz` and
 `/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
 sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md). Mail
 mail-management routes are planned but not implemented. Initial owner-token
-issuance and the masked token-list API are available; token reveal, rotation,
-revocation, linked-token management, and the server-rendered token page remain
-incomplete. A companion `mail-cli`
+issuance, token reveal/rotation/revocation, linked-token management, and the
+server-rendered token page are available. A companion `mail-cli`
 currently supports the public `status` and `about` API operations; the complete
 command set is tracked in [TODO.AI.md](TODO.AI.md).
 

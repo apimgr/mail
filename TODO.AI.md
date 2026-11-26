@@ -12,12 +12,16 @@ its implementation is complete and committed.
   commands. The full client/TUI, other shared packages, `src/swagger`,
   `src/graphql`, and remaining required structure are incomplete.
 - [ ] Complete the runtime initialization, configuration, CLI flags, modes,
-  path handling, and platform behavior in AI.md PARTS 4–8.
+  path handling, and platform behavior in AI.md PARTS 4–8. Built-in shell init
+  and completion generation now exists for the server/client binaries, and
+  `server.logs.level` follows the configured level or runtime mode. Daemon
+  mode, service/maintenance/update operations, and the remaining startup
+  behaviors are still incomplete.
 - [ ] Finish service management, maintenance, update, and daemon CLI behavior;
   remove placeholder TODOs from production code when completed. `--status` now
   queries the local JSON health endpoint with a bounded timeout. The companion
   client currently supports only status/about; the required client command set,
-  config management, update flow, and interactive TUI remain incomplete.
+  full config management, update flow, and interactive TUI remain incomplete.
 
 ## Data, security, and API
 
@@ -37,12 +41,17 @@ its implementation is complete and committed.
   endpoint returns the secret once and persists an encrypted recovery copy.
   The API token-list endpoint returns masked metadata with primary-token
   Bearer authorization; primary reveal decrypts only on request, audits it,
-  and sets `no-store`. Rotation, revocation, linked-token lifecycle, and the
-  required server-rendered token page remain incomplete.
+  and sets `no-store`. Primary restore/reveal/rotate/revoke and linked-token
+  create/reveal/rotate/update/revoke now exist in the server-rendered page and
+  API. The API/MCP bearer authorization model for other resources and token
+  expiry lifecycle remain incomplete. Global read/write/health/burst limits
+  now use per-token buckets for valid Bearer credentials and per-IP buckets
+  otherwise; failed-authentication lockout is enforced per IP. Strict token
+  action limits still need per-owner buckets and external-cache integration.
   Legacy token rows receive UUIDv7 public identifiers without losing their
   prior numeric key. The preserved legacy key still needs final schema
   reconciliation; expiry lifecycle, management, full middleware authorization,
-  and general rate-limit classes remain absent. Startup creates the version 1
+  and rate-limit cache fallback remain incomplete. Startup creates the version 1
   32-byte AES key in `secrets.yml`; report encryption and other sensitive-data
   encryption remain unimplemented.
   Startup now generates a base62 `server.token`, writes it atomically to
@@ -138,7 +147,11 @@ its implementation is complete and committed.
   now labels Automatic with the negotiated language and marks each native-name
   option with its language tag.
 - [ ] Implement component detection and mail service control for supported
-  platforms without assuming optional daemons are installed.
+  platforms without assuming optional daemons are installed. An allow-listed
+  discovery/status API and service-manager operations now exist for supported
+  Linux and FreeBSD hosts; package-name mappings cover Alpine, Debian-family,
+  RHEL-family, and FreeBSD. Health integration, broader platform coverage,
+  service-specific probes, and end-to-end control verification remain.
 - [ ] Implement virtual/system users, domains, aliases, forwards, transports,
   queue operations, configuration validation, and DNS record guidance.
 - [ ] Implement spam/virus integrations, DKIM key management, TLS, logs,

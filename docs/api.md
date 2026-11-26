@@ -1,9 +1,9 @@
 # API
 
-Currently registered API and paired health routes are listed below. The full mail
-management API inventory is in the
-[project definition](https://github.com/apimgr/mail/blob/main/IDEA.md), but those routes are not
-implemented yet.
+This page describes the API handlers currently registered in the server. The
+mail-management route inventory is in the
+[project definition](https://github.com/apimgr/mail/blob/main/IDEA.md); most of
+those routes are still unimplemented.
 
 | Method | Path | Current behavior |
 |---|---|---|
@@ -23,6 +23,16 @@ implemented yet.
 | `POST` | `/api/v1/server/preferences/tokens/primary` | Creates the initial owner and primary token and returns the secret once. A valid operator or owner Bearer token returns `409`; per-IP strict limiting returns `429` with `Retry-After`. |
 | `GET` | `/api/v1/server/preferences/tokens` | Lists masked owner-token metadata for a primary-token Bearer credential. Missing/invalid credentials return `401`; linked tokens return `403`. |
 | `POST` | `/api/v1/server/preferences/tokens/primary/reveal` | Returns the encrypted primary token to its primary-token holder, audits the reveal, and sets `Cache-Control: no-store`; strict per-IP limiting applies. |
+| `POST` | `/api/v1/server/preferences/tokens` | Creates a linked token; primary-token authorization is required. The plaintext is returned only at creation. |
+| `POST` | `/api/v1/server/preferences/tokens/{id}/reveal` | Reveals a linked token to the primary-token holder with `Cache-Control: no-store`. |
+| `POST` | `/api/v1/server/preferences/tokens/{id}/rotate` | Rotates a linked token; primary-token authorization is required. |
+| `PATCH` | `/api/v1/server/preferences/tokens/{id}` | Updates a linked token's name or expiry; primary-token authorization is required. |
+| `DELETE` | `/api/v1/server/preferences/tokens/{id}` | Revokes a linked token; primary-token authorization is required. |
+| `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
+| `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
+| `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
+| `GET` | `/api/v1/health` | Returns mail component health status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
+| `POST` | `/api/v1/services/{service}/start`, `/stop`, `/restart`, `/reload` | Requests an allow-listed service operation; operator Bearer authorization is required. Unsupported service managers and missing services return explicit errors. |
 | `GET` | `/api/healthz` | Direct versionless health alias; JSON by explicit `Accept`, plain text for non-interactive clients. |
 | `GET` | `/api/healthz.txt` | Direct versionless plain-text health alias; `.txt` overrides `Accept`. |
 | `GET` | `/server/healthz` | Content-negotiated health page: HTML for browsers, JSON or text for clients. |
@@ -33,13 +43,20 @@ Public discovery resources include `/robots.txt`, `/sitemap.xml`, `/feed.xml`,
 `/llms.txt`. They accept `GET` and `HEAD` only. Preference sync responses are
 not cacheable and never include consent or credential cookies in an export.
 
+The server-rendered token page is `/server/preferences/tokens`; it supports
+primary-token restore, reveal, rotation, and revocation plus linked-token
+creation, reveal, rotation, update, and revocation. Destructive operations use
+CSRF-protected forms and confirmation screens.
+
 The public health statistics count completed non-health and non-metrics
 requests. Lifetime totals persist in the database; the 24-hour total uses
 hourly buckets. Updates flush every 30 seconds and during graceful
 shutdown. The in-flight request count includes the current health request.
 
-The current health response reports unavailable runtime providers as errors;
-the Tor/I2P/GeoIP managers and mail-service probes are not implemented yet.
-The primary-token issuance endpoint is implemented, but token authorization
-for mail resources and the remaining API contract are incomplete. Do not treat
-this development API as a stable production contract.
+The service API detects and controls allow-listed local daemons when a
+supported service manager is available. It does not implement mail-user,
+domain, alias, forwarding, queue, component-configuration, statistics, or log
+management. Health checks do not yet probe the mail daemons; Tor/I2P/GeoIP
+providers also remain incomplete. Mail-resource authorization and the rest of
+the API contract are incomplete. Do not treat this development API as a stable
+production contract.
