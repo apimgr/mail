@@ -52,6 +52,15 @@ limits and quotas.
 The project has no panel-specific user account or login role. API credential
 and endpoint authorization rules follow AI.md.
 
+Mail infrastructure records are global operator-managed resources, not
+recipient-owned resources. System users, virtual users and domains, aliases,
+forwards, transports, queue entries, service state, and delivery statistics
+are created or synchronized by the operator-managed server and belong to the
+reserved `system` owner defined by AI.md. Mail API reads and changes require
+the operator credential; owner tokens do not grant access to mail-stack
+records. Only the public server-information and health endpoints are
+unauthenticated.
+
 ### Data model & sensitivity
 
 Mail data includes system users, virtual users, virtual domains, aliases,

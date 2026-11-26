@@ -8,14 +8,18 @@ shell, service, maintenance, and update command flags. `--status` checks the
 local JSON health endpoint with a bounded timeout. `--shell` completion and
 init commands work for bash, zsh, fish, POSIX-style shells, and PowerShell.
 Daemon re-execution is supported on Unix when `--daemon` is used outside an
-application container. Service, maintenance, and update command operations
-are not implemented yet.
+application container. `--update check`, `--update yes`, and
+`--update branch stable|beta|devel` are implemented, including checksum
+verification before replacement. The updater still lacks the scheduled
+service-user staging, privileged re-verification, deferred update policy, and
+service-manager restart flow required by AI.md PART 22. Service and maintenance
+operations remain incomplete.
 
 ## Client binary
 
 `mail-cli` uses Cobra and exposes server information, service, domain, user,
 alias, forward, queue, config, statistics, logs, and health commands. Only
-`status`, `about`, and the public domain list/get API operations currently have
+`status`, `about`, and operator-protected domain list/get API operations currently have
 matching server handlers; the remaining mail operations are pending server
 implementation.
 
@@ -46,8 +50,8 @@ Output supports table, JSON, YAML, plain text, and CSV formats. Destructive
 commands require `--force` in non-interactive runs or a confirmation at the
 terminal. Config writes are atomic; server and token command-line values are
 saved only when their configured values are empty or invalid. Retry execution,
-automatic update checking/downloading/checksum verification/re-exec, complete
-TUI preference behavior, and GUI remain incomplete and are tracked in
+client automatic update checking/downloading/checksum verification/re-exec,
+complete TUI preference behavior, and GUI remain incomplete and are tracked in
 [TODO.AI.md](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
 
 Use `make dev` to build the server and client binaries in a project-scoped

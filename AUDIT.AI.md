@@ -2,31 +2,37 @@
 
 Started: 2026-11-26
 
-This audit records confirmed implementation gaps against the read-only AI.md and
-IDEA.md. The implementation remains incomplete; passing tests do not close these
-items. Findings remain open until implemented, verified, and committed.
+These are confirmed open implementation gaps against read-only `AI.md` and
+`IDEA.md`. Passing tests does not close these items; they remain open until
+implemented, verified, and committed.
 
 ## Pass 1: Security
-- [ ] P1 API authorization is not yet integrated across the complete project API. The router protects service routes with the operator token; public domain list/get handlers exist and omit owner IDs and private DKIM material, but resource writes and the remaining IDEA-defined routes and ownership checks are absent (IDEA.md lines 130–178; `src/server/server.go:320-323`).
+- [ ] API authorization and ownership are incomplete across the IDEA mail API. The current registry includes public domain reads and operator-protected services, but most routes and ownership checks do not exist (`src/server/api_routes.go`; IDEA.md API routes). AI.md itself leaves operator-created resource ownership undefined; see the AI.md-only note in `~/Projects/github/apimgr/TODO.API.md`.
+- [ ] Update installation is not service-account-safe. The direct updater replaces the executable in-process, while AI.md PART 22 requires a service-user staging phase and root re-verification before replacement (`src/update/update.go:168-192`; AI.md PART 22, “Update Privileges”).
 
 ## Pass 2: Code Quality
-- [ ] P1 Production CLI still contains unimplemented handlers for service management, maintenance, update, and Tor startup (`src/main.go:384-465,650`). The server primary flag parser, Unix manual daemon re-execution, configured log-level selection, and shell init/completion generation exist; config-driven daemonization and the remaining behaviors are incomplete. AI.md assigns those behaviors to PARTS 8, 20–22, and 31.
+- [ ] Production CLI still has explicit service-management, maintenance, and Tor TODOs (`src/main.go:434-435,469-470,741-742`; AI.md PARTS 8, 21, 23, 24, 31).
+- [ ] Several scheduler handlers intentionally return “unavailable” errors rather than implementing required providers (`src/scheduler/scheduler.go:312-321,753-766`; AI.md PARTS 18, 19, 21).
 
 ## Pass 3: Logic
-- [ ] P1 The server exposes service discovery/control and an operator-only component health summary. Public domain list/get handlers are registered, but user management, domain writes, alias, forward, queue, component-configuration, statistics, and logs handlers remain absent from `setupRoutes` (`src/server/server.go:320-327`; IDEA.md lines 130–178).
-- [ ] P1 The required libSQL driver is registered and remote URL validation is implemented, and startup now creates the declared mail tables idempotently. The required `srv_` table/index mapping is absent, and operation against a live libSQL endpoint is unverified (`src/database/database.go`; AI.md PART 10).
+- [ ] Update flow lacks scheduled staging, root-start detection, privileged digest re-fetch, exit-75 restart handoff, failure cleanup, notifications, defer filtering, and service-manager restart behavior (`src/update/update.go`; AI.md PART 22).
+- [ ] Scheduler registration includes 14 tasks but several handlers have no provider; Tor/I2P tasks and owner idle purge remain absent (`src/scheduler/scheduler.go:308-329,753-766`; AI.md PARTS 18, 19, 21, 31).
+- [ ] Mail-management routes and persistence remain absent for users, domain writes/DNS/DKIM, aliases, forwards, transports, queue operations, configuration, statistics, and logs (`src/server/api_routes.go`; IDEA.md API routes).
+- [ ] TLS/certificate lifecycle and discovery are not implemented (`src/server/server.go`, `src/mailservice`; AI.md PART 15 and IDEA.md).
+- [ ] API projects still lack the required MCP transport/tool registry and a working Swagger UI and GraphQL/GraphiQL endpoint; the current pages report unavailable status (`src/server/openapi.go`, `src/server/api_routes.go`, locale status strings; AI.md PART 14).
 
 ## Pass 4: Documentation
-- [x] P2 Updated `docs/api.md` and `docs/integrations.md` to document the current allow-listed service discovery/control API and distinguish it from the unimplemented mail-management routes (`src/server/server.go`, `src/mailservice/control.go`).
+- [ ] ReadTheDocs documentation does not yet cover all shipped CLI, browser, API, config, service, and integration behavior (`docs/`; AI.md PART 29; TODO.AI.md).
+- [ ] README and docs need a final sync after implementation stabilizes (`README.md`, `docs/`; AI.md PARTS 8, 25–30).
 
 ## Pass 5: Spec Compliance
-- [ ] P0 IDEA.md's required user/domain/alias/forward/queue/configuration/statistics/log API inventory is incomplete; only public domain reads, service management, and the component health endpoint are present (`src/server/server.go:320-327`; IDEA.md lines 130–178).
-- [ ] P1 AI.md PARTS 8, 20–22, and 31 still have production placeholders for service/maintenance/update and Tor (`src/main.go:384-465,650`). Built-in shell integration, server flag parsing, Unix manual daemon re-execution, and configured log-level selection now exist; the remaining operations are incomplete.
-- [ ] P1 AI.md PART 10's configured libSQL driver is registered and mail schema setup now runs on startup, but `srv_` name mapping, live remote connection, and read/write behavior need implementation and integration verification (`src/database/database.go`; AI.md PART 10).
-- [ ] P1 AI.md PART 15 TLS/certificate management is not represented in the current route tree or service implementation (`src/server/server.go:295-325`; AI.md PART 15 begins at line 21150).
+- [ ] AI.md PARTS 8, 21–24 require complete service, maintenance, backup/restore, update, privilege-drop, and service-supervision behavior. The CLI handlers and scheduled providers remain partial (`src/main.go`, `src/update`, `src/scheduler`).
+- [ ] AI.md PARTS 14–17 and IDEA.md require complete mail/API behavior, TLS, mail integrations, notifications, and page flows; only portions of service, token, domain-read, and public-page behavior exist (`src/server`, `src/mailservice`, `src/email`).
+- [ ] AI.md PARTS 25–32 still require final build/release, container, CI provider, test/browser coverage, i18n/accessibility, overlay network, and client alignment. The latest passing unit test run reported 60.4% statement coverage; several release and browser checks remain (`Makefile`, `.github/`, `docker/`, `src/client`, `src/common/i18n`; TODO.AI.md).
 
 ## Pass 6: Code Flow Trace
-- [ ] P1 Server CLI service, maintenance, and update command flags still terminate with “not yet implemented” errors instead of reaching an operational backend (`src/main.go:384-465`). The Cobra client exposes corresponding mail API command families, but most server routes are not yet registered.
+- [ ] Client commands describe server operations whose corresponding API handlers are absent, so CLI calls cannot complete their advertised user/domain/alias/forward/queue/config/statistics/log flows (`src/client/cobra_cli.go`, `src/server/api_routes.go`).
+- [ ] `update.Check` resolves cumulative channels by the running release's position in GitHub's first releases page and falls back to tag numbers or the embedded build epoch when that release is absent; it does not paginate the releases API (`src/update/update.go`; AI.md PART 22, “Channel Semantics”).
 
 ## Completed
-- Audit evidence was gathered from the actual route registration, CLI handlers, database driver registration, IDEA.md route inventory, and relevant AI.md parts. One documentation finding is resolved; implementation findings remain open.
+- Existing findings about domain reads, shell integration, current public SSR pages, scheduler state persistence, locale parity, and partial service control were rechecked against the current worktree and folded into the open findings above where gaps remain.

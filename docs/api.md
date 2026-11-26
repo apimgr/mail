@@ -4,15 +4,16 @@ This page describes the API handlers currently registered in the server. The
 mail-management route inventory is in the
 [project definition](https://github.com/apimgr/mail/blob/main/IDEA.md). The
 registered routes currently cover public server pages, browser preferences,
-owner-token management, public domain reads, and operator service status and
-control. OpenAPI JSON and `llms.txt` use the shared API registry.
+owner-token management, operator-protected domain reads, and operator service
+status and control. OpenAPI JSON includes protected routes and declares their
+Bearer security; `llms.txt` uses the shared API registry.
 
 | Method | Path | Current behavior |
 |---|---|---|
 | `GET` | `/api/v1/server/healthz` | Returns the public health payload; HTTP 503 indicates unhealthy or maintenance state. It includes project/build/runtime metadata, feature states, cached checks, persisted aggregate request counts, and the in-flight request count. |
 | `GET` | `/api/v1/server/healthz.txt` | Returns the same health data as flat text; the `.txt` suffix overrides `Accept`. |
 | `GET` | `/api/v1/server/auth/check` | Machine-only token check. Requires one Bearer credential, returns `{ "kind": "operator" }` or `{ "kind": "owner" }`; invalid credentials return 401. Rate limited and never echoes the token. |
-| `GET` | `/api/v1/server/swagger` | Generates an OpenAPI JSON document from routes currently registered by the server. Operator-only routes are excluded. |
+| `GET` | `/api/v1/server/swagger` | Generates an OpenAPI JSON document from routes currently registered by the server, including protected routes with their authorization schemes. |
 | `GET` | `/api/v1/server/about` | Returns localized title, project Markdown/content, and format, using configured About content when present. |
 | `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
 | `GET` | `/api/v1/server/privacy` | Returns the public privacy policy data, configured cookie descriptions, retention details, tracking state, and consent/CCPA state. |
@@ -32,8 +33,8 @@ control. OpenAPI JSON and `llms.txt` use the shared API registry.
 | `POST` | `/api/v1/server/preferences/tokens/{id}/rotate` | Rotates a linked token; primary-token authorization is required. |
 | `PATCH` | `/api/v1/server/preferences/tokens/{id}` | Updates a linked token's name or expiry; primary-token authorization is required. |
 | `DELETE` | `/api/v1/server/preferences/tokens/{id}` | Revokes a linked token; primary-token authorization is required. |
-| `GET` | `/api/v1/domains` | Lists configured mail domains. Public; response omits owner identifiers and private DKIM material. |
-| `GET` | `/api/v1/domains/{domain}` | Returns one configured mail domain. Public; response omits owner identifiers and private DKIM material. |
+| `GET` | `/api/v1/domains` | Lists configured mail domains. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
+| `GET` | `/api/v1/domains/{domain}` | Returns one configured mail domain. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
@@ -60,8 +61,8 @@ hourly buckets. Updates flush every 30 seconds and during graceful
 shutdown. The in-flight request count includes the current health request.
 
 The service API detects and controls allow-listed local daemons when a
-supported service manager is available. Domain reads are public and return
-metadata only. Mail-user management, domain writes, DNS/DKIM operations,
+supported service manager is available. Domain reads require operator
+authorization and return metadata only. Mail-user management, domain writes, DNS/DKIM operations,
 aliases, forwarding, queue, component configuration, statistics, and log
 management are not implemented. The generated OpenAPI schemas are generic for
 several responses and omit complete query parameters and error metadata. The

@@ -24,7 +24,11 @@ its implementation is complete and committed.
   queries the local JSON health endpoint with a bounded timeout. The companion
   client exposes service, domain, user, alias, forwarding, queue, config, stats,
   logs, and health commands, with an interactive setup and API menu. Matching
-  server routes, full config management, and the update flow remain incomplete.
+  server routes and full config management remain incomplete. The server
+  updater now supports stable/beta/devel channel selection, release checks,
+  bounded streamed binary downloads, SHA-256 verification, and replacement;
+  scheduled staging, privileged re-verification, defer/auto-install policy,
+  notifications, and service-manager restart behavior remain incomplete.
 
 ## Data, security, and API
 
@@ -54,6 +58,8 @@ its implementation is complete and committed.
   now use per-token buckets for valid Bearer credentials and per-IP buckets
   otherwise; failed-authentication lockout is enforced per IP. Strict token
   action limits still need per-owner buckets and external-cache integration.
+  Valid owner-token resolution now updates both `api_tokens.last_used_at` and
+  `owners.last_seen_at` transactionally.
   Legacy token rows receive UUIDv7 public identifiers without losing their
   prior numeric key. The preserved legacy key still needs final schema
   reconciliation; expiry lifecycle, management, full middleware authorization,
@@ -104,9 +110,11 @@ its implementation is complete and committed.
   policy/help, full route metadata and the rest of PART 14 are missing.
 - [ ] Implement every mail route listed in IDEA.md, including validation,
   database persistence, system integration, safe config updates, and error
-  responses. Public `GET /domains` and `GET /domains/{domain}` now return
-  metadata without owner IDs or DKIM private material; all domain writes and
-  the user, alias, forward, queue, config, stats, and log routes remain absent.
+  responses. Operator-protected `GET /domains` and `GET /domains/{domain}` now
+  return metadata without owner IDs or DKIM private material; all domain writes
+  and the user, alias, forward, queue, config, stats, and log routes remain
+  absent. IDEA.md now identifies mail infrastructure records as system-owned
+  per AI.md's operator/owner model.
 - [ ] Implement TLS/certificate management and required discovery behavior
   from AI.md PART 15.
 
@@ -186,8 +194,12 @@ its implementation is complete and committed.
   cleanup task now removes expired CAPTCHA challenges from `server.db` using
   the required indexed table. The obsolete session-cleanup task and new
   `admin_sessions` table creation were removed to match the token-only identity
-  model. Owner idle purge, remaining required tasks, retry behavior, and
-  functional task handlers are still incomplete.
+  model. Fourteen required tasks are registered and per-task enabled/schedule
+  policy plus exponential retries are implemented; Tor/I2P tasks are omitted
+  because the scheduler is not given their feature state. Retry attempts are
+  still in-memory. Owner idle purge and functional providers for certificate,
+  GeoIP, blocklist, security cleanup, keyserver, CVE, update, log rotation,
+  backup, disk monitoring, and other external tasks remain incomplete.
 
 ## Build, packaging, and release
 
@@ -205,9 +217,11 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest `make test` passes with 61.2% statement
-  coverage, and the basic Docker binary
-  smoke suite exists, but Incus and browser E2E coverage and tests for the
+  required by AI.md PART 28. The latest unit test run passed with 60.4%
+  statement coverage; the most recent combined Docker smoke gate passed at
+  61.4%. The Docker binary smoke suite verifies CLI/server startup, health,
+  API, and rendered-page shells. Incus
+  and browser E2E coverage and tests for the
   complete product behavior are still missing.
 
 ## Documentation and compliance

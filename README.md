@@ -16,8 +16,9 @@ The product covers mail service status and control, system and virtual
 mailboxes, domains, aliases and forwarding, queue operations, spam and virus
 filtering, TLS and DKIM, DNS guidance, logs, and delivery statistics. Most of
 these features are not implemented yet. Service discovery/control, health,
-server information routes, public domain reads, and owner-token management are
-implemented; see [TODO.AI.md](TODO.AI.md) for the remaining work.
+server information routes, operator-protected domain reads, and owner-token
+management are implemented; see [TODO.AI.md](TODO.AI.md) for the remaining
+work.
 
 ## Production
 
@@ -71,15 +72,14 @@ not confirmed as deployed, so there is no documentation badge yet.
 ## Development
 
 The Makefile provides Docker-backed `make dev`, `make build`, `make test`, and
-`make test-smoke`
-targets using `casjaysdev/go:latest`. Go build and test commands must not run
-directly on the host. See [development documentation](docs/development.md).
+`make test-smoke` targets using `casjaysdev/go:latest`. Go build and test
+commands must not run directly on the host. See
+[development documentation](docs/development.md).
 `make test` verifies dependency licenses, runs vet and govulncheck, runs unit
 tests, and enforces the 60% coverage floor.
-`make test-smoke` builds in `BINDIR` when needed and exercises the server,
-client, APIs, and rendered pages in an isolated Docker container.
-Set `SMOKE=1` on `make test` to include the same integration suite; pass an
-isolated `BINDIR` to preserve existing binaries.
+`make test-smoke` builds into a project-scoped temporary directory and
+exercises the server, client, APIs, and rendered pages in an isolated Docker
+container. Set `SMOKE=1` on `make test` to include that suite after unit tests.
 
 ## Disclaimer
 
