@@ -28,9 +28,9 @@ its implementation is complete and committed.
 - [ ] Reconcile database drivers, schemas, migrations, timeouts, and models
   with AI.md PART 10 and mail's data requirements in IDEA.md. SQLite and the
   required remote libSQL driver are registered, and libSQL requires a remote
-  URL; live remote-server verification is still outstanding. SQLite applies
-  the required busy timeout, WAL, synchronous and foreign-key pragmas, and
-  idempotently adds the previous-window rate-limit counter. The full
+  URL; remote table/index name mapping, schema initialization and live-server
+  verification are still outstanding. SQLite applies the required busy
+  timeout, WAL, synchronous and foreign-key pragmas, and idempotently adds the previous-window rate-limit counter. The full
   read/write store split, migration strategy, retry/backup behavior and mail
   models remain incomplete.
 - [ ] Implement the API token model, authorization, audit/security logging,
@@ -76,8 +76,10 @@ its implementation is complete and committed.
 - [ ] Complete the public guest-token and cookie-consent flows from AI.md
   PARTS 8, 12, and 16. CSRF forms, consent banner/state, CCPA controls,
   consent-gated theme/language writes, reset and initial preference-sync
-  routes now exist. Initial owner-token issuance exists, but the token-management page is absent;
-  preference sync still needs the full validation/redirect/cookie-attribute
+  routes now exist. Owner and linked-token management, restore, reveal,
+  rotation, and revocation are available on the token-management page; the
+  public guest-token lifecycle and remaining cookie contract still need work.
+  Preference sync still needs the full validation/redirect/cookie-attribute
   contract, API parity and complete edge-case coverage.
 - [ ] Complete health, version, API, and content negotiation per AI.md PARTS
   13–14. The health payload now has canonical fields and JSON/text/API
@@ -87,8 +89,9 @@ its implementation is complete and committed.
   policy JSON mirrors are present; help also has a Markdown mirror and a
   registered-page list. Runtime metadata still lacks
   branding values, Tor/I2P/GeoIP providers, cache-provider and disk-capacity
-  probes. Current checks confirm configured directory presence and scheduler
-  state only. Aggregate request counters now persist in `server.db` with
+  probes. Current public checks confirm configured directory presence and
+  scheduler state; a separate operator-only mail health route reports
+  detected component states. Aggregate request counters now persist in `server.db` with
   minute-batched writes and shutdown flushing; in-flight HTTP requests are
   tracked at the outer handler. Public-page API
   mirrors beyond privacy/DPO/policy/help and the rest of PART 14 are missing.
@@ -115,15 +118,16 @@ its implementation is complete and committed.
   contact workflows, the full configurable page-content integration (about,
   privacy, terms, header and footer support localized safe rendering, but config
   validation, hot reload and warning/default behavior are incomplete), full
-  MCP help guidance, token management, security-report flow, complete page
+  MCP help guidance, security-report flow, complete page
   registry and route parity remain missing. A shared page registry now covers
   the current server-rendered GET routes and drives sub-page routes, hub/footer
   links, the help API list, and sitemap inclusion. State-changing web routes,
   API mirrors, and the larger API route inventory are not yet in that registry.
   Consent controls and the first sync
-  page are present but still need the full AI.md behavior. The current token
-  page requirements specify owner/linked token workflows, restore, and
-  primary-token revocation; these remain absent. A first
+  page are present but still need the full AI.md behavior. The token page
+  supports owner/linked token workflows, restore, reveal, rotation, and
+  revocation, but full route parity and the remaining credential lifecycle
+  requirements are still incomplete. A first
   generated sitemap and configurable `web.robots` allow/deny rules now exist;
   route-registry generation, full SEO metadata and the remaining discovery
   contract are still incomplete.
@@ -150,10 +154,11 @@ its implementation is complete and committed.
   option with its language tag.
 - [ ] Implement component detection and mail service control for supported
   platforms without assuming optional daemons are installed. An allow-listed
-  discovery/status API and service-manager operations now exist for supported
-  Linux and FreeBSD hosts; package-name mappings cover Alpine, Debian-family,
-  RHEL-family, and FreeBSD. Health integration, broader platform coverage,
-  service-specific probes, and end-to-end control verification remain.
+  discovery/status API, operator-only component health summary and
+  service-manager operations now exist for supported Linux and FreeBSD hosts;
+  package-name mappings cover Alpine, Debian-family, RHEL-family, and FreeBSD.
+  Broader platform coverage, service-specific probes, and end-to-end control
+  verification remain.
 - [ ] Implement virtual/system users, domains, aliases, forwards, transports,
   queue operations, configuration validation, and DNS record guidance.
 - [ ] Implement spam/virus integrations, DKIM key management, TLS, logs,
