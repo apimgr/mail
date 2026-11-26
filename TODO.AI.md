@@ -125,8 +125,15 @@ its implementation is complete and committed.
   MX/SPF/DKIM/DMARC records and identifies missing
   record types; safe DNS derivation from complete mail-service configuration
   remains. Operator-only alias list/create/delete routes now use opaque UUIDv7
-  IDs with bounded pagination; live MTA integration and user-facing workflows
-  remain. User, forward, queue, config, stats, and log routes are absent.
+  IDs with bounded pagination, and the alias schema stores the reserved
+  `system/system` owner for existing and new records; live MTA integration and
+  user-facing workflows remain. Virtual-mailbox and forward schemas now also
+  persist the reserved owner for existing and new rows. Operator-protected
+  virtual-mailbox list/detail, create/update/delete, and password-change routes
+  return opaque UUIDv7 IDs and byte quotas without password verifiers;
+  password values are stored as Argon2id verifiers. CSV import, system-user
+  management, forward API, live MTA synchronization, queue, config, stats, and
+  log APIs remain incomplete.
   IDEA.md identifies mail infrastructure records as system-owned per
   AI.md's operator/owner model.
 - [ ] Implement TLS/certificate management and required discovery behavior

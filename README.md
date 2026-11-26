@@ -17,9 +17,10 @@ mailboxes, domains, aliases and forwarding, queue operations, spam and virus
 filtering, TLS and DKIM, DNS guidance, logs, and delivery statistics. Current
 implementation includes service discovery/control, health and server
 information routes, owner-token management, and operator-protected domain
-create/read/update/delete, DNS guidance, public DKIM operations, and basic
-operator-only alias list/create/delete APIs. Mailbox, alias browser and MTA
-integration, forwarding, queue, spam/virus, TLS, log, and delivery-statistics
+create/read/update/delete, DNS guidance, public DKIM operations, operator-only
+alias list/create/delete APIs, and virtual mailbox CRUD/password/CSV import.
+System users, alias browser and MTA integration, forwarding, queue, spam/virus,
+TLS, log, and delivery-statistics
 workflows remain incomplete; see [TODO.AI.md](TODO.AI.md) for the verified
 backlog.
 

@@ -19,15 +19,20 @@ same updater and defaults to `yes` when no command is supplied.
 ## Client binary
 
 `mail-cli` uses Cobra and exposes server information, service, domain, user,
-alias, forward, queue, config, statistics, logs, and health commands. Only
-`status`, `about`, and operator-protected domain list/get API operations currently have
-matching server handlers; the remaining mail operations are pending server
-implementation.
+alias, forward, queue, config, statistics, logs, and health commands. Mailbox
+list/get/create/update/delete/password and CSV import, domain CRUD/DNS/DKIM,
+alias list/create/delete, and service status/control have matching
+operator-protected server handlers. Other mail operations remain pending.
 
 ```sh
 mail-cli --server https://mail.example status
 mail-cli about --server https://mail.example
+mail-cli users import ./mailboxes.csv --server https://mail.example --token "$MAIL_TOKEN"
 ```
+
+The mailbox CSV header is `email,password,quota_bytes,enabled`. Each input row
+returns an individual success or failure result; passwords are never included
+in responses or audit details.
 
 The server URL can also come from `MAIL_SERVER_PRIMARY`,
 `~/.config/apimgr/mail/cli.yml` (`server.primary`), `OFFICIAL_SITE`, or the

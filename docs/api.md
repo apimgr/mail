@@ -4,8 +4,8 @@ This page describes the API handlers currently registered in the server. The
 mail-management route inventory is in the
 [project definition](https://github.com/apimgr/mail/blob/main/IDEA.md). The
 registered routes currently cover public server pages, browser preferences,
-owner-token management, operator-protected domain and alias operations, and
-operator service status and control. OpenAPI JSON includes protected routes
+owner-token management, operator-protected virtual mailbox CRUD and CSV import,
+domain and alias operations, and operator service status and control. OpenAPI JSON includes protected routes
 and declares their Bearer security; `llms.txt` uses the shared API registry.
 
 | Method | Path | Current behavior |
@@ -33,6 +33,13 @@ and declares their Bearer security; `llms.txt` uses the shared API registry.
 | `POST` | `/api/v1/server/preferences/tokens/{id}/rotate` | Rotates a linked token; primary-token authorization is required. |
 | `PATCH` | `/api/v1/server/preferences/tokens/{id}` | Updates a linked token's name or expiry; primary-token authorization is required. |
 | `DELETE` | `/api/v1/server/preferences/tokens/{id}` | Revokes a linked token; primary-token authorization is required. |
+| `GET` | `/api/v1/users` | Lists virtual mailbox addresses, quotas, enabled state, and timestamps with standard pagination. Password verifiers are never returned. Requires the operator Bearer token. |
+| `GET` | `/api/v1/users/{id}` | Returns one virtual mailbox by opaque UUIDv7 ID without its password verifier. Requires the operator Bearer token. |
+| `POST` | `/api/v1/users` | Creates a virtual mailbox on an enabled configured domain. Stores the mailbox password as an Argon2id verifier and returns only non-secret fields. Requires the operator Bearer token. |
+| `PUT` | `/api/v1/users/{id}` | Updates a virtual mailbox's quota or enabled state. Deletion dependencies are not implicitly removed. Requires the operator Bearer token. |
+| `DELETE` | `/api/v1/users/{id}` | Deletes a virtual mailbox only when no dependent forwarding, key, sieve, or archive records remain. Requires the operator Bearer token. |
+| `POST` | `/api/v1/users/{id}/password` | Changes a virtual mailbox password using Argon2id; password material is never returned or audited. Requires the operator Bearer token. |
+| `POST` | `/api/v1/users/import` | Imports virtual mailboxes from a bounded `text/csv` request with the header `email,password,quota_bytes,enabled`; returns per-row results without credential material. Requires the operator Bearer token. |
 | `GET` | `/api/v1/domains` | Lists configured mail domains with opaque UUIDv7 IDs and standard page/limit pagination. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
 | `GET` | `/api/v1/domains/{domain}` | Returns one configured mail domain with an opaque UUIDv7 ID. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
 | `POST` | `/api/v1/domains` | Creates a system-owned virtual domain. Requires the operator Bearer token. |

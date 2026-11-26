@@ -3,8 +3,9 @@
 Mail is a self-hosted mail infrastructure management service. Its product
 scope includes Postfix, Dovecot, mail users and domains, filtering, queue
 operations, and service monitoring. The current implementation includes
-service discovery/control and server information workflows; most mail
-administration features remain open in the
+server information and service discovery/control, virtual mailbox CRUD and CSV
+import, domain and DNS/DKIM management, and alias CRUD. Remaining mail
+administration features are open in the
 [implementation backlog](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
 
 ## What is currently available
@@ -31,6 +32,9 @@ database-aware health and application metadata routes:
 - `GET /api/v1/server/version`
 - `GET /api/v1/services` and `/api/v1/services/{service}` (operator token)
 - `POST /api/v1/services/{service}/{start|stop|restart|reload}` (operator token)
+- Operator-protected virtual mailbox list/detail/create/update/delete/password
+  change and CSV import under `/api/v1/users`
+- Operator-protected domain list/detail/CRUD/DNS/DKIM and alias list/create/delete
 - Owner-token list, reveal, creation, rotation, update, revocation, and initial
   issuance routes under `/api/v1/server/preferences/tokens`
 
@@ -40,8 +44,8 @@ header and client type. Health responses contain public project/build/runtime
 metadata, feature states, cached checks, persisted aggregate request counters,
 and in-flight request counts. Health does not probe mail daemons; Tor/I2P/GeoIP
 providers are incomplete, so health is not a production readiness signal.
-Mail-user, domain, queue, configuration, statistics, and log management pages
-and API routes are not available yet. Preferences use CSRF-protected POST forms without JavaScript; theme and
+Mail management pages and queue, configuration, statistics, and log routes
+remain incomplete. Preferences use CSRF-protected POST forms without JavaScript; theme and
 language persistence requires cookie consent. The sync page supports
 shareable preference exports and imports. The public shell includes a consent
 banner, installable manifest, and network-first service worker with an offline

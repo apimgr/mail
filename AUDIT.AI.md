@@ -7,7 +7,7 @@ These are confirmed open implementation gaps against read-only `AI.md` and
 implemented, verified, and committed.
 
 ## Pass 1: Security
-- [ ] API authorization and ownership are incomplete across the IDEA mail API. The registry now includes operator-protected domain CRUD, alias list/create/delete, and service routes, but most user, forwarding, queue, config, statistics, log routes and the remaining ownership checks do not exist (`src/server/api_routes.go`; IDEA.md API routes). Mail infrastructure resources are declared system-owned in IDEA.md per AI.md PART 11.
+- [ ] API authorization and ownership are incomplete across the IDEA mail API. The registry now includes operator-protected virtual-mailbox CRUD/password, domain CRUD, alias list/create/delete, and service routes; mailbox passwords use Argon2id verifiers, and domains, aliases, virtual mailboxes, and forwards persist the reserved system owner. CSV import, system-user management, forwarding, queue, config, statistics, and log routes and ownership checks for other mail resources remain absent (`src/server/api_routes.go`, `src/database/schema_mail.go`; IDEA.md API routes; AI.md PART 11).
 - [ ] Update installation is not service-account-safe. The direct updater replaces the executable in-process, while AI.md PART 22 requires a service-user staging phase and root re-verification before replacement (`src/update/update.go:168-192`; AI.md PART 22, “Update Privileges”).
 
 ## Pass 2: Code Quality
@@ -29,11 +29,11 @@ implemented, verified, and committed.
 ## Pass 5: Spec Compliance
 - [ ] AI.md PARTS 8, 21–24 require complete service, maintenance, backup/restore, update, privilege-drop, and service-supervision behavior. The CLI handlers and scheduled providers remain partial (`src/main.go`, `src/update`, `src/scheduler`).
 - [ ] AI.md PARTS 14–17 and IDEA.md require complete mail/API behavior, TLS, mail integrations, notifications, and page flows; only portions of service, token, domain, and public-page behavior exist (`src/server`, `src/mailservice`, `src/email`).
-- [ ] AI.md PARTS 25–32 still require final build/release, container, CI provider, test/browser coverage, i18n/accessibility, overlay network, and client alignment. The latest full test gate passed at 61.3% statement coverage after the path/PID fixes; container smoke passed in that run, but full build/release and CI verification remain pending (`Makefile`, `.github/`, `docker/`, `src/client`, `src/common/i18n`; TODO.AI.md).
+- [ ] AI.md PARTS 25–32 still require release builds, CI provider coverage, broader test/browser coverage, i18n/accessibility, overlay networking, and client alignment. The latest combined `make test SMOKE=1` gate passed after virtual-mailbox read routes and owner migrations: Docker smoke passed and statement coverage was 61.4%; release matrix and hosted CI verification remain pending (`Makefile`, `.github/`, `docker/`, `src/client`, `src/common/i18n`; TODO.AI.md).
 
 ## Pass 6: Code Flow Trace
 - [ ] Client commands still describe server operations whose corresponding API handlers are absent, so user, forward, queue, config, statistics, and log flows cannot complete (`src/client/cobra_cli.go`, `src/server/api_routes.go`). Alias list/create/delete CLI commands now match the implemented operator-only API endpoints; live MTA synchronization is still absent.
-- [ ] `update.Check` now follows same-origin GitHub release pagination until it finds the running version, but scheduled defer selection, privileged staging/re-verification, and completion behavior remain absent (`src/update/update.go`; AI.md PART 22, “Channel Semantics”). Pagination changes have focused tests but still need the full final gate.
+- [ ] `update.Check` now follows same-origin GitHub release pagination until it finds the running version, but scheduled defer selection, privileged staging/re-verification, and completion behavior remain absent (`src/update/update.go`; AI.md PART 22, “Channel Semantics”). Pagination and alias ownership migrations pass the full project test gate; overall feature completion remains open.
 
 ## Completed
 - Existing findings about domain reads, shell integration, current public SSR pages, scheduler state persistence, locale parity, and partial service control were rechecked against the current worktree and folded into the open findings above where gaps remain.
