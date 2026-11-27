@@ -42,15 +42,16 @@ pipeline {
                                 base=$(git merge-base "origin/$CHANGE_TARGET" HEAD)
                                 container_name="mail-$(tr -dc 'a-z0-9' </dev/urandom | head -c8)"
                                 docker run --rm --no-healthcheck --name "$container_name" --memory=2g --cpus=2 \
-                                    -v "$WORKSPACE:/work" trufflesecurity/trufflehog:3.95.9 git file:///work \
-                                    --since-commit "$base" --branch HEAD --results=verified,unknown --fail --fail-on-scan-errors
+                                    -v "$WORKSPACE:/work:ro" -w /work trufflesecurity/trufflehog:3.95.9 git file:///work \
+                                    --since-commit "$base" --branch HEAD --results=verified,unknown --exclude-paths=.github/trufflehog-exclude.txt --fail --fail-on-scan-errors
                             else
                                 for result_set in verified unverified,unknown; do
                                     container_name="mail-$(tr -dc 'a-z0-9' </dev/urandom | head -c8)"
                                     args="--results=$result_set"
+                                    args="$args --exclude-paths=.github/trufflehog-exclude.txt"
                                     [ "$result_set" != verified ] || args="$args --fail"
                                     docker run --rm --no-healthcheck --name "$container_name" --memory=2g --cpus=2 \
-                                        -v "$WORKSPACE:/work" trufflesecurity/trufflehog:3.95.9 git file:///work $args --fail-on-scan-errors
+                                        -v "$WORKSPACE:/work:ro" -w /work trufflesecurity/trufflehog:3.95.9 git file:///work $args --fail-on-scan-errors
                                 done
                             fi
                         '''

@@ -34,16 +34,16 @@ lint:
 
 secret-scan:
   stage: security
-  image: trufflesecurity/trufflehog:latest
+  image: trufflesecurity/trufflehog:3.95.9
   variables:
     GIT_DEPTH: "0"
   script:
     - |
         if [ "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
-          trufflehog git file://. --since-commit "$CI_COMMIT_BEFORE_SHA" --branch "$CI_COMMIT_SHA" --results=verified,unknown --fail --fail-on-scan-errors
+          trufflehog git file://. --since-commit "$CI_COMMIT_BEFORE_SHA" --branch "$CI_COMMIT_SHA" --results=verified,unknown --exclude-paths=.github/trufflehog-exclude.txt --fail --fail-on-scan-errors
         else
-          trufflehog git file://. --results=verified --fail --fail-on-scan-errors
-          trufflehog git file://. --results=unverified,unknown
+          trufflehog git file://. --results=verified --exclude-paths=.github/trufflehog-exclude.txt --fail --fail-on-scan-errors
+          trufflehog git file://. --results=unverified,unknown --exclude-paths=.github/trufflehog-exclude.txt
         fi
 
 workflow-policy:

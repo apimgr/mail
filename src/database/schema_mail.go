@@ -50,8 +50,6 @@ var mailCreateStatements = []string{
 		updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
 	)`,
 
-	`CREATE INDEX IF NOT EXISTS idx_mail_domains_owner ON mail_domains(owner_type, owner_id)`,
-
 	// Mail mailboxes - virtual mailboxes
 	`CREATE TABLE IF NOT EXISTS mail_mailboxes (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -459,9 +457,6 @@ var mailSchemaUpdates = []string{
 	`ALTER TABLE mail_domains ADD COLUMN public_id TEXT`,
 	// Version devel (unreleased, 2026-11-26): uniquely index opaque mail-domain IDs.
 	`CREATE UNIQUE INDEX IF NOT EXISTS idx_mail_domains_public_id ON mail_domains(public_id)`,
-	// Version devel (unreleased, 2026-11-26): map legacy mail-domain owners to the system owner.
-	`UPDATE mail_domains SET owner_type = 'system', owner_id = 'system' WHERE owner_type <> 'system' OR owner_id <> 'system'`,
-	`CREATE INDEX IF NOT EXISTS idx_mail_domains_owner_id ON mail_domains(owner_id)`,
 	// Version devel (unreleased, 2026-11-26): add opaque UUIDv7 identifiers for mail aliases.
 	`ALTER TABLE mail_aliases ADD COLUMN public_id TEXT`,
 	// Version devel (unreleased, 2026-11-26): uniquely index opaque mail-alias IDs.
@@ -536,7 +531,6 @@ var mailSchemaUpdates = []string{
 	`UPDATE mail_archive_policies SET owner_id = 'system' WHERE owner_id IS NULL OR owner_id <> 'system'`,
 	`ALTER TABLE mail_archived_messages ADD COLUMN owner_id TEXT REFERENCES owners(id)`,
 	`UPDATE mail_archived_messages SET owner_id = 'system' WHERE owner_id IS NULL OR owner_id <> 'system'`,
-	`CREATE INDEX IF NOT EXISTS idx_mail_domains_owner_id ON mail_domains(owner_id)`,
 	`CREATE INDEX IF NOT EXISTS idx_srv_mail_servers_owner_id ON srv_mail_servers(owner_id)`,
 	`CREATE INDEX IF NOT EXISTS idx_mail_dkim_keys_owner_id ON mail_dkim_keys(owner_id)`,
 	`CREATE INDEX IF NOT EXISTS idx_mail_spf_records_owner_id ON mail_spf_records(owner_id)`,

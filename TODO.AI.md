@@ -145,11 +145,10 @@ its implementation is complete and committed.
   statistics, sieve, and archive tables now reference `owners(id)` from
   `owner_id` and have owner indexes. Legacy mail tables missing that column
   receive nullable foreign-key columns and are backfilled to the reserved
-  `system` owner without table rebuilds. The legacy domain table already has
-  an INTEGER `owner_id`; its value is normalized to `system`, but its declared
-  type and foreign key cannot be changed under the current no-rebuild rules.
-  That upgrade needs the AI.md template decision tracked in TODO.API.md. Tests
-  verify all fresh mail-table foreign keys/indexes and legacy backfills for
+  `system` owner without table rebuilds. Legacy domain tables with a non-text
+  `owner_id` retain that column and gain a nullable foreign-key `owner_ref`;
+  domain CRUD uses the canonical reference, and the prior numeric values stay
+  intact. Tests verify all fresh mail-table foreign keys/indexes and legacy backfills for
   domains, mailboxes, aliases, and forwards. Operator-protected
   virtual-mailbox list/detail, create/update/delete, and password-change routes
   return opaque UUIDv7 IDs and byte quotas without password verifiers;

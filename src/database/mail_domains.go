@@ -62,9 +62,10 @@ func (db *DB) ListMailDomains(ctx context.Context, page, limit int) ([]MailDomai
 	if err := db.UsersReadDB.QueryRowContext(ctx, `SELECT COUNT(*) FROM mail_domains`).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("count mail domains: %w", err)
 	}
-	rows, err := db.UsersReadDB.QueryContext(ctx, `SELECT public_id, domain, COALESCE(description, ''), owner_type, owner_id,
+	query := fmt.Sprintf(`SELECT public_id, domain, COALESCE(description, ''), owner_type, %s,
 		max_mailboxes, max_aliases, max_quota_mb, enabled, created_at, updated_at
-		FROM mail_domains ORDER BY domain LIMIT ? OFFSET ?`, limit, (page-1)*limit)
+		FROM mail_domains ORDER BY domain LIMIT ? OFFSET ?`, db.mailDomainOwnerColumn())
+	rows, err := db.UsersReadDB.QueryContext(ctx, query, limit, (page-1)*limit)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list mail domains: %w", err)
 	}
@@ -92,9 +93,10 @@ func (db *DB) GetMailDomain(ctx context.Context, name string) (MailDomain, error
 	defer cancel()
 	var domain MailDomain
 	var enabled int
-	err := db.UsersReadDB.QueryRowContext(ctx, `SELECT public_id, domain, COALESCE(description, ''), owner_type, owner_id,
+	query := fmt.Sprintf(`SELECT public_id, domain, COALESCE(description, ''), owner_type, %s,
 		max_mailboxes, max_aliases, max_quota_mb, enabled, created_at, updated_at
-		FROM mail_domains WHERE domain = ?`, name).Scan(&domain.ID, &domain.Domain, &domain.Description, &domain.OwnerType,
+		FROM mail_domains WHERE domain = ?`, db.mailDomainOwnerColumn())
+	err := db.UsersReadDB.QueryRowContext(ctx, query, name).Scan(&domain.ID, &domain.Domain, &domain.Description, &domain.OwnerType,
 		&domain.OwnerID, &domain.MaxMailboxes, &domain.MaxAliases, &domain.MaxQuotaMB, &enabled, &domain.CreatedAt, &domain.UpdatedAt)
 	if err != nil {
 		return MailDomain{}, fmt.Errorf("get mail domain: %w", err)
@@ -113,9 +115,17 @@ func (db *DB) CreateMailDomain(ctx context.Context, input MailDomainInput) (Mail
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	err = db.WithTransaction(ctx, db.UsersDB, func(tx *sql.Tx) error {
-		_, err := tx.ExecContext(ctx, `INSERT INTO mail_domains
-			(public_id, domain, description, owner_type, owner_id, max_mailboxes, max_aliases, max_quota_mb, enabled, created_at, updated_at)
-			VALUES (?, ?, ?, 'system', 'system', ?, ?, ?, ?, ?, ?)`, publicID.String(), input.Domain, input.Description,
+		if db.mailDomainOwnerRef {
+			_, err := tx.ExecContext(ctx, `INSERT INTO mail_domains
+				(public_id, domain, description, owner_type, owner_ref, owner_id, max_mailboxes, max_aliases, max_quota_mb, enabled, created_at, updated_at)
+				VALUES (?, ?, ?, 'system', 'system', 0, ?, ?, ?, ?, ?, ?)`, publicID.String(), input.Domain, input.Description,
+				input.MaxMailboxes, input.MaxAliases, input.MaxQuotaMB, input.Enabled, now, now)
+			return err
+		}
+		query := fmt.Sprintf(`INSERT INTO mail_domains
+			(public_id, domain, description, owner_type, %s, max_mailboxes, max_aliases, max_quota_mb, enabled, created_at, updated_at)
+			VALUES (?, ?, ?, 'system', 'system', ?, ?, ?, ?, ?, ?)`, db.mailDomainOwnerColumn())
+		_, err := tx.ExecContext(ctx, query, publicID.String(), input.Domain, input.Description,
 			input.MaxMailboxes, input.MaxAliases, input.MaxQuotaMB, input.Enabled, now, now)
 		return err
 	})

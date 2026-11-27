@@ -492,23 +492,28 @@ func TestMailDomainSchemaBackfillsOpaqueSystemOwnedIDs(t *testing.T) {
 	if err := db.EnsureSchema(); err != nil {
 		t.Fatal(err)
 	}
-	rows, err := db.ServerReadDB.QueryContext(context.Background(), `SELECT public_id, owner_type, owner_id FROM mail_domains ORDER BY domain`)
+	rows, err := db.ServerReadDB.QueryContext(context.Background(), `SELECT domain, public_id, owner_type, owner_id, owner_ref FROM mail_domains ORDER BY domain`)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() { _ = rows.Close() }()
 	count := 0
 	for rows.Next() {
-		var publicID, ownerType, ownerID string
-		if err := rows.Scan(&publicID, &ownerType, &ownerID); err != nil {
+		var domain, publicID, ownerType, ownerRef string
+		var ownerID int64
+		if err := rows.Scan(&domain, &publicID, &ownerType, &ownerID, &ownerRef); err != nil {
 			t.Fatal(err)
 		}
 		parsed, err := uuid.Parse(publicID)
 		if err != nil || parsed.Version() != 7 {
 			t.Errorf("migrated public ID = %q, err=%v; want UUIDv7", publicID, err)
 		}
-		if ownerType != "system" || ownerID != "system" {
-			t.Errorf("migrated owner = %q/%q, want system/system", ownerType, ownerID)
+		if ownerType != "system" || ownerRef != "system" {
+			t.Errorf("migrated owner = %q/%q, want system/system", ownerType, ownerRef)
+		}
+		legacyIDs := map[string]int64{"legacy.example": 7, "legacy-owner.example": 9, "legacy-system.example": 11}
+		if ownerID != legacyIDs[domain] {
+			t.Errorf("legacy owner_id for %s = %d, want %d", domain, ownerID, legacyIDs[domain])
 		}
 		count++
 	}
@@ -517,6 +522,23 @@ func TestMailDomainSchemaBackfillsOpaqueSystemOwnedIDs(t *testing.T) {
 	}
 	if count != 3 {
 		t.Fatalf("migrated domain count = %d, want 3", count)
+	}
+	domains, total, err := db.ListMailDomains(context.Background(), 1, 10)
+	if err != nil || total != 3 || len(domains) != 3 {
+		t.Fatalf("list migrated domains = %d/%d, err=%v; want 3", len(domains), total, err)
+	}
+	for _, domain := range domains {
+		if domain.OwnerID != "system" {
+			t.Errorf("listed legacy domain owner = %q, want system", domain.OwnerID)
+		}
+	}
+	created, err := db.CreateMailDomain(context.Background(), MailDomainInput{Domain: "created.example", Enabled: true})
+	if err != nil || created.OwnerID != "system" {
+		t.Fatalf("create migrated domain = %+v, err=%v; want system ownership", created, err)
+	}
+	var oldOwnerID int64
+	if err := db.UsersReadDB.QueryRowContext(context.Background(), `SELECT owner_id, owner_ref FROM mail_domains WHERE domain = ?`, created.Domain).Scan(&oldOwnerID, &created.OwnerID); err != nil || oldOwnerID != 0 || created.OwnerID != "system" {
+		t.Fatalf("new legacy-schema domain owners = %d/%q, err=%v; want 0/system", oldOwnerID, created.OwnerID, err)
 	}
 	var aliasID, aliasOwnerType, aliasOwnerID string
 	if err := db.UsersReadDB.QueryRowContext(context.Background(), `SELECT public_id, owner_type, owner_id FROM mail_aliases WHERE source = 'legacy@example.test'`).Scan(&aliasID, &aliasOwnerType, &aliasOwnerID); err != nil {

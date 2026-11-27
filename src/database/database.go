@@ -29,8 +29,9 @@ type DB struct {
 	// UsersDB is the users.db write handle.
 	UsersDB *sql.DB
 	// UsersReadDB is the users.db read-only handle.
-	UsersReadDB *sql.DB
-	driver      string
+	UsersReadDB        *sql.DB
+	driver             string
+	mailDomainOwnerRef bool
 }
 
 // RequestStats contains persisted aggregate request counters.
@@ -243,6 +244,9 @@ func (db *DB) ensureMailSchema() error {
 			return fmt.Errorf("create mail table: %w", err)
 		}
 	}
+	if err := db.ensureMailDomainOwnerColumn(); err != nil {
+		return fmt.Errorf("prepare mail-domain ownership column: %w", err)
+	}
 	for _, stmt := range mailSchemaUpdates {
 		if err := db.execSchema(db.UsersDB, stmt); err != nil && !isColumnExistsError(err) {
 			return fmt.Errorf("update mail schema: %w", err)
@@ -261,6 +265,78 @@ func (db *DB) ensureMailSchema() error {
 		return fmt.Errorf("backfill mail-forward public IDs: %w", err)
 	}
 	return nil
+}
+
+func (db *DB) ensureMailDomainOwnerColumn() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	rows, err := db.UsersDB.QueryContext(ctx, `PRAGMA table_info(mail_domains)`)
+	if err != nil {
+		return fmt.Errorf("inspect mail-domain columns: %w", err)
+	}
+	ownerIDType := ""
+	ownerIDFound := false
+	for rows.Next() {
+		var cid, notNull, primaryKey int
+		var name, columnType string
+		var defaultValue sql.NullString
+		if err := rows.Scan(&cid, &name, &columnType, &notNull, &defaultValue, &primaryKey); err != nil {
+			_ = rows.Close()
+			return fmt.Errorf("read mail-domain columns: %w", err)
+		}
+		if strings.EqualFold(name, "owner_id") {
+			ownerIDFound = true
+			ownerIDType = strings.TrimSpace(columnType)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return fmt.Errorf("iterate mail-domain columns: %w", err)
+	}
+	if err := rows.Close(); err != nil {
+		return fmt.Errorf("close mail-domain columns: %w", err)
+	}
+
+	if !ownerIDFound {
+		if _, err := db.UsersDB.ExecContext(ctx, `ALTER TABLE mail_domains ADD COLUMN owner_id TEXT REFERENCES owners(id)`); err != nil && !isColumnExistsError(err) {
+			return fmt.Errorf("add mail-domain owner ID: %w", err)
+		}
+		ownerIDType = "TEXT"
+	}
+	if !ownerIDFound || strings.EqualFold(ownerIDType, "TEXT") {
+		db.mailDomainOwnerRef = false
+		if _, err := db.UsersDB.ExecContext(ctx, `UPDATE mail_domains SET owner_type = 'system', owner_id = 'system' WHERE owner_type <> 'system' OR owner_id IS NULL OR owner_id <> 'system'`); err != nil {
+			return fmt.Errorf("backfill mail-domain owner ID: %w", err)
+		}
+		for _, statement := range []string{
+			`CREATE INDEX IF NOT EXISTS idx_mail_domains_owner ON mail_domains(owner_type, owner_id)`,
+			`CREATE INDEX IF NOT EXISTS idx_mail_domains_owner_id ON mail_domains(owner_id)`,
+		} {
+			if _, err := db.UsersDB.ExecContext(ctx, statement); err != nil {
+				return fmt.Errorf("index mail-domain owner ID: %w", err)
+			}
+		}
+		return nil
+	}
+
+	db.mailDomainOwnerRef = true
+	if _, err := db.UsersDB.ExecContext(ctx, `ALTER TABLE mail_domains ADD COLUMN owner_ref TEXT REFERENCES owners(id)`); err != nil && !isColumnExistsError(err) {
+		return fmt.Errorf("add canonical mail-domain owner reference: %w", err)
+	}
+	if _, err := db.UsersDB.ExecContext(ctx, `UPDATE mail_domains SET owner_type = 'system', owner_ref = 'system' WHERE owner_type <> 'system' OR owner_ref IS NULL OR owner_ref <> 'system'`); err != nil {
+		return fmt.Errorf("backfill canonical mail-domain owner reference: %w", err)
+	}
+	if _, err := db.UsersDB.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS idx_mail_domains_owner_ref ON mail_domains(owner_ref)`); err != nil {
+		return fmt.Errorf("index canonical mail-domain owner reference: %w", err)
+	}
+	return nil
+}
+
+func (db *DB) mailDomainOwnerColumn() string {
+	if db.mailDomainOwnerRef {
+		return "owner_ref"
+	}
+	return "owner_id"
 }
 
 // ensureServerSchema creates server.db tables
