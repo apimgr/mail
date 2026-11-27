@@ -17,6 +17,8 @@ The Makefile provides `make dev`, `make local`, `make build`, `make test`,
 host. `make test` verifies dependency licenses, runs vet and govulncheck, runs
 the unit tests, and enforces the 60% coverage gate. `make test-smoke` runs the
 containerized server, client, API, and rendered-page integration checks.
+Both `make build` and `make test` run the GraphQL schema-first validator before
+building or testing, so SDL/resolver drift fails the normal Docker gates.
 `make test SMOKE=1` runs the integration suite with unit tests. The smoke
 target creates and removes its own project-scoped temporary build directory.
 `make local`
