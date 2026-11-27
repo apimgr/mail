@@ -19,10 +19,15 @@ its implementation is complete and committed.
   `server.logs.level` follows the configured level or runtime mode. Unix manual
   `--daemon` now re-executes in a detached session; path discovery follows the
   system-manager/container precedence, private security paths are corrected,
-  and PID checks now validate process identity and skip containers. Backup
-  directory validation is warning-only, but privilege dropping, post-drop
-  service-user write verification, config-driven daemonization, service-aware
-  behavior, and remaining startup behaviors are incomplete.
+  and PID checks now validate process identity and skip containers. Unix root
+  startup now creates or validates the service identity, prepares ownership
+  without recursively changing backup contents, prebinds one privileged HTTP
+  listener, drops privileges, verifies the effective identity, and probes
+  backup writability as the service user. Startup still performs logging,
+  PID-file handling, full configuration loading, and mailer detection before
+  the drop; the required early merged config peek, config-driven daemonization,
+  dual HTTP/HTTPS listeners, raw-protocol listener binding, and remaining
+  startup/platform behavior are incomplete.
 - [ ] Finish service management, maintenance, update, and daemon CLI behavior;
   remove placeholder TODOs from production code when completed. `--status` now
   queries the local JSON health endpoint with a bounded timeout. The companion
@@ -249,11 +254,11 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest full `make test SMOKE=1` gate passed with
-  60.4% statement coverage and exercised the current CLI/server startup,
-  health, API, mail routes, and rendered-page shells. Incus and browser E2E
-  coverage and tests for the
-  complete product behavior are missing.
+  required by AI.md PART 28. The latest full wrapped `make test` gate passed
+  with 60.4% statement coverage and exercised the current test suite, including
+  persisted mail and GraphQL resolver behavior. The Docker smoke gate has not
+  been rerun after the latest changes. Incus and browser E2E coverage and tests
+  for complete product behavior are missing.
 
 ## Documentation and compliance
 
