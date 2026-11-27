@@ -47,6 +47,15 @@ credit is added to the acknowledgments page when status becomes `disclosed`.
 files use mode `0600` and are never overwritten. Researcher status-change email
 remains incomplete.
 
+`--maintenance pgp generate` creates the configured project keypair and starts
+publication to `web.security.keyservers`; `publish` retries configured hosts.
+`export public [FILE]` writes the public key to stdout or a new mode `0600`
+file. `export private FILE` requires the exact typed confirmation, a reason,
+and a second token check when the operator is not elevated; it is limited to
+one attempt per hour per OS user. `delete` warns that PGP-encrypted reports
+will become unreadable and requires typed confirmation. Rotation and import
+are not yet implemented.
+
 ### Server flags
 
 | Flag | Description |
@@ -64,7 +73,7 @@ remains incomplete.
 | `--color auto\|yes\|no` | Set terminal color behavior. |
 | `--shell completions [SHELL]`, `--shell init [SHELL]` | Generate shell integration. |
 | `--service COMMAND` | Manage the detected system or per-user service (`status`, `install`, `start`, `stop`, `restart`, `reload`, `disable`, `uninstall`). |
-| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, `email test [--to ADDRESS] [--dry-run]`, and `security list [--status STATUS]` / `security show TRACKING_ID` / `security update TRACKING_ID [options]` / `security export TRACKING_ID [--output FILE|-]` are implemented. Backup, restore, setup, secret rotation, PGP maintainer delivery, and researcher status-change email are incomplete. |
+| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, `email test [--to ADDRESS] [--dry-run]`, PGP generate/publish/public export/private export/delete, and security-report list/show/update/export are implemented. PGP rotation/import, backup, restore, setup, secret rotation, PGP maintainer delivery, and researcher status-change email are incomplete. |
 | `--update [check\|yes\|branch NAME]` | Check, install, or select the update channel. |
 
 `--i2p` is accepted, but I2P startup is not yet implemented.

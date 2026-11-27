@@ -175,7 +175,11 @@ its implementation is complete and committed.
   fingerprint/key URL; `/server/security` renders those channels and links.
   Nonsecurity contact workflows, PGP-encrypted maintainer delivery,
   security-role routing, maintenance update/export, and retired-key cleanup
-  are incomplete. Researcher acknowledgments now advertise email only after
+  are incomplete. PGP v4 key generation, public export, keyserver publication,
+  and timestamped publication metadata are implemented. Retry state is durable
+  in `config/security/keyservers.state` and the scheduler retries due entries.
+  Private-key export and confirmed deletion are implemented; rotation, import,
+  and retired-key cleanup remain incomplete. Researcher acknowledgments now advertise email only after
   SMTP accepts the message; acknowledgment email is skipped when a submitted
   key requires unsupported PGP encryption. Closed-report retention cleanup follows the configured days.
   Maintenance security list/show now display only permitted metadata and the
