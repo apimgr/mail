@@ -57,8 +57,14 @@ For vulnerability reports, use GitHub's private vulnerability reporting for
 the [apimgr/mail repository](https://github.com/apimgr/mail/security/advisories/new).
 This is the primary channel for vulnerabilities in the repository's source
 code. For a vulnerability in a deployed instance, use that instance's
-`/server/security` page and its security-report link to open the report form at
-`/server/contact?security_id=...`. The form validates the submission, stores
+`/server/security` page, which renders the configured channels and the
+`security.txt` expiry. When `server.pages.contact.enabled` is true, its
+security-report link opens `/server/contact?security_id=...`; the page also
+links to the form without a security ID for terms violations, abusive content,
+DMCA notices, and privacy requests. Setting the contact form to disabled makes
+both its GET and POST routes return 404. The security API exposes the same
+public contact/expiry details and validated PGP v4 key metadata, without the
+private admin address. The form validates the submission, stores
 the report with encrypted body and contact fields, and returns a tracking ID.
 When the acknowledgment email is successfully handed to SMTP, the response
 also says that a confirmation email is on its way. The email contains only the
@@ -76,14 +82,17 @@ disclosure dates, severity re-triage, and opted-in acknowledgments. Maintainers 
 report through an automated secure delivery path. `export TRACKING_ID` writes
 the stored ciphertext only, using mode `0600` and refusing to overwrite an
 existing file; `--output -` writes ciphertext to stdout. The
-`/server/security/thanks` page is informational only.
+`/server/security/thanks` page lists public credits for disclosed reports only
+when researchers opted into a name, handle, or anonymous credit.
 
 ## Public security resources
 
 | Resource | Current status |
 |---|---|
-| `/server/security` and `/server/security/policy` | Available as server-rendered pages |
-| `/.well-known/security.txt` | Served with GitHub private vulnerability reporting and the disclosure policy |
+| `/server/security` and `/server/security/policy` | Server-rendered pages; the overview reflects configured public contacts, expiry, and an available PGP key |
+| `GET /api/v1/server/security` | Public JSON mirror of contacts, expiry, PGP key availability/URL/fingerprint, policy, thanks, and the optional contact form URL |
+| `/.well-known/security.txt` | Includes the configured GitHub, enabled security form, and public security email channels, plus expiry, policy, and a valid PGP key URL when available |
+| `/.well-known/pgp-key.asc` | Serves an ASCII-armored, valid OpenPGP v4 public key; returns 404 if absent or invalid. Key generation and lifecycle management are not implemented yet. |
 | `/.well-known/llms.txt` and `/llms.txt` | Served with the currently registered public API routes |
 | Unknown `/.well-known/*` paths | Return the normal 404 page |
 

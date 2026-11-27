@@ -68,9 +68,10 @@ documentation](docs/api.md) and [documentation index](docs/index.md).
 Mail APIs are operator-protected and cover domains, DNS/DKIM, virtual
 mailboxes, aliases, forwarding, Postfix queue operations, and service
 management. The contact form accepts security reports and stores encrypted
-report data; PGP delivery to the security contact and operator export/triage
-remain incomplete. Live MTA synchronization and system-user management remain
-incomplete. Initial owner-token issuance,
+report data. Operators can list, inspect, update triage, and export stored
+ciphertext; PGP delivery to the security contact and researcher status-change
+email remain incomplete. Live MTA synchronization and system-user management
+remain incomplete. Initial owner-token issuance,
 token reveal/rotation/revocation, linked-token management, and the
 server-rendered token page are available. A companion `mail-cli` provides the
 Cobra command tree and an interactive Bubble Tea setup/menu. It supports
@@ -98,16 +99,13 @@ Italian, and Spanish; localization coverage is still incomplete. See the
 
 ## Development
 
-The Makefile provides Docker-backed `make dev`, `make build`, `make test`, and
-`make test-smoke` targets using `casjaysdev/go:latest`. Go build and test
+The Makefile provides Docker-backed `make dev`, `make build`, and `make test`
+targets using `casjaysdev/go:latest`. Go build and test
 commands must not run directly on the host. See
 [development documentation](docs/development.md).
 `make test` verifies dependency licenses, runs vet and govulncheck, runs unit
-tests, and enforces the 60% coverage floor.
-`make test-smoke` builds into a project-scoped temporary directory and
-exercises the server, client, APIs, and rendered pages in an isolated Docker
-container. Set `SMOKE=1` on `make test` to include that suite with the unit
-test gate.
+tests, and enforces the 60% coverage floor. Run `bash tests/run_tests.sh` for
+the Docker-based server, client, API, and rendered-page smoke suite.
 
 ## Disclaimer
 

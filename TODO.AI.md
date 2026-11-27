@@ -167,7 +167,13 @@ its implementation is complete and committed.
   privacy, terms, header and footer support localized safe rendering, but config
   validation, hot reload and warning/default behavior are incomplete), full
   MCP help guidance and the complete security-report flow remain incomplete.
-  The contact form and status lookup exist; PGP-encrypted maintainer delivery,
+  Reverse-proxy baseurl detection and prefixing are not yet implemented for
+  routes, forms, assets, and server-rendered links.
+  The contact form and status lookup exist; its enabled switch now gates GET,
+  POST, API discovery, and advertised URLs. The security API and security.txt
+  expose only configured public channels, expiry, and a validated PGP v4
+  fingerprint/key URL; `/server/security` renders those channels and links.
+  Nonsecurity contact workflows, PGP-encrypted maintainer delivery,
   security-role routing, maintenance update/export, and retired-key cleanup
   are incomplete. Researcher acknowledgments now advertise email only after
   SMTP accepts the message; acknowledgment email is skipped when a submitted
@@ -176,7 +182,9 @@ its implementation is complete and committed.
   researcher comment, with a validated list status filter. Maintenance update
   now performs forward-only status changes, comment/date/severity updates,
   closure timestamps, and opt-in hall-of-fame insertion transactionally;
-  encrypted export and researcher status-change email remain missing.
+  maintenance export writes only stored ciphertext with mode `0600` and refuses
+  to overwrite files. PGP maintainer delivery and researcher status-change
+  email remain missing.
   The complete page registry and route parity remain missing. A shared page
   registry now covers
   the current server-rendered GET routes and drives sub-page routes, hub/footer
@@ -270,7 +278,7 @@ its implementation is complete and committed.
   custom runner label and existing ShellCheck advisory excluded. Hosted CI
   runs and release workflows still need verification.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The wrapped `make test` gate passed with 60.0%
+  required by AI.md PART 28. The wrapped `make test` gate passed with 60.1%
   statement coverage; the Docker server/client smoke suite and all-platform
   `make build` also passed. Incus and browser E2E coverage and tests for
   complete product behavior are missing.
@@ -288,6 +296,7 @@ its implementation is complete and committed.
   including service files, complete PWA assets/update recovery, workflows, and
   deployment artifacts. The installable manifest, service worker, offline page,
   versioned static assets, build-stamp cache purge, robots/sitemap/feed,
-  security.txt and llms.txt now exist, but full icon variants, robust
+  security.txt, llms.txt, and conditional `/.well-known/pgp-key.asc` serving now
+  exist; PGP key creation and the remaining discovery plumbing remain. Full icon variants, robust
   update/recovery behavior, metadata, and browser verification remain.
 - [ ] Keep README.md and docs/ synchronized after every feature change.

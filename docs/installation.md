@@ -17,8 +17,8 @@ From the repository root, run `make build` to produce server and client
 binaries for the supported release targets under `binaries/`. For a
 host-platform development build, `make dev` writes binaries to a project-scoped
 temporary directory and prints its location. The Makefile targets invoke Go
-inside Docker. Use `make test SMOKE=1` before evaluating a change; see the
-[development guide](development.md).
+inside Docker. Use `make test` and `bash tests/run_tests.sh` before evaluating a
+change; see the [development guide](development.md).
 
 ## Current runtime
 
