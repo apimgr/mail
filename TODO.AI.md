@@ -137,8 +137,17 @@ its implementation is complete and committed.
   remains. Operator-only alias list/create/delete routes now use opaque UUIDv7
   IDs with bounded pagination, and the alias schema stores the reserved
   `system/system` owner for existing and new records; live MTA integration and
-  user-facing workflows remain. Virtual-mailbox and forward schemas now also
-  persist the reserved owner for existing and new rows. Operator-protected
+  user-facing workflows remain. Fresh domain, mailbox, alias, and forward
+  schemas and the persisted mail-server, DKIM/SPF/DMARC/PGP, queue/delivery log,
+  statistics, sieve, and archive tables now reference `owners(id)` from
+  `owner_id` and have owner indexes. Legacy mail tables missing that column
+  receive nullable foreign-key columns and are backfilled to the reserved
+  `system` owner without table rebuilds. The legacy domain table already has
+  an INTEGER `owner_id`; its value is normalized to `system`, but its declared
+  type and foreign key cannot be changed under the current no-rebuild rules.
+  That upgrade needs the AI.md template decision tracked in TODO.API.md. Tests
+  verify all fresh mail-table foreign keys/indexes and legacy backfills for
+  domains, mailboxes, aliases, and forwards. Operator-protected
   virtual-mailbox list/detail, create/update/delete, and password-change routes
   return opaque UUIDv7 IDs and byte quotas without password verifiers;
   password values are stored as Argon2id verifiers. The operator-only CSV
