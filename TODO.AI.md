@@ -11,7 +11,7 @@ its implementation is complete and committed.
   the shared locale catalog and `src/common/theme` the unified theme palette.
   `src/client/` includes a Cobra command tree and Bubble Tea setup/menu for
   IDEA's mail API. Remaining TUI requirements, other shared
-  packages, `src/swagger`, `src/graphql`, and remaining required structure are
+  packages, `src/swagger`, remaining GraphQL schema parity, and other required structure are
   incomplete.
 - [ ] Complete the runtime initialization, configuration, CLI flags, modes,
   path handling, and platform behavior in AI.md PARTS 4–8. Built-in shell init
@@ -109,7 +109,7 @@ its implementation is complete and committed.
   branding values, Tor/I2P/GeoIP providers, cache-provider and disk-capacity
   probes. A shared registry now mounts current API routes and generates
   OpenAPI JSON at `/api/v1/server/swagger` and `/api/swagger`; its schemas and
-  metadata remain incomplete, and GraphQL is unavailable. Current public checks confirm configured directory presence and
+  metadata remain incomplete. GraphQL now has an operator-authenticated, query-only endpoint, bounded query depth/size, and a vendored themed GraphiQL page; its schema still omits public server reads and future mail routes, and GraphQL type/field descriptions are not translated. Current public checks confirm configured directory presence and
   scheduler state; a separate operator-only mail health route reports
   detected component states. Aggregate request counters now persist in `server.db` with
   minute-batched writes and shutdown flushing; in-flight HTTP requests are

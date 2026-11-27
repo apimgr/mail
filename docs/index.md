@@ -52,6 +52,9 @@ providers are incomplete, so health is not a production readiness signal.
 Mail management pages, system-user management, component configuration,
 delivery/spam statistics, and log routes remain incomplete. Postfix queue
 operations require the server process to have the permissions Postfix requires.
+The GraphiQL explorer at `/server/docs/graphql` uses locally served assets and
+the operator-authenticated, read-only GraphQL endpoint. See the [API guide](api.md)
+for its current mail query surface and limits.
 Preferences use CSRF-protected POST forms without JavaScript; theme and
 language persistence requires cookie consent. The sync page supports
 shareable preference exports and imports. The public shell includes a consent

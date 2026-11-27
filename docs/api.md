@@ -8,6 +8,8 @@ owner-token management, operator-protected virtual mailbox CRUD and CSV import,
 domain, alias, forwarding, Postfix queue, queue-statistics, and service status
 and control operations. OpenAPI JSON includes protected routes
 and declares their Bearer security; `llms.txt` uses the shared API registry.
+The query-only GraphQL API exposes current mail read operations through a
+separate operator-authenticated GraphQL response format.
 
 | Method | Path | Current behavior |
 |---|---|---|
@@ -15,6 +17,7 @@ and declares their Bearer security; `llms.txt` uses the shared API registry.
 | `GET` | `/api/v1/server/healthz.txt` | Returns the same health data as flat text; the `.txt` suffix overrides `Accept`. |
 | `GET` | `/api/v1/server/auth/check` | Machine-only token check. Requires one Bearer credential, returns `{ "kind": "operator" }` or `{ "kind": "owner" }`; invalid credentials return 401. Rate limited and never echoes the token. |
 | `GET` | `/api/v1/server/swagger` | Generates an OpenAPI JSON document from routes currently registered by the server, including protected routes with their authorization schemes. |
+| `GET`, `POST` | `/api/v1/server/graphql` | Executes query-only GraphQL operations; requires the operator Bearer token. GET accepts `query`, `variables`, and `operationName`; POST accepts a JSON GraphQL request. |
 | `GET` | `/api/v1/server/about` | Returns localized title, project Markdown/content, and format, using configured About content when present. |
 | `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
 | `GET` | `/api/v1/server/privacy` | Returns the public privacy policy data, configured cookie descriptions, retention details, tracking state, and consent/CCPA state. |
@@ -118,6 +121,15 @@ integration with the live MTA configuration remain incomplete. System-user
 management, component configuration, delivery/spam statistics, and log
 management are not implemented. The generated OpenAPI schemas are
 generic for several responses and omit complete query parameters and error
-metadata. The GraphQL endpoint and interface are unavailable. Health checks do
-not yet probe the mail daemons; Tor/I2P/GeoIP providers also remain incomplete.
+metadata. GraphQL currently exposes paginated users, user detail, paginated
+domains and domain detail, DNS and public DKIM records, aliases, forwards,
+queue entries and statistics, service status, and aggregate mail health. It
+applies operator Bearer authorization, rejects mutations by using a query-only
+schema, and caps query depth at 8 and query size at 32 KiB. Pagination accepts
+limits from 1 through 250. The schema does not yet cover all public server
+reads or future mail routes. The GraphiQL page is
+`/server/docs/graphql`; enter `Authorization: Bearer <operator-token>` in its
+header editor. The header editor does not persist headers. Without JavaScript,
+the page links to the plain GraphQL endpoint. Health checks do not yet probe
+the mail daemons; Tor/I2P/GeoIP providers also remain incomplete.
 Do not treat this development API as a stable production contract.
