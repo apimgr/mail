@@ -37,8 +37,10 @@ an explicit recipient; `--dry-run` previews and validates every email template
 without sending. `--maintenance mode production|development` changes the
 configured runtime mode; the server must be restarted to apply it. These
 commands require the operator token or an elevated account. Backup, restore,
-setup, secret rotation, and security-report maintenance operations remain
-incomplete.
+setup, and secret rotation remain incomplete. `--maintenance security list
+[--status STATUS]` lists security-report metadata without report content;
+`show TRACKING_ID` displays metadata and the researcher comment without report
+content. Update and encrypted export remain incomplete.
 
 ### Server flags
 
@@ -57,7 +59,7 @@ incomplete.
 | `--color auto\|yes\|no` | Set terminal color behavior. |
 | `--shell completions [SHELL]`, `--shell init [SHELL]` | Generate shell integration. |
 | `--service COMMAND` | Manage the detected system or per-user service (`status`, `install`, `start`, `stop`, `restart`, `reload`, `disable`, `uninstall`). |
-| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, and `email test [--to ADDRESS] [--dry-run]` are implemented. Backup, restore, setup, secret rotation, and security-report commands remain incomplete. |
+| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, `email test [--to ADDRESS] [--dry-run]`, and `security list [--status STATUS]` / `security show TRACKING_ID` are implemented. Backup, restore, setup, secret rotation, and the remaining security-report actions are incomplete. |
 | `--update [check\|yes\|branch NAME]` | Check, install, or select the update channel. |
 
 `--i2p` is accepted, but I2P startup is not yet implemented.

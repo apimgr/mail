@@ -166,10 +166,15 @@ its implementation is complete and committed.
   contact workflows, the full configurable page-content integration (about,
   privacy, terms, header and footer support localized safe rendering, but config
   validation, hot reload and warning/default behavior are incomplete), full
-  MCP help guidance, the complete security-report flow (the contact form and
-  status lookup exist, but PGP-encrypted maintainer delivery, security-role
-  routing, maintenance export/triage and retention cleanup are incomplete), complete page
-  registry and route parity remain missing. A shared page registry now covers
+  MCP help guidance and the complete security-report flow remain incomplete.
+  The contact form and status lookup exist; PGP-encrypted maintainer delivery,
+  security-role routing, maintenance update/export, and retired-key cleanup
+  are incomplete. Closed-report retention cleanup follows the configured days.
+  Maintenance security list/show now display only permitted metadata and the
+  researcher comment, with a validated list status filter; encrypted export
+  and report triage remain missing.
+  The complete page registry and route parity remain missing. A shared page
+  registry now covers
   the current server-rendered GET routes and drives sub-page routes, hub/footer
   links, the help API list, and sitemap inclusion. State-changing web routes,
   API mirrors, and the larger API route inventory are not yet in that page
@@ -238,7 +243,7 @@ its implementation is complete and committed.
   policy plus exponential retries are implemented; Tor/I2P tasks are omitted
   because the scheduler is not given their feature state. Retry attempts are
   still in-memory. Owner idle purge and functional providers for certificate,
-  GeoIP, blocklist, security cleanup, keyserver, CVE, update, log rotation,
+  GeoIP, blocklist, retired-key cleanup, keyserver, CVE, update, log rotation,
   backup, disk monitoring, and other external tasks remain incomplete.
 
 ## Build, packaging, and release

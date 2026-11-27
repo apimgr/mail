@@ -63,10 +63,13 @@ the report with encrypted body and contact fields, and returns a tracking ID.
 When no researcher PGP key is supplied, the receipt contains only that ID and
 a one-shot status link. When a key is supplied, receipt delivery is skipped
 until PGP encryption is implemented. The status page shows triage state and
-does not disclose report content. PGP
-delivery to the configured security contact, maintenance export and triage,
-and report-retention cleanup are not implemented yet; maintainers therefore
-do not receive the report through an automated secure delivery path. The
+does not disclose report content. Closed reports are removed after the
+configured retention period by the daily security cleanup task; open reports
+are retained. PGP delivery to the configured security contact, maintenance
+update/export, and retired-key cleanup are not implemented yet. The operator-only `--maintenance security list [--status
+STATUS]` command shows metadata without report content; show, update, and
+encrypted export remain incomplete. Maintainers therefore do not receive the
+report through an automated secure delivery path. The
 `/server/security/thanks` page is informational only.
 
 ## Public security resources
