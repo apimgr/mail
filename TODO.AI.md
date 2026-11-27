@@ -166,7 +166,9 @@ its implementation is complete and committed.
   contact workflows, the full configurable page-content integration (about,
   privacy, terms, header and footer support localized safe rendering, but config
   validation, hot reload and warning/default behavior are incomplete), full
-  MCP help guidance, security-report flow, complete page
+  MCP help guidance, the complete security-report flow (the contact form and
+  status lookup exist, but PGP-encrypted maintainer delivery, security-role
+  routing, maintenance export/triage and retention cleanup are incomplete), complete page
   registry and route parity remain missing. A shared page registry now covers
   the current server-rendered GET routes and drives sub-page routes, hub/footer
   links, the help API list, and sitemap inclusion. State-changing web routes,
