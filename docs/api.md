@@ -72,6 +72,7 @@ separate operator-authenticated GraphQL response format.
 | `GET` | `/api/v1/stats/delivery` | Returns delivery-log counts grouped by recorded status. Requires the operator Bearer token. |
 | `GET` | `/api/v1/stats/spam` | Returns aggregate spam and virus detections. Requires the operator Bearer token. |
 | `GET` | `/api/v1/stats/queue` | Returns `queued_messages`, `queued_size_bytes`, and `by_state` for messages still queued that arrived within the requested `period` (`24h`, `7d`, `30d`, `90d`, or `365d`; defaults to `30d`). `since` identifies the UTC start time. Requires the operator Bearer token. |
+| `GET` | `/api/v1/logs/{component}` | Lists sanitized log entries for `server`, `error`, `access`, `audit`, `security`, or `debug`. Requires operator Bearer authorization. |
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
@@ -93,6 +94,18 @@ time. Delivery totals are grouped by the status stored in the delivery log.
 Spam and virus totals use hourly aggregates for periods up to seven days and
 daily aggregates for longer periods; the response reports that granularity.
 The first UTC hour or day overlapping the selected period is included in full.
+
+The log endpoint reads the current file and retained rotated files for the
+selected component, ordered newest first. `level` matches case-insensitively;
+`q` is a literal case-insensitive substring. `page` defaults to 1 and `limit`
+defaults to 50, with a maximum limit of 100. Each `data` item has `timestamp`,
+`level`, and `message`; the message is the sanitized log line, capped at 200
+characters. Unrecognized timestamps and levels are empty strings. Credential
+fields (including database DSNs and URL user information), sensitive URL query
+values, internal IP addresses, and filesystem paths are redacted before any line is returned. Pagination metadata is returned as a
+sibling `pagination` object. A query that would scan more than 64 MiB of
+uncompressed logs or return more than 100,000 matching entries fails with HTTP
+413; it never returns partial results with misleading pagination totals.
 
 ```json
 {

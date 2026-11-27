@@ -246,6 +246,16 @@ func TestOperatorMailDomainLifecycleAndDKIMRoutes(t *testing.T) {
 	if deleted.Code != http.StatusOK {
 		t.Fatalf("delete status = %d: %s", deleted.Code, deleted.Body.String())
 	}
+	var deletedBody struct {
+		OK   bool                     `json:"ok"`
+		Data mailDomainDeleteResponse `json:"data"`
+	}
+	if err := json.Unmarshal(deleted.Body.Bytes(), &deletedBody); err != nil {
+		t.Fatal(err)
+	}
+	if !deletedBody.OK || deletedBody.Data.ID != createdBody.Data.ID || deletedBody.Data.Message != "Mail domain deleted" {
+		t.Fatalf("delete response = %#v, want deleted domain ID and result", deletedBody)
+	}
 	var auditEvents int
 	if err := db.ServerReadDB.QueryRowContext(context.Background(), `SELECT COUNT(*) FROM audit_log WHERE category = 'mail'
 		AND target_type = 'mail_domain' AND target_id = ?`, createdBody.Data.ID).Scan(&auditEvents); err != nil {

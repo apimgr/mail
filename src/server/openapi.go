@@ -67,14 +67,15 @@ func openAPIOperation(route Route) map[string]any {
 		},
 	}
 	for code, description := range map[int]string{
-		http.StatusBadRequest:          "Invalid request",
-		http.StatusUnauthorized:        "Invalid or missing credentials",
-		http.StatusForbidden:           "The credential lacks permission for this operation",
-		http.StatusNotFound:            "The requested resource was not found",
-		http.StatusConflict:            "The request conflicts with current resource state",
-		http.StatusTooManyRequests:     "The request limit was exceeded",
-		http.StatusInternalServerError: "Internal server error",
-		http.StatusServiceUnavailable:  "A required service is unavailable",
+		http.StatusBadRequest:            "Invalid request",
+		http.StatusUnauthorized:          "Invalid or missing credentials",
+		http.StatusForbidden:             "The credential lacks permission for this operation",
+		http.StatusNotFound:              "The requested resource was not found",
+		http.StatusConflict:              "The request conflicts with current resource state",
+		http.StatusTooManyRequests:       "The request limit was exceeded",
+		http.StatusRequestEntityTooLarge: "The request exceeds a configured size or processing limit",
+		http.StatusInternalServerError:   "Internal server error",
+		http.StatusServiceUnavailable:    "A required service is unavailable",
 	} {
 		responses[strconv.Itoa(code)] = map[string]any{"description": description}
 	}

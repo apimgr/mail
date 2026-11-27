@@ -3,8 +3,10 @@ package server
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -384,7 +386,21 @@ func (s *Server) handleService(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleServiceAction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "private, no-store")
 	name := chi.URLParam(r, "service")
-	action := strings.TrimPrefix(r.URL.Path, api.APIBasePath()+"/services/"+name+"/")
+	r.Body = http.MaxBytesReader(w, r.Body, 4<<10)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	var request mailServiceOperationRequest
+	if err := decoder.Decode(&request); err != nil || decoder.Decode(&struct{}{}) != io.EOF {
+		writeJSON(w, http.StatusBadRequest, mailUserError("VALIDATION_FAILED", "Invalid service operation request"))
+		return
+	}
+	action := strings.TrimSpace(request.Operation)
+	switch action {
+	case "start", "stop", "restart", "reload":
+	default:
+		writeJSON(w, http.StatusBadRequest, mailUserError("VALIDATION_FAILED", "Unsupported service operation"))
+		return
+	}
 	component, err := mailservice.Operate(r.Context(), name, action)
 	if err != nil {
 		s.auditRequest(r, "mail.service.operation", "operator", map[string]any{"service": name, "action": action, "success": false})
@@ -401,7 +417,9 @@ func (s *Server) handleServiceAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.auditRequest(r, "mail.service.operation", "operator", map[string]any{"service": name, "action": action, "success": true})
-	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "data": map[string]any{"operation": action, "service": component}})
+	writeJSON(w, http.StatusOK, apiDataResponse[mailServiceOperationResponse]{
+		OK: true, Data: mailServiceOperationResponse{Operation: action, Service: component},
+	})
 }
 
 func (s *Server) requestIP(r *http.Request) string {

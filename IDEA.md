@@ -175,7 +175,7 @@ defined by AI.md.
 | `DELETE /queue/{id}` | Operator Bearer token | No body; return queue ID and deletion result. |
 | `POST /queue/flush-all` | Operator Bearer token | No body; return flush operation result. |
 | `GET /stats/delivery`, `/stats/spam`, `/stats/queue` | Operator Bearer token | Optional period; return counts for the selected category. |
-| `GET /logs/{component}` | Operator Bearer token | Optional filters and pagination; return matching entries and pagination. |
+| `GET /logs/{component}` | Operator Bearer token | `component` is `server`, `error`, `access`, `audit`, `security`, or `debug`. Optional `level` is case-insensitive and `q` is a literal case-insensitive substring; `page` defaults to 1 and `limit` defaults to 50 (maximum 100). Read the current log and retained rotated files, newest first. Return `data` entries with `timestamp`, `level`, and sanitized original-line `message`, plus accurate pagination metadata. Recognized timestamps and levels are populated; unrecognized values are empty. Redact credential fields from every returned line and apply AI.md response sanitization, including its message-length limit. Reject a query with an explicit limit error rather than returning partial results when scanning exceeds 64 MiB uncompressed or 100,000 matching entries. |
 | `GET /health` | Operator Bearer token | No body; return overall state and component checks. |
 
 The template's own server, health, version, and discovery endpoints are

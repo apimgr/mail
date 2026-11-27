@@ -35,6 +35,10 @@ func TestRegisteredPageHTMLConformance(t *testing.T) {
 				t.Fatal(err)
 			}
 			ids := map[string]int{}
+			headingIDs := map[string]bool{}
+			var sectionLabels []string
+			var pageHeaders int
+			var titledH1 int
 			labels := map[string]bool{}
 			var controls []string
 			var links []string
@@ -81,6 +85,17 @@ func TestRegisteredPageHTMLConformance(t *testing.T) {
 						ids["__main"]++
 					case "h1":
 						ids["__h1"]++
+						if hasClass(values["class"], "page-title") {
+							titledH1++
+						}
+					case "h2":
+						if values["id"] != "" {
+							headingIDs[values["id"]] = true
+						}
+					case "header":
+						if hasClass(values["class"], "page-header") {
+							pageHeaders++
+						}
 					case "a":
 						if len(firstAnchors) < 2 {
 							firstAnchors = append(firstAnchors, values["class"])
@@ -124,6 +139,9 @@ func TestRegisteredPageHTMLConformance(t *testing.T) {
 					if node.Data == "table" && !inTableWrapper {
 						tableOutsideWrapper = true
 					}
+					if hasClass(values["class"], "section-card") {
+						sectionLabels = append(sectionLabels, values["aria-labelledby"])
+					}
 					inTableWrapper = inTableWrapper || hasClass(values["class"], "table-wrapper")
 					if node.Data == "img" && !hasAttribute(node, "alt") {
 						t.Error("image is missing alt attribute")
@@ -137,8 +155,13 @@ func TestRegisteredPageHTMLConformance(t *testing.T) {
 				}
 			}
 			walk(root, false, false, false)
-			if ids["__main"] != 1 || ids["__h1"] != 1 {
-				t.Errorf("page has %d main elements and %d h1 elements", ids["__main"], ids["__h1"])
+			if ids["__main"] != 1 || ids["__h1"] != 1 || titledH1 != 1 || pageHeaders != 1 {
+				t.Errorf("page has %d main elements, %d h1 elements, %d page-title h1 elements, and %d page headers", ids["__main"], ids["__h1"], titledH1, pageHeaders)
+			}
+			for _, label := range sectionLabels {
+				if label == "" || !headingIDs[label] {
+					t.Errorf("section card aria-labelledby %q does not reference an h2", label)
+				}
 			}
 			if target == "/server/about" {
 				body := response.Body.String()

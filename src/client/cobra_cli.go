@@ -258,6 +258,9 @@ func addAPICommands(root *cobra.Command, state *cliState) {
 				path = strings.ReplaceAll(path, fmt.Sprintf("{%d}", i), url.PathEscape(arg))
 			}
 			bodyText, _ := cmd.Flags().GetString("data")
+			if strings.HasSuffix(route, "/operations") && bodyText == "" {
+				bodyText = serviceOperationRequest(strings.Fields(use)[0])
+			}
 			var body io.Reader
 			if bodyText != "" {
 				body = strings.NewReader(bodyText)
@@ -335,7 +338,7 @@ func addAPICommands(root *cobra.Command, state *cliState) {
 	add(services, "list", "GET", "/services", noArgs)
 	add(services, "get {service}", "GET", "/services/{0}", oneArg)
 	for _, action := range []string{"start", "stop", "restart", "reload"} {
-		add(services, action+" {service}", "POST", "/services/{0}/"+action, oneArg)
+		add(services, action+" {service}", "POST", "/services/{0}/operations", oneArg)
 	}
 	health := &cobra.Command{Use: "health", Short: "Show mail-system health", Args: noArgs, RunE: func(cmd *cobra.Command, args []string) error { return state.do("GET", "/health", nil) }}
 	root.AddCommand(health)
@@ -343,6 +346,10 @@ func addAPICommands(root *cobra.Command, state *cliState) {
 		path := spec.path
 		root.AddCommand(&cobra.Command{Use: spec.name, Short: "Show server " + spec.name, Args: noArgs, RunE: func(cmd *cobra.Command, args []string) error { return state.do("GET", path, nil) }})
 	}
+}
+
+func serviceOperationRequest(operation string) string {
+	return `{"operation":"` + operation + `"}`
 }
 
 func requiresCLIConfirmation(method, route string) bool {

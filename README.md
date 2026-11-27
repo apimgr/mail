@@ -22,7 +22,7 @@ CLI. Mail records are global operator-managed resources under the reserved
 `system` owner; owner tokens do not authorize mail-stack access. Queue actions
 that need Postfix privileges require those permissions for the server process.
 Unix mail-account management, live MTA synchronization, transport and filtering
-configuration, certificate management, and logs remain incomplete. Operator-only
+configuration and certificate management remain incomplete. Operator-only
 delivery, spam/virus, and arrival-period queue statistics are available; see
 [TODO.AI.md](TODO.AI.md) for the verified backlog.
 
@@ -72,7 +72,7 @@ a production readiness signal. API text aliases are `/api/healthz.txt` and
 sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md).
 Mail APIs are operator-protected and cover domains, DNS/DKIM, virtual
-mailboxes, aliases, forwarding, Postfix queue operations, service management,
+mailboxes, aliases, forwarding, Postfix queue operations, sanitized log reads, service management,
 and delivery, spam/virus, and period-based queue statistics. The contact form accepts security reports and stores encrypted
 report data. Operators can list, inspect, update triage, and export stored
 ciphertext; PGP delivery to the security contact and researcher status-change

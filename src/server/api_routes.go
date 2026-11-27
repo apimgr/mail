@@ -62,6 +62,15 @@ type authCheckResponse struct {
 	Kind string `json:"kind"`
 }
 
+type mailServiceOperationRequest struct {
+	Operation string `json:"operation"`
+}
+
+type mailServiceOperationResponse struct {
+	Operation string                `json:"operation"`
+	Service   mailservice.Component `json:"service"`
+}
+
 type RouteRegistry struct {
 	routes []Route
 }
@@ -137,7 +146,7 @@ func (s *Server) apiRouteRegistry() []Route {
 		{Method: http.MethodGet, Path: apiPath("/domains/{domain}"), OperationID: "getMailDomain", Summary: "Get a virtual mail domain", Auth: "operator", Response: apiDataResponse[mailDomainResponse]{}, Handler: s.handleMailDomain},
 		{Method: http.MethodPost, Path: apiPath("/domains"), OperationID: "createMailDomain", Summary: "Create a virtual mail domain", Auth: "operator", Request: mailDomainRequest{}, Response: apiDataResponse[mailDomainResponse]{}, SuccessStatus: http.StatusCreated, Handler: s.handleCreateMailDomain},
 		{Method: http.MethodPut, Path: apiPath("/domains/{domain}"), OperationID: "updateMailDomain", Summary: "Update a virtual mail domain", Auth: "operator", Request: mailDomainRequest{}, Response: apiDataResponse[mailDomainResponse]{}, Handler: s.handleUpdateMailDomain},
-		{Method: http.MethodDelete, Path: apiPath("/domains/{domain}"), OperationID: "deleteMailDomain", Summary: "Delete a virtual mail domain", Auth: "operator", Handler: s.handleDeleteMailDomain},
+		{Method: http.MethodDelete, Path: apiPath("/domains/{domain}"), OperationID: "deleteMailDomain", Summary: "Delete a virtual mail domain", Auth: "operator", Response: apiDataResponse[mailDomainDeleteResponse]{}, Handler: s.handleDeleteMailDomain},
 		{Method: http.MethodGet, Path: apiPath("/domains/{domain}/dns"), OperationID: "getMailDomainDNS", Summary: "Get DNS guidance for a virtual mail domain", Auth: "operator", Response: apiDataResponse[mailDNSResponse]{}, Handler: s.handleMailDomainDNS},
 		{Method: http.MethodGet, Path: apiPath("/domains/{domain}/dkim"), OperationID: "getMailDomainDKIM", Summary: "Get public DKIM records for a virtual mail domain", Auth: "operator", Response: apiDataResponse[[]mailDKIMResponse]{}, Handler: s.handleMailDKIM},
 		{Method: http.MethodPost, Path: apiPath("/domains/{domain}/dkim/generate"), OperationID: "generateMailDomainDKIM", Summary: "Generate a DKIM key for a virtual mail domain", Auth: "operator", Response: apiDataResponse[mailDKIMResponse]{}, SuccessStatus: http.StatusCreated, Handler: s.handleGenerateMailDKIM},
@@ -157,21 +166,16 @@ func (s *Server) apiRouteRegistry() []Route {
 		{Method: http.MethodGet, Path: apiPath("/stats/delivery"), OperationID: "getMailDeliveryStats", Summary: "Get mail delivery counts by status", Auth: "operator", Response: apiDataResponse[mailDeliveryStatsResponse]{}, Parameters: []RouteParameter{mailStatsPeriodParameter()}, Handler: s.handleMailDeliveryStats},
 		{Method: http.MethodGet, Path: apiPath("/stats/spam"), OperationID: "getMailSpamStats", Summary: "Get spam and virus detection counts", Auth: "operator", Response: apiDataResponse[mailSpamStatsResponse]{}, Parameters: []RouteParameter{mailStatsPeriodParameter()}, Handler: s.handleMailSpamStats},
 		{Method: http.MethodGet, Path: apiPath("/stats/queue"), OperationID: "getMailQueueStats", Summary: "Get queued message counts by arrival period", Auth: "operator", Response: apiDataResponse[mailQueueStatsResponse]{}, Parameters: []RouteParameter{mailStatsPeriodParameter()}, Handler: s.handleMailQueueStats},
+		{Method: http.MethodGet, Path: apiPath("/logs/{component}"), OperationID: "listMailLogs", Summary: "List sanitized mail log entries", Auth: "operator", Response: mailLogListResponse{}, Parameters: mailLogParameters(), Handler: s.handleMailLogs},
 		{Method: http.MethodGet, Path: apiPath("/server/auth/check"), OperationID: "checkBearerToken", Summary: "Check bearer token validity and kind", Auth: "token", Listed: true, Response: authCheckResponse{}, Handler: s.handleAuthCheck},
 		{Method: http.MethodGet, Path: apiPath("/services"), OperationID: "listMailServices", Summary: "List detected mail services", Auth: "operator", Handler: s.handleServices},
 		{Method: http.MethodGet, Path: apiPath("/services/{service}"), OperationID: "getMailService", Summary: "Get detected mail service status", Auth: "operator", Handler: s.handleService},
+		{Method: http.MethodPost, Path: apiPath("/services/{service}/operations"), OperationID: "operateMailService", Summary: "Operate on a mail service", Auth: "operator", Request: mailServiceOperationRequest{}, Response: apiDataResponse[mailServiceOperationResponse]{}, Handler: s.handleServiceAction},
 		{Method: http.MethodGet, Path: apiPath("/health"), OperationID: "getMailHealth", Summary: "Get mail system health", Auth: "operator", Handler: s.handleMailHealth},
 	}
 	registry := &RouteRegistry{}
 	for _, route := range specs {
 		registry.Add(route)
-	}
-	for _, action := range []string{"start", "stop", "restart", "reload"} {
-		registry.Add(Route{
-			Method: http.MethodPost, Path: apiPath("/services/{service}/" + action),
-			OperationID: action + "MailService", Summary: strings.ToUpper(action[:1]) + action[1:] + " a mail service",
-			Auth: "operator", Handler: s.handleServiceAction,
-		})
 	}
 	registry.Add(Route{
 		Method: http.MethodGet, Path: apiPath("/server/swagger"), OperationID: "getOpenAPISpec",
@@ -216,6 +220,15 @@ func mailPaginationParameters() []RouteParameter {
 	return []RouteParameter{
 		{Name: "page", In: "query", Description: "Page number, starting at 1", Type: "integer", Default: 1},
 		{Name: "limit", In: "query", Description: "Items per page, from 1 to 250", Type: "integer", Default: 250},
+	}
+}
+
+func mailLogParameters() []RouteParameter {
+	return []RouteParameter{
+		{Name: "level", In: "query", Description: "Case-insensitive log level filter", Type: "string"},
+		{Name: "q", In: "query", Description: "Literal case-insensitive substring filter", Type: "string"},
+		{Name: "page", In: "query", Description: "Page number, starting at 1", Type: "integer", Default: 1},
+		{Name: "limit", In: "query", Description: "Entries per page, from 1 to 100", Type: "integer", Default: 50},
 	}
 }
 

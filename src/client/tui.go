@@ -23,6 +23,7 @@ import (
 
 type clientAction struct {
 	label, method, route string
+	operation            string
 	args                 []string
 	body, destructive    bool
 }
@@ -69,10 +70,10 @@ func clientActions() []clientAction {
 		{label: "logs", method: "GET", route: "/logs/%s", args: []string{"Component"}},
 		{label: "services list", method: "GET", route: "/services"},
 		{label: "services get", method: "GET", route: "/services/%s", args: []string{"Service"}},
-		{label: "services start", method: "POST", route: "/services/%s/start", args: []string{"Service"}, destructive: true},
-		{label: "services stop", method: "POST", route: "/services/%s/stop", args: []string{"Service"}, destructive: true},
-		{label: "services restart", method: "POST", route: "/services/%s/restart", args: []string{"Service"}, destructive: true},
-		{label: "services reload", method: "POST", route: "/services/%s/reload", args: []string{"Service"}, destructive: true},
+		{label: "services start", method: "POST", route: "/services/%s/operations", operation: "start", args: []string{"Service"}, destructive: true},
+		{label: "services stop", method: "POST", route: "/services/%s/operations", operation: "stop", args: []string{"Service"}, destructive: true},
+		{label: "services restart", method: "POST", route: "/services/%s/operations", operation: "restart", args: []string{"Service"}, destructive: true},
+		{label: "services reload", method: "POST", route: "/services/%s/operations", operation: "reload", args: []string{"Service"}, destructive: true},
 		{label: "health", method: "GET", route: "/health"},
 		{label: "server status", method: "GET", route: "/server/healthz"},
 		{label: "server about", method: "GET", route: "/server/about"},
@@ -493,7 +494,9 @@ func (m *clientTUI) performAction(force bool) tea.Cmd {
 		route = strings.Replace(route, "%s", url.PathEscape(value), 1)
 	}
 	var body io.Reader
-	if action.body && len(m.values) > len(action.args) {
+	if action.operation != "" {
+		body = strings.NewReader(`{"operation":"` + action.operation + `"}`)
+	} else if action.body && len(m.values) > len(action.args) {
 		body = bytes.NewBufferString(m.values[len(action.args)])
 	}
 	m.busy = true

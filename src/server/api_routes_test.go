@@ -31,7 +31,7 @@ func TestOpenAPISpecUsesRegisteredRoutesAndAliases(t *testing.T) {
 	if err := json.Unmarshal(response.Body.Bytes(), &spec); err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/api/v1/users", "/api/v1/users/{id}", "/api/v1/users/{id}/password", "/api/v1/users/import", "/api/v1/domains", "/api/v1/aliases", "/api/v1/forwards", "/api/v1/queue", "/api/v1/queue/{id}", "/api/v1/queue/{id}/flush", "/api/v1/queue/{id}/hold", "/api/v1/queue/{id}/release", "/api/v1/queue/flush-all", "/api/v1/stats/delivery", "/api/v1/stats/spam", "/api/v1/stats/queue", "/api/v1/server/auth/check", "/api/swagger"} {
+	for _, path := range []string{"/api/v1/users", "/api/v1/users/{id}", "/api/v1/users/{id}/password", "/api/v1/users/import", "/api/v1/domains", "/api/v1/aliases", "/api/v1/forwards", "/api/v1/queue", "/api/v1/queue/{id}", "/api/v1/queue/{id}/flush", "/api/v1/queue/{id}/hold", "/api/v1/queue/{id}/release", "/api/v1/queue/flush-all", "/api/v1/stats/delivery", "/api/v1/stats/spam", "/api/v1/stats/queue", "/api/v1/logs/{component}", "/api/v1/server/auth/check", "/api/v1/services/{service}/operations", "/api/swagger"} {
 		if _, ok := spec.Paths[path]; !ok {
 			t.Errorf("OpenAPI paths omit registered route %q", path)
 		}
@@ -65,16 +65,20 @@ func TestOpenAPISpecUsesRegisteredRoutesAndAliases(t *testing.T) {
 	}
 	for _, contract := range []struct {
 		path   string
+		method string
 		fields []string
 	}{
-		{"/api/v1/stats/delivery", []string{`"name":"period"`, `"in":"query"`, `"default":"30d"`, `"total":{"type":"integer"}`, `"by_status":{"additionalProperties":true,"type":"object"}`}},
-		{"/api/v1/stats/spam", []string{`"name":"period"`, `"in":"query"`, `"spam_count":{"type":"integer"}`, `"virus_count":{"type":"integer"}`, `"granularity":{"type":"string"}`}},
-		{"/api/v1/stats/queue", []string{`"name":"period"`, `"in":"query"`, `"default":"30d"`, `"queued_messages":{"type":"integer"}`, `"queued_size_bytes":{"type":"integer"}`, `"by_state":{"additionalProperties":true,"type":"object"}`}},
+		{"/api/v1/domains/{domain}", "delete", []string{`"id":{"type":"string"}`, `"message":{"type":"string"}`}},
+		{"/api/v1/services/{service}/operations", "post", []string{`"operation":{"type":"string"}`, `"service"`, `"security":[{"BearerAuth":[]}]`}},
+		{"/api/v1/logs/{component}", "get", []string{`"name":"level"`, `"name":"q"`, `"name":"page"`, `"default":1`, `"name":"limit"`, `"default":50`, `"timestamp":{"type":"string"}`, `"message":{"type":"string"}`, `"413"`, `"security":[{"BearerAuth":[]}]`}},
+		{"/api/v1/stats/delivery", "get", []string{`"name":"period"`, `"in":"query"`, `"default":"30d"`, `"total":{"type":"integer"}`, `"by_status":{"additionalProperties":true,"type":"object"}`}},
+		{"/api/v1/stats/spam", "get", []string{`"name":"period"`, `"in":"query"`, `"spam_count":{"type":"integer"}`, `"virus_count":{"type":"integer"}`, `"granularity":{"type":"string"}`}},
+		{"/api/v1/stats/queue", "get", []string{`"name":"period"`, `"in":"query"`, `"default":"30d"`, `"queued_messages":{"type":"integer"}`, `"queued_size_bytes":{"type":"integer"}`, `"by_state":{"additionalProperties":true,"type":"object"}`}},
 	} {
-		operation := spec.Paths[contract.path]["get"]
+		operation := spec.Paths[contract.path][contract.method]
 		for _, field := range contract.fields {
 			if !bytes.Contains(operation, []byte(field)) {
-				t.Errorf("stats OpenAPI operation %s omits %s: %s", contract.path, field, operation)
+				t.Errorf("OpenAPI operation %s %s omits %s: %s", contract.method, contract.path, field, operation)
 			}
 		}
 	}

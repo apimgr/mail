@@ -49,6 +49,11 @@ type mailDomainListResponse struct {
 	Pagination apiPagination        `json:"pagination"`
 }
 
+type mailDomainDeleteResponse struct {
+	ID      string `json:"id"`
+	Message string `json:"message"`
+}
+
 func mailDomainView(domain database.MailDomain) mailDomainResponse {
 	return mailDomainResponse{
 		ID: domain.ID, Domain: domain.Domain, Description: domain.Description,
@@ -247,7 +252,9 @@ func (s *Server) handleDeleteMailDomain(w http.ResponseWriter, r *http.Request) 
 		writeJSON(w, http.StatusInternalServerError, map[string]any{"ok": false, "error": "INTERNAL_ERROR", "message": "Mail domain could not be deleted"})
 	default:
 		s.auditRequest(r, "mail.domain.deleted", "operator", map[string]any{"id": domain.ID, "domain": domain.Domain})
-		writeJSON(w, http.StatusOK, map[string]any{"ok": true, "message": "Mail domain deleted"})
+		writeJSON(w, http.StatusOK, apiDataResponse[mailDomainDeleteResponse]{
+			OK: true, Data: mailDomainDeleteResponse{ID: domain.ID, Message: "Mail domain deleted"},
+		})
 	}
 }
 

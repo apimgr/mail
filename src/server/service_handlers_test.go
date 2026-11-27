@@ -57,16 +57,40 @@ func TestServiceRoutesRejectUnsupportedMethods(t *testing.T) {
 	for _, test := range []struct {
 		method string
 		path   string
+		want   int
 	}{
-		{method: http.MethodPost, path: "/api/v1/services"},
-		{method: http.MethodDelete, path: "/api/v1/services/postfix/restart"},
+		{method: http.MethodPost, path: "/api/v1/services", want: http.StatusMethodNotAllowed},
+		{method: http.MethodDelete, path: "/api/v1/services/postfix/operations", want: http.StatusMethodNotAllowed},
+		{method: http.MethodPost, path: "/api/v1/services/postfix/restart", want: http.StatusNotFound},
 	} {
 		request := httptest.NewRequest(test.method, test.path, nil)
 		request.Header.Set("Authorization", "Bearer "+cfg.Server.Token)
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, request)
-		if response.Code != http.StatusMethodNotAllowed {
-			t.Errorf("%s %s status = %d, want %d", test.method, test.path, response.Code, http.StatusMethodNotAllowed)
+		if response.Code != test.want {
+			t.Errorf("%s %s status = %d, want %d", test.method, test.path, response.Code, test.want)
+		}
+	}
+}
+
+func TestServiceOperationValidatesNamedRequest(t *testing.T) {
+	cfg := &config.Config{}
+	cfg.Server.Token = "adm_" + strings.Repeat("e", 32)
+	handler := New(cfg, nil).Handler()
+	unauthorized := httptest.NewRequest(http.MethodPost, "/api/v1/services/postfix/operations", strings.NewReader(`{"operation":"restart"}`))
+	unauthorizedResponse := httptest.NewRecorder()
+	handler.ServeHTTP(unauthorizedResponse, unauthorized)
+	if unauthorizedResponse.Code != http.StatusUnauthorized {
+		t.Fatalf("unauthenticated service operation status = %d, want %d", unauthorizedResponse.Code, http.StatusUnauthorized)
+	}
+	for _, body := range []string{`{}`, `{"operation":"invalid"}`, `{"operation":"start","command":"/bin/true"}`, `{"operation":`} {
+		request := httptest.NewRequest(http.MethodPost, "/api/v1/services/postfix/operations", strings.NewReader(body))
+		request.Header.Set("Authorization", "Bearer "+cfg.Server.Token)
+		request.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, request)
+		if response.Code != http.StatusBadRequest || !strings.Contains(response.Body.String(), `"error":"VALIDATION_FAILED"`) {
+			t.Errorf("invalid service operation body %q status/body = %d/%s", body, response.Code, response.Body.String())
 		}
 	}
 }
