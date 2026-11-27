@@ -87,9 +87,13 @@ its implementation is complete and committed.
   CORS now has wildcard-by-default,
   explicit-origin credentials, `DOMAIN` and trusted-proxy origin resolution,
   preflight handling, and regression tests; it still needs the full global
-  middleware and security-policy integration. The MCP transport, protocol
-  validation and route-derived tool registry are also absent; the current MCP
-  help page only reports that no endpoint exists. A rate-limited machine-only
+  middleware and security-policy integration. The MCP transport now validates
+  the configured protocol headers and dispatches route-derived tools through
+  existing handlers. `/server/help/mcp` and its API mirror now show a resolved
+  endpoint, connection snippets, token guidance, live standard-token tools,
+  protocol limits, troubleshooting, and configurable Mail guidance. The tool
+  registry still needs complete request/response schemas, and the endpoint
+  needs a full spec review for OAuth-dependent behavior. A rate-limited machine-only
   `/server/auth/check` now returns the validated operator or owner token kind.
 - [ ] Finish debug-mode alignment in AI.md PART 6. `/debug/*` is now absent
   unless enabled and its pprof, expvar, sanitized config, route, cache,
@@ -259,9 +263,10 @@ its implementation is complete and committed.
   `admin_sessions` table creation were removed to match the token-only identity
   model. Fourteen required tasks are registered and per-task enabled/schedule
   policy plus exponential retries are implemented; Tor/I2P tasks are omitted
-  because the scheduler is not given their feature state. Retry attempts are
+  because the scheduler is not given their feature state. Retired PGP key
+  cleanup is implemented. Retry attempts are
   still in-memory. Owner idle purge and functional providers for certificate,
-  GeoIP, blocklist, retired-key cleanup, keyserver, CVE, update, log rotation,
+  GeoIP, blocklist, keyserver, CVE, update, log rotation,
   backup, disk monitoring, and other external tasks remain incomplete.
 
 ## Build, packaging, and release

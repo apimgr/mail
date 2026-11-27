@@ -22,7 +22,11 @@ The public web shell serves Swagger UI at `/server/docs/swagger`, GraphiQL at
 `/api/v1/server/mcp` (with `/api/mcp` and `/mcp` aliases). MCP requires a valid
 Bearer token and filters registered tools by authorization tier. Owner tokens
 have no access to the globally operator-managed mail records. The shell also
-serves a PWA manifest at `/manifest.json`, a
+serves a server-rendered connection guide at `/server/help/mcp` and its JSON
+mirror at `/api/v1/server/help/mcp`. The guide lists live tools available to a
+standard token; the operator token also sees mail-management tools. Project
+guidance is configurable with `server.pages.help.mcp`. The shell serves a PWA
+manifest at `/manifest.json`, a
 service worker at `/sw.js`, and an offline fallback at `/offline.html`. No
 mail-service webhook, identity provider, federation, or optional protocol
 discovery integration is enabled yet. Public `security.txt` and `llms.txt`

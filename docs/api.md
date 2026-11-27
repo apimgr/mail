@@ -154,4 +154,6 @@ operator token can invoke operator-authorized API operations; owner tokens only
 see public operations because mail records are globally operator-managed. MCP
 tool calls dispatch through the registered API routes, preserving their
 validation, middleware, and authorization checks. MCP has no initialization
-handshake or session state.
+handshake or session state. Connection instructions and the live tool list are
+available at `/server/help/mcp` and `GET /api/v1/server/help/mcp`; these resolve
+the endpoint against the request host and report standard-token-visible tools.
