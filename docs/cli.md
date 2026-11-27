@@ -21,8 +21,12 @@ same updater and defaults to `yes` when no command is supplied.
 `mail-cli` uses Cobra and exposes server information, service, domain, user,
 alias, forward, queue, config, statistics, logs, and health commands. Mailbox
 list/get/create/update/delete/password and CSV import, domain CRUD/DNS/DKIM,
-alias list/create/delete, and service status/control have matching
-operator-protected server handlers. Other mail operations remain pending.
+alias list/create/delete, virtual-mailbox forwarding list/create/delete, and service status/control have matching
+operator-protected server handlers. Queue list/detail, message flush/hold/
+release/delete, flush-all, and queue statistics have operator-protected
+handlers; the Postfix process permissions still determine whether privileged
+queue mutations can run. Config, delivery/spam statistics, and log operations
+remain pending.
 
 ```sh
 mail-cli --server https://mail.example status

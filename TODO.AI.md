@@ -131,8 +131,12 @@ its implementation is complete and committed.
   persist the reserved owner for existing and new rows. Operator-protected
   virtual-mailbox list/detail, create/update/delete, and password-change routes
   return opaque UUIDv7 IDs and byte quotas without password verifiers;
-  password values are stored as Argon2id verifiers. CSV import, system-user
-  management, forward API, live MTA synchronization, queue, config, stats, and
+  password values are stored as Argon2id verifiers. The operator-only CSV
+  import accepts bounded `text/csv` with a fixed header and per-row results;
+  the CLI imports from a file. Operator-only forwarding list/create/delete
+  routes now support bounded pagination, multiple destinations, local-copy
+  behavior, and opaque UUIDv7 IDs; system-user management, live MTA
+  synchronization, queue, config, stats, and
   log APIs remain incomplete.
   IDEA.md identifies mail infrastructure records as system-owned per
   AI.md's operator/owner model.
@@ -200,10 +204,11 @@ its implementation is complete and committed.
   Broader platform coverage, service-specific probes, and end-to-end control
   verification remain.
 - [ ] Implement virtual/system users, forwards, transports, queue operations,
-  and configuration validation. Operator-only domain CRUD/DNS/DKIM guidance
-  and alias list/create/delete now have persisted API and CLI paths; live MTA
-  synchronization, user-facing mailbox workflows, and the remaining resources
-  are incomplete.
+  and configuration validation. Operator-only virtual mailbox CRUD/password/
+  CSV import, domain CRUD/DNS/DKIM guidance, alias list/create/delete, and
+  virtual-mailbox forward list/create/delete have persisted API paths and CLI
+  commands; system-user management, live MTA synchronization, and the remaining
+  resources are incomplete.
 - [ ] Implement spam/virus integrations, DKIM key management, TLS, logs,
   delivery statistics, alerts, and backup/restore according to IDEA.md and
   AI.md PARTS 17–24.
@@ -241,10 +246,11 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest unit test and combined Docker smoke
-  gate passed with 60.7% statement coverage. The Docker binary smoke suite
-  verifies CLI/server startup, health, API, and rendered-page shells. Incus and
-  browser E2E coverage and tests for the complete product behavior are missing.
+  required by AI.md PART 28. The latest full `make test` gate passed with 61.4%
+  statement coverage. The most recent Docker smoke run predates the current
+  mailbox/forwarding routes; the suite covers CLI/server startup, health, API,
+  and rendered-page shells. Incus and browser E2E coverage and tests for the
+  complete product behavior are missing.
 
 ## Documentation and compliance
 

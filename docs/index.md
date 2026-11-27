@@ -4,7 +4,8 @@ Mail is a self-hosted mail infrastructure management service. Its product
 scope includes Postfix, Dovecot, mail users and domains, filtering, queue
 operations, and service monitoring. The current implementation includes
 server information and service discovery/control, virtual mailbox CRUD and CSV
-import, domain and DNS/DKIM management, and alias CRUD. Remaining mail
+import, domain and DNS/DKIM management, alias CRUD, and virtual-mailbox
+forwarding CRUD. Remaining mail
 administration features are open in the
 [implementation backlog](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
 
@@ -35,6 +36,10 @@ database-aware health and application metadata routes:
 - Operator-protected virtual mailbox list/detail/create/update/delete/password
   change and CSV import under `/api/v1/users`
 - Operator-protected domain list/detail/CRUD/DNS/DKIM and alias list/create/delete
+- Operator-protected virtual-mailbox forwarding list/create/delete under
+  `/api/v1/forwards`
+- Operator-protected Postfix queue list/detail/actions and queue statistics under
+  `/api/v1/queue` and `/api/v1/stats/queue`
 - Owner-token list, reveal, creation, rotation, update, revocation, and initial
   issuance routes under `/api/v1/server/preferences/tokens`
 
@@ -44,8 +49,10 @@ header and client type. Health responses contain public project/build/runtime
 metadata, feature states, cached checks, persisted aggregate request counters,
 and in-flight request counts. Health does not probe mail daemons; Tor/I2P/GeoIP
 providers are incomplete, so health is not a production readiness signal.
-Mail management pages and queue, configuration, statistics, and log routes
-remain incomplete. Preferences use CSRF-protected POST forms without JavaScript; theme and
+Mail management pages, system-user management, component configuration,
+delivery/spam statistics, and log routes remain incomplete. Postfix queue
+operations require the server process to have the permissions Postfix requires.
+Preferences use CSRF-protected POST forms without JavaScript; theme and
 language persistence requires cookie consent. The sync page supports
 shareable preference exports and imports. The public shell includes a consent
 banner, installable manifest, and network-first service worker with an offline

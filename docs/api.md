@@ -5,7 +5,7 @@ mail-management route inventory is in the
 [project definition](https://github.com/apimgr/mail/blob/main/IDEA.md). The
 registered routes currently cover public server pages, browser preferences,
 owner-token management, operator-protected virtual mailbox CRUD and CSV import,
-domain and alias operations, and operator service status and control. OpenAPI JSON includes protected routes
+domain, alias, and forwarding operations, and operator service status and control. OpenAPI JSON includes protected routes
 and declares their Bearer security; `llms.txt` uses the shared API registry.
 
 | Method | Path | Current behavior |
@@ -39,7 +39,7 @@ and declares their Bearer security; `llms.txt` uses the shared API registry.
 | `PUT` | `/api/v1/users/{id}` | Updates a virtual mailbox's quota or enabled state. Deletion dependencies are not implicitly removed. Requires the operator Bearer token. |
 | `DELETE` | `/api/v1/users/{id}` | Deletes a virtual mailbox only when no dependent forwarding, key, sieve, or archive records remain. Requires the operator Bearer token. |
 | `POST` | `/api/v1/users/{id}/password` | Changes a virtual mailbox password using Argon2id; password material is never returned or audited. Requires the operator Bearer token. |
-| `POST` | `/api/v1/users/import` | Imports virtual mailboxes from a bounded `text/csv` request with the header `email,password,quota_bytes,enabled`; returns per-row results without credential material. Requires the operator Bearer token. |
+| `POST` | `/api/v1/users/import` | Imports virtual mailboxes from a `text/csv` request up to 1 MiB and 100 data rows, with the header `email,password,quota_bytes,enabled`; returns per-row results without credential material. Requires the operator Bearer token. |
 | `GET` | `/api/v1/domains` | Lists configured mail domains with opaque UUIDv7 IDs and standard page/limit pagination. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
 | `GET` | `/api/v1/domains/{domain}` | Returns one configured mail domain with an opaque UUIDv7 ID. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
 | `POST` | `/api/v1/domains` | Creates a system-owned virtual domain. Requires the operator Bearer token. |
@@ -51,6 +51,9 @@ and declares their Bearer security; `llms.txt` uses the shared API registry.
 | `GET` | `/api/v1/aliases` | Lists mail aliases with opaque UUIDv7 IDs and standard page/limit pagination. Requires the operator Bearer token. |
 | `POST` | `/api/v1/aliases` | Creates an alias from a valid source address on a configured domain to a destination address. Requires the operator Bearer token. |
 | `DELETE` | `/api/v1/aliases/{id}` | Deletes one alias by opaque UUIDv7 ID. Requires the operator Bearer token. |
+| `GET` | `/api/v1/forwards` | Lists virtual-mailbox forwarding rules with standard pagination. Requires the operator Bearer token. |
+| `POST` | `/api/v1/forwards` | Creates a forwarding rule for an enabled virtual mailbox with 1–20 destination addresses and a keep-local flag. Requires the operator Bearer token. |
+| `DELETE` | `/api/v1/forwards/{id}` | Deletes a forwarding rule by opaque UUIDv7 ID. Requires the operator Bearer token. |
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
@@ -99,9 +102,13 @@ keys are encrypted at rest and never returned. Deletion is rejected while
 mailboxes, aliases, DKIM/SPF/DMARC/archive policies, or mail-server mappings
 depend on the domain. DNS records are derived from the current database
 configuration and missing record types are reported. Basic alias list/create/
-delete API operations are available; user-facing alias pages and integration
-with the live MTA configuration remain incomplete. Mail-user management,
-forwarding, queue operations, component configuration, statistics, and log
+delete API operations, virtual-mailbox CRUD/password/CSV import, and
+virtual-mailbox forwarding list/create/delete are available. Queue list/detail,
+single-message flush/hold/release/delete, flush-all, and live queue counts use
+the installed Postfix commands; hold/release/delete require the server process
+to have the permissions Postfix requires. User-facing mail pages and
+integration with the live MTA configuration remain incomplete. System-user
+management, component configuration, delivery/spam statistics, and log
 management are not implemented. The generated OpenAPI schemas are
 generic for several responses and omit complete query parameters and error
 metadata. The GraphQL endpoint and interface are unavailable. Health checks do

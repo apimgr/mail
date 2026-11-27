@@ -18,11 +18,13 @@ filtering, TLS and DKIM, DNS guidance, logs, and delivery statistics. Current
 implementation includes service discovery/control, health and server
 information routes, owner-token management, and operator-protected domain
 create/read/update/delete, DNS guidance, public DKIM operations, operator-only
-alias list/create/delete APIs, and virtual mailbox CRUD/password/CSV import.
-System users, alias browser and MTA integration, forwarding, queue, spam/virus,
-TLS, log, and delivery-statistics
-workflows remain incomplete; see [TODO.AI.md](TODO.AI.md) for the verified
-backlog.
+alias list/create/delete APIs, virtual mailbox CRUD/password/CSV import, and
+virtual-mailbox forwarding CRUD. Postfix queue list/detail, hold/release,
+flush/delete, flush-all, and queue counts are available through the operator
+API and CLI; privileged queue operations depend on Postfix permissions for the
+server process. System users, alias browser and MTA integration, spam/virus,
+TLS, log, and delivery-statistics workflows remain incomplete; see
+[TODO.AI.md](TODO.AI.md) for the verified backlog.
 
 ## Production
 
@@ -57,15 +59,15 @@ a production readiness signal. API text aliases are `/api/healthz.txt` and
 `/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
 sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md).
-Mail-user and other mail-resource workflows remain incomplete. Domain
-management and DNS/DKIM routes are implemented. Initial owner-token issuance,
+Remaining mail-resource workflows are incomplete. Domain management and
+DNS/DKIM routes are implemented. Initial owner-token issuance,
 token reveal/rotation/revocation, linked-token management, and the
 server-rendered token page are available. A companion `mail-cli` provides the
 Cobra command tree and an interactive Bubble Tea setup/menu. It supports
 server/token profiles and output preferences; automatic updates and complete
 TUI preference behavior remain tracked in [TODO.AI.md](TODO.AI.md). The
-`status`, `about`, token, service, domain, DNS, and DKIM CLI operations have
-matching server routes. The OpenAPI document and machine-only token check are
+`status`, `about`, token, service, mailbox, forward, alias, domain, DNS, and DKIM
+CLI operations have matching server routes. The OpenAPI document and machine-only token check are
 generated from the registered API routes.
 
 ## Other

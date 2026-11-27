@@ -31,8 +31,9 @@ counters. Strict token actions currently use per-IP limits. CORS defaults to `*`
 without credentials; credentialed responses require an explicitly allowed
 origin. Strict token actions still need per-owner buckets, external cache
 fallback is not implemented, full audit coverage and PGP-encrypted reporting
-remain incomplete, and the unimplemented mail-resource API still needs
-authorization. The application is not ready for production exposure.
+remain incomplete. Registered mail-resource routes require operator
+authorization; remaining resources must use the same policy when implemented.
+The application is not ready for production exposure.
 
 The baseline response headers include `X-Content-Type-Options`,
 `X-Frame-Options: SAMEORIGIN`, `X-XSS-Protection`,
