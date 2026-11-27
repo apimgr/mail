@@ -276,15 +276,19 @@ its implementation is complete and committed.
   unoptimized binaries for the local platform and all eight targets, `release`
   builds production artifacts locally without publishing, and `docker` loads
   the host image without pushing. The wrapped `make test` passed and exercised
-  the full debug build matrix. Direct `make release` artifact/checksum and
-  `make docker` image checks remain to be run.
+  the full debug build matrix. `make release` built all artifacts and both
+  checksum manifests verified every artifact. `make docker` built and loaded
+  the host image locally; its required runtime-tool command check passed.
 - [ ] Complete container integration from AI.md PART 26: devel/release image
   publishing, privilege setup/drop, service-aware startup, and Valkey
   integration. Dockerfiles, Compose files, OCI annotations, and the basic
   isolated Docker test harness now exist. Both production and development
   Dockerfiles build successfully; the production image contains the required
-  runtime tools. Runtime Tor bootstrap, CI image publishing, and the remaining
-  service/Valkey integration are still incomplete.
+  runtime tools. The production image runtime probe returned
+  `features.tor.status=disabled`, contradicting PART 26's required Tor health
+  check and PART 31.1's auto-enable rule; Tor process management and runtime
+  bootstrap are not implemented. CI image publishing and the remaining
+  service/Valkey integration are also incomplete.
 - [ ] Finish CI and release alignment from AI.md PART 27: verify the workflows
   on every provider, satisfy CODEOWNERS and branch-protection rules, complete
   the release flow, and resolve post-push CI results. GitHub private
@@ -298,8 +302,10 @@ its implementation is complete and committed.
   required by AI.md PART 28. The latest wrapped `make test` gate passed with 60.4%
   statement coverage; the Docker server/client smoke suite and all-platform
   `make build` also passed. Incus and browser E2E coverage and tests for
-  complete product behavior are missing. The production and development image
-  builds, required runtime-tool check, and all three Compose config checks pass.
+  complete product behavior are missing. Production and development image
+  builds and all three Compose config checks pass. The production image's
+  required runtime-tool check passes; its required Tor health check fails
+  because the health payload reports Tor disabled.
 
 ## Documentation and compliance
 
