@@ -54,7 +54,7 @@ separate operator-authenticated GraphQL response format.
 | `GET` | `/api/v1/domains/{domain}` | Returns one configured mail domain with an opaque UUIDv7 ID. Requires the operator Bearer token; response omits owner identifiers and private DKIM material. |
 | `POST` | `/api/v1/domains` | Creates a system-owned virtual domain. Requires the operator Bearer token. |
 | `PUT` | `/api/v1/domains/{domain}` | Replaces virtual domain metadata. Requires the operator Bearer token. |
-| `DELETE` | `/api/v1/domains/{domain}` | Deletes a domain only when it has no dependent mail resources. Requires the operator Bearer token. |
+| `DELETE` | `/api/v1/domains/{domain}` | Deletes a domain only when it has no dependent mail resources; returns the deleted opaque ID and result in `data`. Requires the operator Bearer token. |
 | `GET` | `/api/v1/domains/{domain}/dns` | Returns configured MX/SPF/DKIM/DMARC records (including MX preference) and the record types still missing. Requires the operator Bearer token. |
 | `GET` | `/api/v1/domains/{domain}/dkim` | Returns enabled public DKIM records. Requires the operator Bearer token; private keys are never returned. |
 | `POST` | `/api/v1/domains/{domain}/dkim/generate` | Generates a 2048-bit RSA DKIM key and returns its public DNS value. Requires the operator Bearer token; the private key is AES-256-GCM encrypted at rest and never returned. |
@@ -75,7 +75,7 @@ separate operator-authenticated GraphQL response format.
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
-| `POST` | `/api/v1/services/{service}/start`, `/stop`, `/restart`, `/reload` | Requests an allow-listed service operation; operator Bearer authorization is required. Unsupported service managers and missing services return explicit errors. |
+| `POST` | `/api/v1/services/{service}/operations` | Accepts `{"operation":"start|stop|restart|reload"}` and returns the operation plus refreshed service status. Requires the operator Bearer token. Unsupported service managers and missing services return explicit errors. |
 | `GET` | `/api/healthz` | Direct versionless health alias; JSON by explicit `Accept`, plain text for non-interactive clients. |
 | `GET` | `/api/healthz.txt` | Direct versionless plain-text health alias; `.txt` overrides `Accept`. |
 | `GET` | `/api/swagger` | Direct alias of `/api/v1/server/swagger`. |

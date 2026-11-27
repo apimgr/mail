@@ -147,7 +147,7 @@ defined by AI.md.
 |---|---|---|
 | `GET /services` | Operator Bearer token | No body; return detected mail services and status. |
 | `GET /services/{service}` | Operator Bearer token | No body; return one service status or not-found error. |
-| `POST /services/{service}/start`, `/stop`, `/restart`, `/reload` | Operator Bearer token | No body; return operation result and refreshed service status. |
+| `POST /services/{service}/operations` | Operator Bearer token | Operation name (`start`, `stop`, `restart`, or `reload`); return the result and refreshed service status. |
 | `GET /users` | Operator Bearer token | Optional pagination; return system and virtual users with pagination. |
 | `GET /users/{id}` | Operator Bearer token | No body; return one user record. |
 | `POST /users` | Operator Bearer token | User fields; return created user without plaintext credentials. |
@@ -174,12 +174,6 @@ defined by AI.md.
 | `POST /queue/{id}/flush`, `/hold`, `/release` | Operator Bearer token | No body; return queue ID and operation result. |
 | `DELETE /queue/{id}` | Operator Bearer token | No body; return queue ID and deletion result. |
 | `POST /queue/flush-all` | Operator Bearer token | No body; return flush operation result. |
-| `GET /config/{component}` | Operator Bearer token | No body; return component configuration with secrets redacted. |
-| `PUT /config/{component}` | Operator Bearer token | Configuration document; return validation and apply result. |
-| `POST /config/{component}/validate` | Operator Bearer token | Configuration document; return validation errors or success. |
-| `GET /config/{component}/templates` | Operator Bearer token | No body; return available template metadata. |
-| `POST /config/{component}/backup` | Operator Bearer token | No body; return backup identifier and result. |
-| `POST /config/{component}/restore` | Operator Bearer token | Backup identifier; return restore result. |
 | `GET /stats/delivery`, `/stats/spam`, `/stats/queue` | Operator Bearer token | Optional period; return counts for the selected category. |
 | `GET /logs/{component}` | Operator Bearer token | Optional filters and pagination; return matching entries and pagination. |
 | `GET /health` | Operator Bearer token | No body; return overall state and component checks. |

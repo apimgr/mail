@@ -157,8 +157,9 @@ its implementation is complete and committed.
   the CLI imports from a file. Operator-only forwarding list/create/delete
   routes now support bounded pagination, multiple destinations, local-copy
   behavior, and opaque UUIDv7 IDs. System-user management, live MTA
-  synchronization, transport and configuration management, and log APIs remain
-  incomplete. Operator-only queue listing/detail, flush/hold/release/delete,
+  synchronization, transport rules, and log APIs remain incomplete. Runtime
+  configuration APIs are excluded by AI.md PART 3's file-only configuration
+  rule. Operator-only queue listing/detail, flush/hold/release/delete,
   flush-all, and current queue counts now use Postfix's bounded command
   interface. Queue statistics filter currently queued messages by arrival period
   and report counts, bytes, and Postfix state. Operator-only delivery and spam statistics aggregate persisted
