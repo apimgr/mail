@@ -4,8 +4,10 @@ Mail is a self-hosted mail infrastructure management service. Its product
 scope includes Postfix, Dovecot, mail users and domains, filtering, queue
 operations, and service monitoring. The current implementation includes
 server information and service discovery/control, virtual mailbox CRUD and CSV
-import, domain and DNS/DKIM management, alias CRUD, and virtual-mailbox
-forwarding CRUD. Remaining mail
+import, domain and DNS/DKIM management, alias CRUD, virtual-mailbox forwarding,
+Postfix queue operations, and allow-listed service discovery/control. Mail
+records are global operator-managed resources under the reserved `system`
+owner; owner tokens do not grant access to mail-stack records. Remaining mail
 administration features are open in the
 [implementation backlog](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
 
@@ -49,9 +51,10 @@ header and client type. Health responses contain public project/build/runtime
 metadata, feature states, cached checks, persisted aggregate request counters,
 and in-flight request counts. Health does not probe mail daemons; Tor/I2P/GeoIP
 providers are incomplete, so health is not a production readiness signal.
-Mail management pages, system-user management, component configuration,
-delivery/spam statistics, and log routes remain incomplete. Postfix queue
-operations require the server process to have the permissions Postfix requires.
+Mail management pages, system-user management, live MTA synchronization,
+component configuration, delivery/spam statistics, and log routes remain
+incomplete. Postfix queue operations require the server process to have the
+permissions Postfix requires.
 The GraphiQL explorer at `/server/docs/graphql` uses locally served assets and
 the operator-authenticated, read-only GraphQL endpoint. See the [API guide](api.md)
 for its current mail query surface and limits.

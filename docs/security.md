@@ -8,8 +8,9 @@ is available at `POST /api/v1/server/preferences/tokens/primary`; a valid
 operator or owner Bearer token prevents duplicate issuance, and a strict
 per-IP rate limit applies. Primary-token authorization protects token
 management and linked-token lifecycle operations. Operator authorization
-protects service discovery and control. Mail-resource authorization remains
-incomplete because the mail-resource API is not implemented.
+protects mail domains, virtual mailboxes, aliases, forwards, queue operations,
+and service discovery/control. These mail records are global resources owned
+by the reserved `system` owner; owner tokens do not grant mail-stack access.
 
 Startup also generates a version 1, base64-encoded 32-byte AES key at
 `server.security.encryption_key` when missing and stores it in the same
@@ -31,8 +32,7 @@ counters. Strict token actions currently use per-IP limits. CORS defaults to `*`
 without credentials; credentialed responses require an explicitly allowed
 origin. Strict token actions still need per-owner buckets, external cache
 fallback is not implemented, full audit coverage and PGP-encrypted reporting
-remain incomplete. Registered mail-resource routes require operator
-authorization; remaining resources must use the same policy when implemented.
+remain incomplete. Future mail routes must retain operator authorization.
 The application is not ready for production exposure.
 
 The baseline response headers include `X-Content-Type-Options`,
@@ -54,6 +54,9 @@ not a production readiness signal.
 
 For vulnerability reports, use GitHub's private vulnerability reporting for
 the [apimgr/mail repository](https://github.com/apimgr/mail/security/advisories/new).
+The `/server/contact` and `/server/security` pages link to this reporting
+channel. The browser pages do not accept or store report contents, and
+`/server/security/thanks` is informational only.
 
 ## Public security resources
 

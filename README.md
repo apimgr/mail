@@ -15,15 +15,15 @@ is the read-only implementation specification.
 The product covers mail service status and control, system and virtual
 mailboxes, domains, aliases and forwarding, queue operations, spam and virus
 filtering, TLS and DKIM, DNS guidance, logs, and delivery statistics. Current
-implementation includes service discovery/control, health and server
-information routes, owner-token management, and operator-protected domain
-create/read/update/delete, DNS guidance, public DKIM operations, operator-only
-alias list/create/delete APIs, virtual mailbox CRUD/password/CSV import, and
-virtual-mailbox forwarding CRUD. Postfix queue list/detail, hold/release,
-flush/delete, flush-all, and queue counts are available through the operator
-API and CLI; privileged queue operations depend on Postfix permissions for the
-server process. System users, alias browser and MTA integration, spam/virus,
-TLS, log, and delivery-statistics workflows remain incomplete; see
+implementation includes operator-protected service discovery/control,
+virtual-mailbox CRUD/password/CSV import, domain CRUD and DNS/DKIM operations,
+alias and forwarding CRUD, and Postfix queue operations through the API and
+CLI. Mail records are global operator-managed resources under the reserved
+`system` owner; owner tokens do not authorize mail-stack access. Queue actions
+that need Postfix privileges require those permissions for the server process.
+System-user management, live MTA synchronization, transport and filtering
+configuration, certificate management, logs, and delivery statistics remain
+incomplete; see
 [TODO.AI.md](TODO.AI.md) for the verified backlog.
 
 ## Production
@@ -43,6 +43,12 @@ encrypted recovery copy of the initial owner token; report storage and the
 broader configuration contract remain incomplete and are tracked in
 [TODO.AI.md](TODO.AI.md).
 
+The scheduled updater checks the configured stable, beta, or devel channel and
+honors `server.update.defer_days`. With `auto_install: true`, only a
+server process that started as root stages an eligible release; a later
+privileged startup re-verifies and applies it. Non-elevated processes notify
+the operator and record that installation was skipped.
+
 ## API
 
 The scaffold includes server-rendered home, help, legal, security, and
@@ -59,8 +65,10 @@ a production readiness signal. API text aliases are `/api/healthz.txt` and
 `/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
 sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md).
-Remaining mail-resource workflows are incomplete. Domain management and
-DNS/DKIM routes are implemented. Initial owner-token issuance,
+Mail APIs are operator-protected and cover domains, DNS/DKIM, virtual
+mailboxes, aliases, forwarding, Postfix queue operations, and service
+management. Live MTA synchronization and system-user management remain
+incomplete. Initial owner-token issuance,
 token reveal/rotation/revocation, linked-token management, and the
 server-rendered token page are available. A companion `mail-cli` provides the
 Cobra command tree and an interactive Bubble Tea setup/menu. It supports
@@ -81,7 +89,10 @@ descriptions; see [the API reference](docs/api.md) and
 
 The repository's [MkDocs documentation](docs/index.md) is configured for
 ReadTheDocs using its default project URL. The hosted documentation project is
-not confirmed as deployed, so there is no documentation badge yet.
+not confirmed as deployed, so there is no documentation badge yet. Locale
+catalogs currently contain six languages: Arabic, English, French, German,
+Italian, and Spanish; localization coverage is still incomplete. See the
+[translation guide](docs/translating.md).
 
 ## Development
 

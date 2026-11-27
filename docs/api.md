@@ -17,6 +17,7 @@ separate operator-authenticated GraphQL response format.
 | `GET` | `/api/v1/server/healthz.txt` | Returns the same health data as flat text; the `.txt` suffix overrides `Accept`. |
 | `GET` | `/api/v1/server/auth/check` | Machine-only token check. Requires one Bearer credential, returns `{ "kind": "operator" }` or `{ "kind": "owner" }`; invalid credentials return 401. Rate limited and never echoes the token. |
 | `GET` | `/api/v1/server/swagger` | Generates an OpenAPI JSON document from routes currently registered by the server, including protected routes with their authorization schemes. |
+| `POST` | `/api/v1/server/mcp` | Streamable HTTP MCP endpoint. Requires a valid Bearer token and the `MCP-Protocol-Version`, `Mcp-Method`, and, for `tools/call`, `Mcp-Name` headers. Provides registered API operations as tools, filtered to the caller's authorization tier. |
 | `GET`, `POST` | `/api/v1/server/graphql` | Executes query-only GraphQL operations; requires the operator Bearer token. GET accepts `query`, `variables`, and `operationName`; POST accepts a JSON GraphQL request. |
 | `GET` | `/api/v1/server/about` | Returns localized title, project Markdown/content, and format, using configured About content when present. |
 | `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
@@ -134,3 +135,13 @@ header editor. The header editor does not persist headers. Without JavaScript,
 the page links to the plain GraphQL endpoint. Health checks do not yet probe
 the mail daemons; Tor/I2P/GeoIP providers also remain incomplete.
 Do not treat this development API as a stable production contract.
+
+Swagger UI is available at `/server/docs/swagger` and loads the OpenAPI document
+from `/api/v1/server/swagger`. MCP is available at `/api/v1/server/mcp`; the
+direct aliases `/api/mcp` and `/mcp` use the same POST-only handler. MCP
+requests require the `2026-07-28` protocol version and a Bearer token. The
+operator token can invoke operator-authorized API operations; owner tokens only
+see public operations because mail records are globally operator-managed. MCP
+tool calls dispatch through the registered API routes, preserving their
+validation, middleware, and authorization checks. MCP has no initialization
+handshake or session state.

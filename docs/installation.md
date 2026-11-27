@@ -1,17 +1,31 @@
 # Installation
 
 Mail does not yet have a supported release or published deployment package.
-The repository includes Docker and Compose build definitions, but the
-application remains a development scaffold. Release binaries and service
-installation are tracked in [TODO.AI.md](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
+The repository includes Dockerfiles and Compose definitions for development,
+testing, and deployment, but there is no published image or release binary to
+install. Service installation and lifecycle commands are not implemented.
+Do not use this development build to administer a production mail server.
 
 ## Build prerequisites
 
 Use Docker and Make. The repository Makefile runs Go build and test commands
 inside `casjaysdev/go:latest`; do not run Go tooling directly on the host.
 
+## Build from source
+
+From the repository root, run `make build` to produce server and client
+binaries for the supported release targets under `binaries/`. For a
+host-platform development build, `make dev` writes binaries to a project-scoped
+temporary directory and prints its location. The Makefile targets invoke Go
+inside Docker. Use `make test SMOKE=1` before evaluating a change; see the
+[development guide](development.md).
+
 ## Current runtime
 
-The server initializes its configuration and database packages before it
-starts listening. Do not expose an instance to an untrusted network until the
-authentication, API, and deployment requirements in AI.md are implemented.
+The server creates its configuration and database, generates an operator
+token on first start, and listens on the selected port. Compose files describe
+the expected deployment and development images, but those images are not
+published and the compose files do not build them from source. The service and
+systemd installer commands are still pending. Do not expose an instance to an
+untrusted network until the remaining authentication, MTA synchronization,
+TLS, and deployment requirements are implemented.

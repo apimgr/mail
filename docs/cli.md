@@ -7,14 +7,52 @@ The server binary uses Go's standard flag parser for `--help`, `--version`,
 shell, service, maintenance, and update command flags. `--status` checks the
 local JSON health endpoint with a bounded timeout. `--shell` completion and
 init commands work for bash, zsh, fish, POSIX-style shells, and PowerShell.
-Daemon re-execution is supported on Unix when `--daemon` is used outside an
-application container. `--update check`, `--update yes`, and
+On Unix, daemon re-execution is available for `--daemon` and
+`server.daemonize: true` outside application containers. The `--service`
+command family is not implemented. Startup reads only `server.port`,
+`server.address`, `server.daemonize`, and `server.pidfile` from `server.yml`
+and ordered `yaml.d` files before binding. When started as root, the server
+prepares the `mail` service account and paths, binds one privileged HTTP
+listener if needed, drops privileges, then initializes logging, PID state, and
+the full configuration. Dual HTTP/HTTPS listeners, TLS listeners, and raw mail
+protocol sockets are not implemented yet. `--update check`, `--update yes`, and
 `--update branch stable|beta|devel` are implemented, including checksum
-verification before replacement. The updater still lacks the scheduled
-service-user staging, privileged re-verification, deferred update policy, and
-service-manager restart flow required by AI.md PART 22. Service and maintenance
-operations remain incomplete. `--maintenance update [CMD]` dispatches to the
-same updater and defaults to `yes` when no command is supplied.
+verification before replacement. Scheduled checks honor the defer window.
+When `auto_install` is enabled, a process that started as root stages a
+verified release as its service user, gracefully shuts down, and returns 75;
+the next root startup re-fetches the official checksum and applies it. A
+non-elevated process records that automatic installation was skipped and
+notifies the operator. Supervisor restart behavior depends on the service
+manager policy; service installation/management itself is not implemented.
+`--maintenance update [CMD]` dispatches to the same updater and defaults to
+`yes` when no command is supplied. Other service and maintenance operations
+remain incomplete.
+
+### Server flags
+
+| Flag | Description |
+|---|---|
+| `--help`, `-h` | Show help. |
+| `--version`, `-v` | Show version and build information. |
+| `--status` | Query the local health endpoint. |
+| `--config`, `--data`, `--cache`, `--log`, `--backup` | Override runtime directories. |
+| `--pid` | Override the PID-file path. |
+| `--address`, `--port` | Set the listener IP and port. Port 0 is invalid. |
+| `--baseurl` | Set the URL path prefix. |
+| `--mode`, `--debug` | Select runtime mode and debug endpoints. |
+| `--daemon` | Re-execute as a background daemon outside containers. |
+| `--lang` | Set the output language. |
+| `--color auto\|yes\|no` | Set terminal color behavior. |
+| `--shell completions [SHELL]`, `--shell init [SHELL]` | Generate shell integration. |
+| `--service COMMAND` | Service management entrypoint; commands are not implemented. |
+| `--maintenance COMMAND` | Maintenance entrypoint; only `update` is currently implemented. |
+| `--update [check\|yes\|branch NAME]` | Check, install, or select the update channel. |
+
+`--i2p` is accepted, but I2P startup is not yet implemented.
+
+`--port` accepts one port from 1 through 65535. Port `0` is rejected. A
+non-root process cannot bind ports below 1024. The listen address must be an IP
+literal; the default is `[::]`.
 
 ## Client binary
 
@@ -48,6 +86,14 @@ defaults to `v1`. A token can come from
 select another YAML file. The client also supports `--help`, `--version`,
 `--shell completions [SHELL]`, and `--shell init [SHELL]`. Completions include
 the client commands and flags currently implemented.
+
+Client environment settings include `MAIL_SERVER_PRIMARY` and `OFFICIAL_SITE`
+for server selection, `MAIL_TOKEN` for authorization, `MAIL_OUTPUT_FORMAT`,
+`MAIL_COLOR`, and `MAIL_LANG` for output preferences, plus `MAIL_DEBUG`,
+`MAIL_QUIET`, and `MAIL_VERBOSE` for diagnostics and output controls. `LANG`,
+`NO_COLOR`, and `TERM` provide locale and terminal fallbacks. Explicit command
+flags take precedence over these environment settings; command-line tokens
+should be avoided when process listings are exposed.
 
 With no command in an interactive terminal, the Bubble Tea interface opens.
 When no server is configured, it prompts for a URL and optional token, checks
