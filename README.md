@@ -69,6 +69,13 @@ TUI preference behavior remain tracked in [TODO.AI.md](TODO.AI.md). The
 `status`, `about`, token, service, mailbox, forward, alias, domain, DNS, and DKIM
 CLI operations have matching server routes. The OpenAPI document and machine-only token check are
 generated from the registered API routes.
+The operator-authenticated GraphQL endpoint is query-only and currently covers
+mailbox, domain/DNS/DKIM, alias/forward, queue, service, and mail-health reads.
+Its themed GraphiQL explorer is available at `/server/docs/graphql`, uses
+locally vendored browser assets, and does not persist authorization headers.
+The GraphQL schema still lacks public server-read parity and translated schema
+descriptions; see [the API reference](docs/api.md) and
+[GraphiQL asset notes](docs/graphql-assets.md).
 
 ## Other
 

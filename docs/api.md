@@ -123,7 +123,8 @@ management are not implemented. The generated OpenAPI schemas are
 generic for several responses and omit complete query parameters and error
 metadata. GraphQL currently exposes paginated users, user detail, paginated
 domains and domain detail, DNS and public DKIM records, aliases, forwards,
-queue entries and statistics, service status, and aggregate mail health. It
+queue entries and statistics, complete detected service details (including
+packages, executable, and service account), and aggregate mail health. It
 applies operator Bearer authorization, rejects mutations by using a query-only
 schema, and caps query depth at 8 and query size at 32 KiB. Pagination accepts
 limits from 1 through 250. The schema does not yet cover all public server

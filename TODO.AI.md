@@ -250,7 +250,7 @@ its implementation is complete and committed.
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
   required by AI.md PART 28. The latest full `make test SMOKE=1` gate passed with
-  60.4% statement coverage and exercised the current CLI/server startup,
+  60.3% statement coverage and exercised the current CLI/server startup,
   health, API, mail routes, and rendered-page shells. Incus and browser E2E
   coverage and tests for the
   complete product behavior are missing.
