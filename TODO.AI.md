@@ -319,12 +319,12 @@ its implementation is complete and committed.
   CI/security workflows and public community files now exist. Coverage uses
   `-test.gocoverdir` plus `go tool covdata textfmt` in the test job across all
   five providers; `act --list` accepts every GitHub workflow, the CI action-pin
-  policy is locally verified, and ShellCheck passes. The latest hosted CI run
-  exposed an artifact assertion that expected only eight files although each
-  platform uploads both the server and CLI; the matrix now checks for eight of
-  each artifact. Hosted CI reruns and release workflows still need verification.
+  policy is locally verified, and ShellCheck passes. The artifact assertion
+  now checks for eight server and eight CLI binaries. Hosted CI, Devel Build,
+  and Docker runs for `b7d7000b029d` succeeded; provider release workflows and
+  branch-protection verification remain.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest wrapped `make test` gate passed with 60.4%
+  required by AI.md PART 28. The latest wrapped `make test` gate passed with 60.6%
   statement coverage; the Docker server/client smoke suite and all-platform
   `make build` also passed. Incus and browser E2E coverage and tests for
   complete product behavior are missing. Production and development image
