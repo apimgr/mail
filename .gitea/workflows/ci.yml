@@ -151,7 +151,9 @@ jobs:
         with:
           path: binaries
       - name: Check build matrix artifacts
-        run: test "$(find binaries -type f | wc -l)" -eq 8
+        run: |
+          test "$(find binaries -type f -name 'mail-*' ! -name 'mail-cli-*' | wc -l)" -eq 8
+          test "$(find binaries -type f -name 'mail-cli-*' | wc -l)" -eq 8
 
   vuln-scan:
     runs-on: ubuntu-26.04
