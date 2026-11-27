@@ -169,8 +169,8 @@ its implementation is complete and committed.
   Other information pages remain scaffold content. The
   contact workflows, the full configurable page-content integration (about,
   privacy, terms, header and footer support localized safe rendering, but config
-  validation, hot reload and warning/default behavior are incomplete), full
-  MCP help guidance and the complete security-report flow remain incomplete.
+  validation, hot reload and warning/default behavior are incomplete), and
+  the complete security-report flow remains incomplete.
   Reverse-proxy baseurl detection and prefixing are not yet implemented for
   routes, forms, assets, and server-rendered links.
   The contact form and status lookup exist; its enabled switch now gates GET,
@@ -178,8 +178,8 @@ its implementation is complete and committed.
   expose only configured public channels, expiry, and a validated PGP v4
   fingerprint/key URL; `/server/security` renders those channels and links.
   Nonsecurity contact workflows, PGP-encrypted maintainer delivery,
-  security-role routing, maintenance update/export, and retired-key cleanup
-  are incomplete. PGP v4 key generation, public export, keyserver publication,
+  security-role routing, and maintenance update/export are incomplete. PGP v4
+  key generation, public export, keyserver publication,
   and timestamped publication metadata are implemented. Retry state is durable
   in `config/security/keyservers.state` and the scheduler retries due entries.
   Private-key export, confirmed deletion, and identity-checked key import are
@@ -289,7 +289,7 @@ its implementation is complete and committed.
   custom runner label and existing ShellCheck advisory excluded. Hosted CI
   runs and release workflows still need verification.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The wrapped `make test` gate passed with 60.1%
+  required by AI.md PART 28. The wrapped `make test` gate passed with 60.3%
   statement coverage; the Docker server/client smoke suite and all-platform
   `make build` also passed. Incus and browser E2E coverage and tests for
   complete product behavior are missing.
