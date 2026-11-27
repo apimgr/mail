@@ -207,8 +207,11 @@ its implementation is complete and committed.
   and configuration validation. Operator-only virtual mailbox CRUD/password/
   CSV import, domain CRUD/DNS/DKIM guidance, alias list/create/delete, and
   virtual-mailbox forward list/create/delete have persisted API paths and CLI
-  commands; system-user management, live MTA synchronization, and the remaining
-  resources are incomplete.
+  commands. Postfix queue list/detail, flush/hold/release/delete, flush-all, and
+  queue counts now have operator-protected API and CLI paths; privileged queue
+  mutations still require a suitable runtime permission. System-user
+  management, live MTA synchronization, transport rules, and configuration
+  management remain incomplete.
 - [ ] Implement spam/virus integrations, DKIM key management, TLS, logs,
   delivery statistics, alerts, and backup/restore according to IDEA.md and
   AI.md PARTS 17–24.

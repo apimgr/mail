@@ -5,7 +5,8 @@ mail-management route inventory is in the
 [project definition](https://github.com/apimgr/mail/blob/main/IDEA.md). The
 registered routes currently cover public server pages, browser preferences,
 owner-token management, operator-protected virtual mailbox CRUD and CSV import,
-domain, alias, and forwarding operations, and operator service status and control. OpenAPI JSON includes protected routes
+domain, alias, forwarding, Postfix queue, queue-statistics, and service status
+and control operations. OpenAPI JSON includes protected routes
 and declares their Bearer security; `llms.txt` uses the shared API registry.
 
 | Method | Path | Current behavior |
@@ -54,6 +55,12 @@ and declares their Bearer security; `llms.txt` uses the shared API registry.
 | `GET` | `/api/v1/forwards` | Lists virtual-mailbox forwarding rules with standard pagination. Requires the operator Bearer token. |
 | `POST` | `/api/v1/forwards` | Creates a forwarding rule for an enabled virtual mailbox with 1–20 destination addresses and a keep-local flag. Requires the operator Bearer token. |
 | `DELETE` | `/api/v1/forwards/{id}` | Deletes a forwarding rule by opaque UUIDv7 ID. Requires the operator Bearer token. |
+| `GET` | `/api/v1/queue` | Lists Postfix queue metadata with standard pagination. Requires the operator Bearer token. |
+| `GET` | `/api/v1/queue/{id}` | Returns queue sender, recipients, size, arrival time, queue state, and delay reason. Requires the operator Bearer token. |
+| `POST` | `/api/v1/queue/{id}/flush`, `/hold`, `/release` | Requests one fixed Postfix queue operation. Requires the operator Bearer token; hold/release require suitable Postfix process permissions. |
+| `DELETE` | `/api/v1/queue/{id}` | Deletes a queued message using `postsuper`. Requires the operator Bearer token and suitable process permissions. |
+| `POST` | `/api/v1/queue/flush-all` | Requests Postfix delivery for the queue. Requires the operator Bearer token. |
+| `GET` | `/api/v1/stats/queue` | Returns current queue count, bytes, and counts by Postfix queue state. Requires the operator Bearer token. |
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |

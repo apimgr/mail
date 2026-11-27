@@ -25,8 +25,9 @@ alias list/create/delete, virtual-mailbox forwarding list/create/delete, and ser
 operator-protected server handlers. Queue list/detail, message flush/hold/
 release/delete, flush-all, and queue statistics have operator-protected
 handlers; the Postfix process permissions still determine whether privileged
-queue mutations can run. Config, delivery/spam statistics, and log operations
-remain pending.
+queue mutations can run. Queue POST actions require `--force` in non-interactive
+runs or terminal confirmation, like DELETE commands. Config, delivery/spam
+statistics, and log operations remain pending.
 
 ```sh
 mail-cli --server https://mail.example status

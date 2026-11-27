@@ -143,46 +143,46 @@ authorization defined by AI.md; state-changing and operator-only operations
 require the operator credential. Requests and responses use the API formats
 defined by AI.md.
 
-| Method and path | Purpose and request/response summary |
-|---|---|
-| `GET /services` | List detected mail services and status. |
-| `GET /services/{service}` | Return one service's status. |
-| `POST /services/{service}/start`, `/stop`, `/restart`, `/reload` | Control a service; return the operation result and status. |
-| `GET /users` | List system and virtual users. |
-| `GET /users/{id}` | Return one user's details. |
-| `POST /users` | Create a user from the supplied user fields. |
-| `PUT /users/{id}` | Update user fields. |
-| `DELETE /users/{id}` | Delete a user. |
-| `POST /users/{id}/password` | Change a user's password. |
-| `POST /users/import` | Import users from CSV and report per-row results. |
-| `GET /domains` | List virtual domains. |
-| `GET /domains/{domain}` | Return one domain. |
-| `POST /domains` | Add a domain. |
-| `PUT /domains/{domain}` | Update a domain. |
-| `DELETE /domains/{domain}` | Delete a domain. |
-| `GET /domains/{domain}/dns` | Return required DNS records. |
-| `GET /domains/{domain}/dkim` | Return public DKIM record details; never disclose a private key. |
-| `POST /domains/{domain}/dkim/generate` | Generate and store DKIM key material; return public DNS data. |
-| `GET /aliases` | List aliases. |
-| `POST /aliases` | Create an alias from a source and destination. |
-| `DELETE /aliases/{id}` | Delete an alias. |
-| `GET /forwards` | List forwarding rules. |
-| `POST /forwards` | Create a forward with destinations and local-copy behavior. |
-| `DELETE /forwards/{id}` | Delete a forward. |
-| `GET /queue` | List queue entries and delivery status. |
-| `GET /queue/{id}` | Return queue entry details. |
-| `POST /queue/{id}/flush`, `/hold`, `/release` | Perform the requested queue operation. |
-| `DELETE /queue/{id}` | Delete a queued message. |
-| `POST /queue/flush-all` | Flush the full queue. |
-| `GET /config/{component}` | Return the component configuration, with secrets redacted. |
-| `PUT /config/{component}` | Validate and update component configuration. |
-| `POST /config/{component}/validate` | Validate submitted component configuration without applying it. |
-| `GET /config/{component}/templates` | List available configuration templates. |
-| `POST /config/{component}/backup` | Back up component configuration. |
-| `POST /config/{component}/restore` | Restore a component configuration backup. |
-| `GET /stats/delivery`, `/stats/spam`, `/stats/queue` | Return delivery, spam, or queue statistics. |
-| `GET /logs/{component}` | Search/filter logs for a component. |
-| `GET /health` | Return overall mail-system health. |
+| Method and path | Authorization | Purpose and request/response summary |
+|---|---|---|
+| `GET /services` | Operator Bearer token | No body; return detected mail services and status. |
+| `GET /services/{service}` | Operator Bearer token | No body; return one service status or not-found error. |
+| `POST /services/{service}/start`, `/stop`, `/restart`, `/reload` | Operator Bearer token | No body; return operation result and refreshed service status. |
+| `GET /users` | Operator Bearer token | Optional pagination; return system and virtual users with pagination. |
+| `GET /users/{id}` | Operator Bearer token | No body; return one user record. |
+| `POST /users` | Operator Bearer token | User fields; return created user without plaintext credentials. |
+| `PUT /users/{id}` | Operator Bearer token | User fields; return updated user without credential material. |
+| `DELETE /users/{id}` | Operator Bearer token | No body; return deleted user identifier and result. |
+| `POST /users/{id}/password` | Operator Bearer token | New password; return user without password or hash. |
+| `POST /users/import` | Operator Bearer token | CSV rows; return per-row results without passwords. |
+| `GET /domains` | Operator Bearer token | Optional pagination; return virtual domains with pagination. |
+| `GET /domains/{domain}` | Operator Bearer token | No body; return one domain record. |
+| `POST /domains` | Operator Bearer token | Domain fields; return created domain. |
+| `PUT /domains/{domain}` | Operator Bearer token | Domain fields; return updated domain. |
+| `DELETE /domains/{domain}` | Operator Bearer token | No body; return deleted domain identifier and result. |
+| `GET /domains/{domain}/dns` | Operator Bearer token | No body; return required DNS record names and values. |
+| `GET /domains/{domain}/dkim` | Operator Bearer token | No body; return public DKIM selectors and DNS values; never private keys. |
+| `POST /domains/{domain}/dkim/generate` | Operator Bearer token | No body; return generated selector and public DNS data. |
+| `GET /aliases` | Operator Bearer token | Optional pagination; return aliases with pagination. |
+| `POST /aliases` | Operator Bearer token | Source and destination; return created alias. |
+| `DELETE /aliases/{id}` | Operator Bearer token | No body; return alias identifier and result. |
+| `GET /forwards` | Operator Bearer token | Optional pagination; return forwarding rules with pagination. |
+| `POST /forwards` | Operator Bearer token | Source, destinations, and local-copy settings; return created rule. |
+| `DELETE /forwards/{id}` | Operator Bearer token | No body; return forwarding-rule identifier and result. |
+| `GET /queue` | Operator Bearer token | Optional pagination; return Postfix metadata and pagination. |
+| `GET /queue/{id}` | Operator Bearer token | No body; return queue ID, sender, recipients, size, arrival, state, and reason. |
+| `POST /queue/{id}/flush`, `/hold`, `/release` | Operator Bearer token | No body; return queue ID and operation result. |
+| `DELETE /queue/{id}` | Operator Bearer token | No body; return queue ID and deletion result. |
+| `POST /queue/flush-all` | Operator Bearer token | No body; return flush operation result. |
+| `GET /config/{component}` | Operator Bearer token | No body; return component configuration with secrets redacted. |
+| `PUT /config/{component}` | Operator Bearer token | Configuration document; return validation and apply result. |
+| `POST /config/{component}/validate` | Operator Bearer token | Configuration document; return validation errors or success. |
+| `GET /config/{component}/templates` | Operator Bearer token | No body; return available template metadata. |
+| `POST /config/{component}/backup` | Operator Bearer token | No body; return backup identifier and result. |
+| `POST /config/{component}/restore` | Operator Bearer token | Backup identifier; return restore result. |
+| `GET /stats/delivery`, `/stats/spam`, `/stats/queue` | Operator Bearer token | Optional period; return counts for the selected category. |
+| `GET /logs/{component}` | Operator Bearer token | Optional filters and pagination; return matching entries and pagination. |
+| `GET /health` | Operator Bearer token | No body; return overall state and component checks. |
 
 The template's own server, health, version, and discovery endpoints are
 defined by AI.md and are not repeated here.
