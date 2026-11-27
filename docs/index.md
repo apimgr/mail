@@ -22,7 +22,7 @@ database-aware health and application metadata routes:
 - `/server/security`, `/server/security/policy`, `/server/security/thanks`
 - `/server/preferences`, `/server/preferences/sync`, `/server/docs/swagger`,
   `/server/docs/graphql`, `/server/preferences/tokens`
-- `/manifest.json`, `/sw.js`, `/offline.html`, and versioned `/static/*` assets
+- `/manifest.json`, `/sw.js`, and versioned `/static/*` assets
 - `/robots.txt`, `/sitemap.xml`, `/feed.xml`, `/rss.xml`, `/llms.txt`,
   `/.well-known/security.txt`, and `/.well-known/llms.txt`
 - `GET /server/healthz`
@@ -61,10 +61,12 @@ for its current mail query surface and limits.
 Preferences use CSRF-protected POST forms without JavaScript; theme and
 language persistence requires cookie consent. The sync page supports
 shareable preference exports and imports. The public shell includes a consent
-banner, installable manifest, and network-first service worker with an offline
-fallback. The first HTML response sets a device-local build stamp; a changed
-stamp sends `Clear-Site-Data` for cache and storage so stale app assets are
-purged.
+banner, installable manifest, and a network-first service worker. The worker
+caches only public HTML responses explicitly marked by the server and uses a
+synthesized, translated offline page when no cached public page is available.
+The HTML response sets a device-local build stamp only on successful top-level
+navigations; a changed stamp sends `Clear-Site-Data` for cache and storage so
+stale app assets are purged.
 
 ## Guides
 

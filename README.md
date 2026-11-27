@@ -58,8 +58,11 @@ The scaffold includes server-rendered home, help, legal, security, and
 preferences pages. The preferences page supports consent-gated theme and
 language cookies, cookie-consent and CCPA controls, reset, and a stateless
 cross-device sync page. A server-rendered consent banner and CSRF protection
-work without JavaScript. The public shell includes a PWA manifest, service
-worker, and offline fallback. `/server/healthz` negotiates HTML, JSON, and
+work without JavaScript. The public shell includes a PWA manifest, a
+build-stamped service worker that caches only explicitly marked public pages,
+and a synthesized offline page localized from the last rendered page. A
+10-second browser watchdog retries once after clearing stale worker/cache
+state. `/server/healthz` negotiates HTML, JSON, and
 plain text. The health payload includes project/build/runtime information,
 feature states, cached dependency checks, persisted aggregate request counts,
 and in-flight request counts; health does not yet probe mail daemons and is not

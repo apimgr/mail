@@ -292,7 +292,7 @@ its implementation is complete and committed.
   policy is locally verified, and ShellCheck passes. Hosted CI runs and release
   workflows still need verification.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The wrapped `make test` gate passed with 60.3%
+  required by AI.md PART 28. The latest wrapped `make test` gate passed with 60.4%
   statement coverage; the Docker server/client smoke suite and all-platform
   `make build` also passed. Incus and browser E2E coverage and tests for
   complete product behavior are missing. The production and development image
@@ -309,8 +309,9 @@ its implementation is complete and committed.
   review.
 - [ ] Reconcile remaining repository files with AI.md FINAL CHECKPOINT,
   including service files, complete PWA assets/update recovery, workflows, and
-  deployment artifacts. The installable manifest, service worker, offline page,
-  versioned static assets, build-stamp cache purge, robots/sitemap/feed,
+  deployment artifacts. The installable manifest, public-only service-worker
+  page cache, translated synthesized offline page, one-retry watchdog,
+  versioned static assets, top-level build-stamp cache purge, robots/sitemap/feed,
   security.txt, llms.txt, and conditional `/.well-known/pgp-key.asc` serving now
   exist; PGP key creation and the remaining discovery plumbing remain. Full icon variants, robust
   update/recovery behavior, metadata, and browser verification remain.
