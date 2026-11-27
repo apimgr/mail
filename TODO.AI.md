@@ -157,7 +157,9 @@ its implementation is complete and committed.
   the CLI imports from a file. Operator-only forwarding list/create/delete
   routes now support bounded pagination, multiple destinations, local-copy
   behavior, and opaque UUIDv7 IDs. System-user management, live MTA
-  synchronization, transport rules, and log APIs remain incomplete. Runtime
+  synchronization, transport rules, and log management remain incomplete;
+  sanitized operator log reads and service operation requests now have matching
+  API handlers. Runtime
   configuration APIs are excluded by AI.md PART 3's file-only configuration
   rule. Operator-only queue listing/detail, flush/hold/release/delete,
   flush-all, and current queue counts now use Postfix's bounded command
@@ -267,7 +269,8 @@ its implementation is complete and committed.
   mutations still require a suitable runtime permission. System-user
   management, live MTA synchronization, transport rules, and configuration
   management remain incomplete.
-- [ ] Implement spam/virus integrations, DKIM key management, TLS, logs,
+- [ ] Implement spam/virus integrations, DKIM key management, TLS, log
+  rotation/management,
   delivery statistics, alerts, and backup/restore according to IDEA.md and
   AI.md PARTS 17–24.
 - [ ] Implement scheduler persistence, catch-up behavior, health checks,
