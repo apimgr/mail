@@ -40,7 +40,12 @@ commands require the operator token or an elevated account. Backup, restore,
 setup, and secret rotation remain incomplete. `--maintenance security list
 [--status STATUS]` lists security-report metadata without report content;
 `show TRACKING_ID` displays metadata and the researcher comment without report
-content. Update and encrypted export remain incomplete.
+content. `update TRACKING_ID` changes triage status, researcher-facing comment,
+disclosure date, and severity; status transitions move forward only. An opted-in
+credit is added to the acknowledgments page when status becomes `disclosed`.
+`export TRACKING_ID [--output FILE|-]` writes only the stored ciphertext; new
+files use mode `0600` and are never overwritten. Researcher status-change email
+remains incomplete.
 
 ### Server flags
 
@@ -59,7 +64,7 @@ content. Update and encrypted export remain incomplete.
 | `--color auto\|yes\|no` | Set terminal color behavior. |
 | `--shell completions [SHELL]`, `--shell init [SHELL]` | Generate shell integration. |
 | `--service COMMAND` | Manage the detected system or per-user service (`status`, `install`, `start`, `stop`, `restart`, `reload`, `disable`, `uninstall`). |
-| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, `email test [--to ADDRESS] [--dry-run]`, and `security list [--status STATUS]` / `security show TRACKING_ID` are implemented. Backup, restore, setup, secret rotation, and the remaining security-report actions are incomplete. |
+| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, `email test [--to ADDRESS] [--dry-run]`, and `security list [--status STATUS]` / `security show TRACKING_ID` / `security update TRACKING_ID [options]` / `security export TRACKING_ID [--output FILE|-]` are implemented. Backup, restore, setup, secret rotation, PGP maintainer delivery, and researcher status-change email are incomplete. |
 | `--update [check\|yes\|branch NAME]` | Check, install, or select the update channel. |
 
 `--i2p` is accepted, but I2P startup is not yet implemented.

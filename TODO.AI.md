@@ -169,10 +169,14 @@ its implementation is complete and committed.
   MCP help guidance and the complete security-report flow remain incomplete.
   The contact form and status lookup exist; PGP-encrypted maintainer delivery,
   security-role routing, maintenance update/export, and retired-key cleanup
-  are incomplete. Closed-report retention cleanup follows the configured days.
+  are incomplete. Researcher acknowledgments now advertise email only after
+  SMTP accepts the message; acknowledgment email is skipped when a submitted
+  key requires unsupported PGP encryption. Closed-report retention cleanup follows the configured days.
   Maintenance security list/show now display only permitted metadata and the
-  researcher comment, with a validated list status filter; encrypted export
-  and report triage remain missing.
+  researcher comment, with a validated list status filter. Maintenance update
+  now performs forward-only status changes, comment/date/severity updates,
+  closure timestamps, and opt-in hall-of-fame insertion transactionally;
+  encrypted export and researcher status-change email remain missing.
   The complete page registry and route parity remain missing. A shared page
   registry now covers
   the current server-rendered GET routes and drives sub-page routes, hub/footer

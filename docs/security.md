@@ -60,16 +60,22 @@ code. For a vulnerability in a deployed instance, use that instance's
 `/server/security` page and its security-report link to open the report form at
 `/server/contact?security_id=...`. The form validates the submission, stores
 the report with encrypted body and contact fields, and returns a tracking ID.
-When no researcher PGP key is supplied, the receipt contains only that ID and
-a one-shot status link. When a key is supplied, receipt delivery is skipped
-until PGP encryption is implemented. The status page shows triage state and
+When the acknowledgment email is successfully handed to SMTP, the response
+also says that a confirmation email is on its way. The email contains only the
+tracking ID and a one-shot status link. If SMTP is unavailable, the response
+does not promise an email. When a researcher PGP key is supplied, receipt
+delivery is skipped until PGP encryption is implemented. The status page shows triage state and
 does not disclose report content. Closed reports are removed after the
 configured retention period by the daily security cleanup task; open reports
-are retained. PGP delivery to the configured security contact, maintenance
-update/export, and retired-key cleanup are not implemented yet. The operator-only `--maintenance security list [--status
-STATUS]` command shows metadata without report content; show, update, and
-encrypted export remain incomplete. Maintainers therefore do not receive the
-report through an automated secure delivery path. The
+are retained. PGP delivery to the configured security contact, status-change
+email, and retired-key cleanup are not implemented yet. The operator-only
+`--maintenance security list [--status STATUS]` and `show TRACKING_ID`
+commands show permitted metadata without decrypting report content. The
+`update TRACKING_ID` command supports forward-only triage, researcher comments,
+disclosure dates, severity re-triage, and opted-in acknowledgments. Maintainers therefore do not receive the
+report through an automated secure delivery path. `export TRACKING_ID` writes
+the stored ciphertext only, using mode `0600` and refusing to overwrite an
+existing file; `--output -` writes ciphertext to stdout. The
 `/server/security/thanks` page is informational only.
 
 ## Public security resources
