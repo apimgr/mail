@@ -14,6 +14,12 @@ This is the primary reporting channel. Do not file suspected vulnerabilities
 as public issues or discussions. Repositories mirrored from GitHub should
 direct reporters to the GitHub origin first.
 
+For a vulnerability in a deployed Mail instance, use that instance's
+`/server/security` page and its security-report link. Reports submitted there
+are stored with encrypted body and contact fields, but automated PGP delivery
+to the instance's security contact is not implemented yet. Do not submit
+credentials or unrelated sensitive data through that form.
+
 Include the affected version or commit, affected component, impact, and steps
 to reproduce. Do not include real credentials or personal data in a report.
 

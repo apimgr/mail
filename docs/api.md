@@ -5,8 +5,8 @@ mail-management route inventory is in the
 [project definition](https://github.com/apimgr/mail/blob/main/IDEA.md). The
 registered routes currently cover public server pages, browser preferences,
 owner-token management, operator-protected virtual mailbox CRUD and CSV import,
-domain, alias, forwarding, Postfix queue, queue-statistics, and service status
-and control operations. OpenAPI JSON includes protected routes
+domain, alias, forwarding, security-report submission and status, Postfix queue,
+queue-statistics, and service status and control operations. OpenAPI JSON includes protected routes
 and declares their Bearer security; `llms.txt` uses the shared API registry.
 The query-only GraphQL API exposes current mail read operations through a
 separate operator-authenticated GraphQL response format.
@@ -23,7 +23,11 @@ separate operator-authenticated GraphQL response format.
 | `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
 | `GET` | `/api/v1/server/privacy` | Returns the public privacy policy data, configured cookie descriptions, retention details, tracking state, and consent/CCPA state. |
 | `GET` | `/api/v1/server/dpo` | Returns the configured DPO name, DPO-or-general contact email, and request-derived absolute privacy URL. |
+| `GET` | `/api/v1/server/security` | Returns the GitHub reporting URL, instance report URL with a time-limited `security_id`, expiry, and policy/thanks URLs. RFC 9116 email and PGP key metadata are not implemented yet. |
 | `GET` | `/api/v1/server/security/policy` | Returns the configured disclosure policy Markdown or the built-in coordinated-disclosure policy. |
+| `GET` | `/api/v1/server/security/thanks` | Lists disclosed researcher acknowledgments without contact details. |
+| `GET` | `/api/v1/server/contact` | Returns the public contact-report form descriptor, supported report types, CAPTCHA details, field constraints, and short-lived form token. |
+| `POST` | `/api/v1/server/contact` | Submits a report through the review-and-confirm flow. Security reports require a valid `security_id`, form token, and CAPTCHA. Report body and contact fields are encrypted at rest; success returns a tracking ID. |
 | `GET` | `/api/v1/server/help` | Returns the localized help title, Markdown content, format, and registered help links with localized descriptions. |
 | `GET` | `/api/v1/server/terms` | Returns localized terms title, Markdown content, and configured/default format. |
 | `GET` | `/api/v1/server/preferences` | Returns the current browser theme, language, and empty app-specific preference map. |
@@ -94,6 +98,12 @@ Public discovery resources include `/robots.txt`, `/sitemap.xml`, `/feed.xml`,
 `/rss.xml`, `/.well-known/security.txt`, `/.well-known/llms.txt`, and
 `/llms.txt`. They accept `GET` and `HEAD` only. Preference sync responses are
 not cacheable and never include consent or credential cookies in an export.
+
+The one-shot researcher status page is `/server/security/report/{tracking_id}`.
+Its emailed status token can be used once per day; the page exposes only
+triage status and sends `no-store` and `no-referrer` headers. It is not a
+general report-management API. PGP delivery to the security contact and
+operator export/triage commands are still incomplete.
 
 The server-rendered token page is `/server/preferences/tokens`; it supports
 primary-token restore, reveal, rotation, and revocation plus linked-token

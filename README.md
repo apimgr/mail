@@ -38,9 +38,9 @@ exposed to an untrusted network.
 The current configuration package reads `server.yml`, ordered `yaml.d/`
 drop-ins, and `secrets.yml`, applying defaults for implemented settings. It
 generates the operator token and version 1, 32-byte AES encryption key into
-`secrets.yml` with private file permissions. The encryption key protects the
-encrypted recovery copy of the initial owner token; report storage and the
-broader configuration contract remain incomplete and are tracked in
+`secrets.yml` with private file permissions. It protects owner-token recovery,
+DKIM private-key, and security-report body/contact ciphertext. Key rotation
+and the broader configuration contract remain incomplete and are tracked in
 [TODO.AI.md](TODO.AI.md).
 
 The scheduled updater checks the configured stable, beta, or devel channel and
@@ -67,7 +67,9 @@ sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md).
 Mail APIs are operator-protected and cover domains, DNS/DKIM, virtual
 mailboxes, aliases, forwarding, Postfix queue operations, and service
-management. Live MTA synchronization and system-user management remain
+management. The contact form accepts security reports and stores encrypted
+report data; PGP delivery to the security contact and operator export/triage
+remain incomplete. Live MTA synchronization and system-user management remain
 incomplete. Initial owner-token issuance,
 token reveal/rotation/revocation, linked-token management, and the
 server-rendered token page are available. A companion `mail-cli` provides the
@@ -104,7 +106,8 @@ commands must not run directly on the host. See
 tests, and enforces the 60% coverage floor.
 `make test-smoke` builds into a project-scoped temporary directory and
 exercises the server, client, APIs, and rendered pages in an isolated Docker
-container. Set `SMOKE=1` on `make test` to include that suite after unit tests.
+container. Set `SMOKE=1` on `make test` to include that suite with the unit
+test gate.
 
 ## Disclaimer
 

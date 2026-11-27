@@ -255,12 +255,16 @@ its implementation is complete and committed.
   on every provider, satisfy CODEOWNERS and branch-protection rules, complete
   the release flow, and resolve post-push CI results. GitHub private
   vulnerability reporting, secret scanning, and push protection are enabled;
-  CI/security workflows and public community files now exist.
+  CI/security workflows and public community files now exist. Coverage uses
+  `-test.gocoverdir` plus `go tool covdata textfmt` in the test job across all
+  five providers; local actionlint schema validation passes with the project's
+  custom runner label and existing ShellCheck advisory excluded. Hosted CI
+  runs and release workflows still need verification.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest wrapped `make test SMOKE=1` gate passed:
-  all-platform `make build`, Docker server/client smoke checks, and the full
-  `make test` gate completed at 60.2% statement coverage. Incus and browser E2E
-  coverage and tests for complete product behavior are missing.
+  required by AI.md PART 28. The wrapped `make test` gate passed with 60.0%
+  statement coverage; the Docker server/client smoke suite and all-platform
+  `make build` also passed. Incus and browser E2E coverage and tests for
+  complete product behavior are missing.
 
 ## Documentation and compliance
 

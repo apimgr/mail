@@ -14,8 +14,9 @@ by the reserved `system` owner; owner tokens do not grant mail-stack access.
 
 Startup also generates a version 1, base64-encoded 32-byte AES key at
 `server.security.encryption_key` when missing and stores it in the same
-protected secrets file. Owner-token recovery data is encrypted with this key;
-security-report storage and other sensitive data do not use the key yet.
+protected secrets file. Owner-token recovery data, DKIM private keys, and
+security-report body and contact data are encrypted at rest with this key.
+Automated key rotation and re-encryption of retained data remain incomplete.
 
 Access logs remove query parameters whose names indicate credentials or
 one-time tokens (`token`, `code`, `password`, `secret`, `access_token`, and
@@ -54,9 +55,19 @@ not a production readiness signal.
 
 For vulnerability reports, use GitHub's private vulnerability reporting for
 the [apimgr/mail repository](https://github.com/apimgr/mail/security/advisories/new).
-The `/server/contact` and `/server/security` pages link to this reporting
-channel. The browser pages do not accept or store report contents, and
-`/server/security/thanks` is informational only.
+This is the primary channel for vulnerabilities in the repository's source
+code. For a vulnerability in a deployed instance, use that instance's
+`/server/security` page and its security-report link to open the report form at
+`/server/contact?security_id=...`. The form validates the submission, stores
+the report with encrypted body and contact fields, and returns a tracking ID.
+When no researcher PGP key is supplied, the receipt contains only that ID and
+a one-shot status link. When a key is supplied, receipt delivery is skipped
+until PGP encryption is implemented. The status page shows triage state and
+does not disclose report content. PGP
+delivery to the configured security contact, maintenance export and triage,
+and report-retention cleanup are not implemented yet; maintainers therefore
+do not receive the report through an automated secure delivery path. The
+`/server/security/thanks` page is informational only.
 
 ## Public security resources
 
