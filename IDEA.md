@@ -53,7 +53,7 @@ The project has no panel-specific user account or login role. API credential
 and endpoint authorization rules follow AI.md.
 
 Mail infrastructure records are global operator-managed resources, not
-recipient-owned resources. System users, virtual users and domains, aliases,
+recipient-owned resources. Unix mail accounts, virtual users and domains, aliases,
 forwards, transports, queue entries, service state, and delivery statistics
 are created or synchronized by the operator-managed server and belong to the
 reserved `system` owner defined by AI.md. Mail API reads and changes require
@@ -63,7 +63,7 @@ unauthenticated.
 
 ### Data model & sensitivity
 
-Mail data includes system users, virtual users, virtual domains, aliases,
+Mail data includes Unix mail accounts, virtual users, virtual domains, aliases,
 forwards, transports, queue entries, service status, and delivery/spam/queue
 statistics. Virtual users include an email address, domain, password hash,
 mailbox quota, and enabled status. Domains include activation status and
@@ -76,7 +76,7 @@ The product-level record fields are:
   quota in bytes (zero means unlimited), enabled flag, and created/updated
   timestamps. The mail service may require a separate compatible password
   representation.
-- **System user:** username, UID/GID, home directory, shell, mail-enabled
+- **Unix mail account:** username, UID/GID, home directory, shell, mail-enabled
   flag, and quota.
 - **Virtual domain:** ID, domain, active flag, DKIM-enabled flag, selector,
   private/public DKIM key material, and created/updated timestamps.
@@ -125,9 +125,9 @@ filtering services.
 
 ### Security decisions & exceptions
 
-- System-user management and mail-service control are privileged operations
+- Unix mail-account management and mail-service control are privileged operations
   and require the operator authorization defined by AI.md.
-- System-user and virtual-mailbox modes are both supported; selecting system
+- Unix mail-account and virtual-mailbox modes are both supported; selecting system
   users does not grant the panel permission to weaken operating-system account
   security.
 - Component detection is informational. A missing optional daemon does not

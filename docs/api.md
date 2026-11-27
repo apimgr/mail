@@ -23,12 +23,13 @@ separate operator-authenticated GraphQL response format.
 | `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
 | `GET` | `/api/v1/server/privacy` | Returns the public privacy policy data, configured cookie descriptions, retention details, tracking state, and consent/CCPA state. |
 | `GET` | `/api/v1/server/dpo` | Returns the configured DPO name, DPO-or-general contact email, and request-derived absolute privacy URL. |
-| `GET` | `/api/v1/server/security` | Returns the GitHub reporting URL, instance report URL with a time-limited `security_id`, expiry, and policy/thanks URLs. RFC 9116 email and PGP key metadata are not implemented yet. |
+| `GET` | `/api/v1/server/security` | Returns configured public reporting contacts, time-limited report URL, expiry, policy/thanks URLs, and active validated PGP v4 key availability, URL, and fingerprint. |
 | `GET` | `/api/v1/server/security/policy` | Returns the configured disclosure policy Markdown or the built-in coordinated-disclosure policy. |
 | `GET` | `/api/v1/server/security/thanks` | Lists disclosed researcher acknowledgments without contact details. |
 | `GET` | `/api/v1/server/contact` | Returns the public contact-report form descriptor, supported report types, CAPTCHA details, field constraints, and short-lived form token. |
 | `POST` | `/api/v1/server/contact` | Submits a report through the review-and-confirm flow. Security reports require a valid `security_id`, form token, and CAPTCHA. Report body and contact fields are encrypted at rest; success returns a tracking ID. |
 | `GET` | `/api/v1/server/help` | Returns the localized help title, Markdown content, format, and registered help links with localized descriptions. |
+| `GET` | `/api/v1/server/help/mcp` | Returns the request-resolved MCP endpoint and aliases, Bearer authentication note, live standard-token tool list, and configured Mail-specific guidance. |
 | `GET` | `/api/v1/server/terms` | Returns localized terms title, Markdown content, and configured/default format. |
 | `GET` | `/api/v1/server/preferences` | Returns the current browser theme, language, and empty app-specific preference map. |
 | `GET` | `/api/v1/server/preferences/sync` | Returns current preferences plus a shareable URL and short code. |
@@ -103,7 +104,9 @@ The one-shot researcher status page is `/server/security/report/{tracking_id}`.
 Its emailed status token can be used once per day; the page exposes only
 triage status and sends `no-store` and `no-referrer` headers. It is not a
 general report-management API. PGP delivery to the security contact and
-operator export/triage commands are still incomplete.
+researcher status-change email are still incomplete. Operator maintenance
+commands list/show report metadata, update forward-only triage, and export only
+stored ciphertext.
 
 The server-rendered token page is `/server/preferences/tokens`; it supports
 primary-token restore, reveal, rotation, and revocation plus linked-token
@@ -128,7 +131,7 @@ virtual-mailbox forwarding list/create/delete are available. Queue list/detail,
 single-message flush/hold/release/delete, flush-all, and live queue counts use
 the installed Postfix commands; hold/release/delete require the server process
 to have the permissions Postfix requires. User-facing mail pages and
-integration with the live MTA configuration remain incomplete. System-user
+integration with the live MTA configuration remain incomplete. Unix mail-account
 management, component configuration, delivery/spam statistics, and log
 management are not implemented. The generated OpenAPI schemas are
 generic for several responses and omit complete query parameters and error

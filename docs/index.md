@@ -51,7 +51,7 @@ header and client type. Health responses contain public project/build/runtime
 metadata, feature states, cached checks, persisted aggregate request counters,
 and in-flight request counts. Health does not probe mail daemons; Tor/I2P/GeoIP
 providers are incomplete, so health is not a production readiness signal.
-Mail management pages, system-user management, live MTA synchronization,
+Mail management pages, Unix mail-account management, live MTA synchronization,
 component configuration, delivery/spam statistics, and log routes remain
 incomplete. Postfix queue operations require the server process to have the
 permissions Postfix requires.

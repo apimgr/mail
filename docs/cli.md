@@ -55,8 +55,11 @@ and a second token check when the operator is not elevated; it is limited to
 one attempt per hour per OS user. `delete` warns that PGP-encrypted reports
 will become unreadable and requires typed confirmation. `import FILE` accepts
 one valid, expiring v4 private key only when no active key exists; identity
-mismatches require a second typed override confirmation. Rotation is not yet
-implemented.
+mismatches require a second typed override confirmation. `rotate` stages a
+cross-signed replacement, transactionally re-encrypts retained PGP reports,
+installs the key after commit, and recovers an interrupted installation at
+startup. The previous encrypted private key is retained for 30 days and then
+removed by daily security cleanup.
 
 ### Server flags
 

@@ -21,7 +21,7 @@ alias and forwarding CRUD, and Postfix queue operations through the API and
 CLI. Mail records are global operator-managed resources under the reserved
 `system` owner; owner tokens do not authorize mail-stack access. Queue actions
 that need Postfix privileges require those permissions for the server process.
-System-user management, live MTA synchronization, transport and filtering
+Unix mail-account management, live MTA synchronization, transport and filtering
 configuration, certificate management, logs, and delivery statistics remain
 incomplete; see
 [TODO.AI.md](TODO.AI.md) for the verified backlog.
@@ -39,8 +39,11 @@ The current configuration package reads `server.yml`, ordered `yaml.d/`
 drop-ins, and `secrets.yml`, applying defaults for implemented settings. It
 generates the operator token and version 1, 32-byte AES encryption key into
 `secrets.yml` with private file permissions. It protects owner-token recovery,
-DKIM private-key, and security-report body/contact ciphertext. Key rotation
-and the broader configuration contract remain incomplete and are tracked in
+DKIM private-key, report-contact, and AES-fallback report-body ciphertext;
+reports use the active PGP key when one is configured. PGP rotation
+re-encrypts retained PGP reports and keeps the old private key for 30 days.
+AES encryption-key rotation and the broader configuration contract remain
+incomplete and are tracked in
 [TODO.AI.md](TODO.AI.md).
 
 The scheduled updater checks the configured stable, beta, or devel channel and
@@ -70,7 +73,7 @@ mailboxes, aliases, forwarding, Postfix queue operations, and service
 management. The contact form accepts security reports and stores encrypted
 report data. Operators can list, inspect, update triage, and export stored
 ciphertext; PGP delivery to the security contact and researcher status-change
-email remain incomplete. Live MTA synchronization and system-user management
+email remain incomplete. Live MTA synchronization and Unix mail-account management
 remain incomplete. Initial owner-token issuance,
 token reveal/rotation/revocation, linked-token management, and the
 server-rendered token page are available. A companion `mail-cli` provides the

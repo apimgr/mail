@@ -13,7 +13,7 @@ entries. Mail records are persisted in the database and assigned to the
 reserved `system` owner. DKIM private keys are encrypted at rest. Queue
 mutations call installed Postfix commands and require the server process to
 have the necessary operating-system permissions. These database operations do
-not yet synchronize configuration into a running MTA. System-user management,
+not yet synchronize configuration into a running MTA. Unix mail-account management,
 transport rules, spam/virus integration, certificate management, log
 management, and delivery-statistic ingestion remain unavailable.
 

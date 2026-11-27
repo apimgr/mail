@@ -14,9 +14,11 @@ by the reserved `system` owner; owner tokens do not grant mail-stack access.
 
 Startup also generates a version 1, base64-encoded 32-byte AES key at
 `server.security.encryption_key` when missing and stores it in the same
-protected secrets file. Owner-token recovery data, DKIM private keys, and
-security-report body and contact data are encrypted at rest with this key.
-Automated key rotation and re-encryption of retained data remain incomplete.
+protected secrets file. Owner-token recovery data, DKIM private keys, contact
+data, and security-report bodies without an active PGP key are encrypted at
+rest with this key. When an active PGP key exists, report bodies use OpenPGP
+encryption. AES encryption-key rotation and re-encryption of retained data
+remain incomplete; PGP key rotation is documented below.
 
 Access logs remove query parameters whose names indicate credentials or
 one-time tokens (`token`, `code`, `password`, `secret`, `access_token`, and
@@ -32,8 +34,9 @@ tokens use per-token counters and unauthenticated requests use per-IP
 counters. Strict token actions currently use per-IP limits. CORS defaults to `*`
 without credentials; credentialed responses require an explicitly allowed
 origin. Strict token actions still need per-owner buckets, external cache
-fallback is not implemented, full audit coverage and PGP-encrypted reporting
-remain incomplete. Future mail routes must retain operator authorization.
+fallback is not implemented, and full audit coverage and automated secure
+maintainer delivery remain incomplete. Future mail routes must retain operator
+authorization.
 The application is not ready for production exposure.
 
 The baseline response headers include `X-Content-Type-Options`,
