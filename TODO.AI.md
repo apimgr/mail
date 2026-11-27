@@ -278,21 +278,25 @@ its implementation is complete and committed.
 - [ ] Complete container integration from AI.md PART 26: devel/release image
   publishing, privilege setup/drop, service-aware startup, and Valkey
   integration. Dockerfiles, Compose files, OCI annotations, and the basic
-  isolated Docker test harness now exist.
+  isolated Docker test harness now exist. Both production and development
+  Dockerfiles build successfully; the production image contains the required
+  runtime tools. Runtime Tor bootstrap, CI image publishing, and the remaining
+  service/Valkey integration are still incomplete.
 - [ ] Finish CI and release alignment from AI.md PART 27: verify the workflows
   on every provider, satisfy CODEOWNERS and branch-protection rules, complete
   the release flow, and resolve post-push CI results. GitHub private
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist. Coverage uses
   `-test.gocoverdir` plus `go tool covdata textfmt` in the test job across all
-  five providers; local actionlint schema validation passes with the project's
-  custom runner label and existing ShellCheck advisory excluded. Hosted CI
-  runs and release workflows still need verification.
+  five providers; `act --list` accepts every GitHub workflow, the CI action-pin
+  policy is locally verified, and ShellCheck passes. Hosted CI runs and release
+  workflows still need verification.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
   required by AI.md PART 28. The wrapped `make test` gate passed with 60.3%
   statement coverage; the Docker server/client smoke suite and all-platform
   `make build` also passed. Incus and browser E2E coverage and tests for
-  complete product behavior are missing.
+  complete product behavior are missing. The production and development image
+  builds, required runtime-tool check, and all three Compose config checks pass.
 
 ## Documentation and compliance
 
