@@ -9,9 +9,14 @@ local JSON health endpoint with a bounded timeout. `--shell` completion and
 init commands work for bash, zsh, fish, POSIX-style shells, and PowerShell.
 On Unix, daemon re-execution is available for `--daemon` and
 `server.daemonize: true` outside application containers. The `--service`
-command family is not implemented. Startup reads only `server.port`,
-`server.address`, `server.daemonize`, and `server.pidfile` from `server.yml`
-and ordered `yaml.d` files before binding. When started as root, the server
+command family detects the current platform's service manager and supports
+status, install, start, stop, restart, reload, disable, and uninstall. An
+unprivileged invocation manages the per-user service where supported; system
+service actions require an elevated process. Uninstall requires interactive
+confirmation and removes application data while keeping the binary. Startup
+reads `server.port`, `server.address`, `server.daemonize`, `server.pidfile`,
+and `server.logs` from `server.yml` and ordered `yaml.d` files before binding.
+When started as root, the server
 prepares the `mail` service account and paths, binds one privileged HTTP
 listener if needed, drops privileges, then initializes logging, PID state, and
 the full configuration. Dual HTTP/HTTPS listeners, TLS listeners, and raw mail
@@ -23,10 +28,17 @@ verified release as its service user, gracefully shuts down, and returns 75;
 the next root startup re-fetches the official checksum and applies it. A
 non-elevated process records that automatic installation was skipped and
 notifies the operator. Supervisor restart behavior depends on the service
-manager policy; service installation/management itself is not implemented.
+manager policy. Windows service installation uses a virtual service account;
+Windows service dispatcher integration remains incomplete.
 `--maintenance update [CMD]` dispatches to the same updater and defaults to
-`yes` when no command is supplied. Other service and maintenance operations
-remain incomplete.
+`yes` when no command is supplied. `--maintenance email test [--to ADDRESS]`
+validates SMTP and sends a test message to the configured reply-to address or
+an explicit recipient; `--dry-run` previews and validates every email template
+without sending. `--maintenance mode production|development` changes the
+configured runtime mode; the server must be restarted to apply it. These
+commands require the operator token or an elevated account. Backup, restore,
+setup, secret rotation, and security-report maintenance operations remain
+incomplete.
 
 ### Server flags
 
@@ -44,8 +56,8 @@ remain incomplete.
 | `--lang` | Set the output language. |
 | `--color auto\|yes\|no` | Set terminal color behavior. |
 | `--shell completions [SHELL]`, `--shell init [SHELL]` | Generate shell integration. |
-| `--service COMMAND` | Service management entrypoint; commands are not implemented. |
-| `--maintenance COMMAND` | Maintenance entrypoint; only `update` is currently implemented. |
+| `--service COMMAND` | Manage the detected system or per-user service (`status`, `install`, `start`, `stop`, `restart`, `reload`, `disable`, `uninstall`). |
+| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, and `email test [--to ADDRESS] [--dry-run]` are implemented. Backup, restore, setup, secret rotation, and security-report commands remain incomplete. |
 | `--update [check\|yes\|branch NAME]` | Check, install, or select the update channel. |
 
 `--i2p` is accepted, but I2P startup is not yet implemented.
