@@ -13,14 +13,14 @@ separate operator-authenticated GraphQL response format.
 
 | Method | Path | Current behavior |
 |---|---|---|
-| `GET` | `/api/v1/server/healthz` | Returns the public health payload; HTTP 503 indicates unhealthy or maintenance state. It includes project/build/runtime metadata, feature states, cached checks, persisted aggregate request counts, and the in-flight request count. |
+| `GET` | `/api/v1/server/healthz` | Returns the public health payload; HTTP 503 indicates unhealthy or maintenance state. It includes project/build/runtime metadata, feature states, cached checks, persisted aggregate request counts, and the in-flight request count. `version` matches the server's `--version`; `build.commit` is the short commit ID and `build.date` is the UTC build time. |
 | `GET` | `/api/v1/server/healthz.txt` | Returns the same health data as flat text; the `.txt` suffix overrides `Accept`. |
 | `GET` | `/api/v1/server/auth/check` | Machine-only token check. Requires one Bearer credential, returns `{ "kind": "operator" }` or `{ "kind": "owner" }`; invalid credentials return 401. Rate limited and never echoes the token. |
 | `GET` | `/api/v1/server/swagger` | Generates an OpenAPI JSON document from routes currently registered by the server, including protected routes with their authorization schemes. |
 | `POST` | `/api/v1/server/mcp` | Streamable HTTP MCP endpoint. Requires a valid Bearer token and the `MCP-Protocol-Version`, `Mcp-Method`, and, for `tools/call`, `Mcp-Name` headers. Provides registered API operations as tools, filtered to the caller's authorization tier. |
 | `GET`, `POST` | `/api/v1/server/graphql` | Executes query-only GraphQL operations; requires the operator Bearer token. GET accepts `query`, `variables`, and `operationName`; POST accepts a JSON GraphQL request. |
 | `GET` | `/api/v1/server/about` | Returns localized title, project Markdown/content, and format, using configured About content when present. |
-| `GET` | `/api/v1/server/version` | Returns version, commit/build metadata when available, Go version, and platform. |
+| `GET` | `/api/v1/server/version` | Returns the same version, short commit ID, and UTC build time as the health payload, plus Go version and platform. |
 | `GET` | `/api/v1/server/privacy` | Returns the public privacy policy data, configured cookie descriptions, retention details, tracking state, and consent/CCPA state. |
 | `GET` | `/api/v1/server/dpo` | Returns the configured DPO name, DPO-or-general contact email, and request-derived absolute privacy URL. |
 | `GET` | `/api/v1/server/security` | Returns configured public reporting contacts, time-limited report URL, expiry, policy/thanks URLs, and active validated PGP v4 key availability, URL, and fingerprint. |
@@ -69,6 +69,8 @@ separate operator-authenticated GraphQL response format.
 | `POST` | `/api/v1/queue/{id}/flush`, `/hold`, `/release` | Requests one fixed Postfix queue operation. Requires the operator Bearer token; hold/release require suitable Postfix process permissions. |
 | `DELETE` | `/api/v1/queue/{id}` | Deletes a queued message using `postsuper`. Requires the operator Bearer token and suitable process permissions. |
 | `POST` | `/api/v1/queue/flush-all` | Requests Postfix delivery for the queue. Requires the operator Bearer token. |
+| `GET` | `/api/v1/stats/delivery` | Returns delivery-log counts grouped by recorded status. Requires the operator Bearer token. |
+| `GET` | `/api/v1/stats/spam` | Returns aggregate spam and virus detections. Requires the operator Bearer token. |
 | `GET` | `/api/v1/stats/queue` | Returns current queue count, bytes, and counts by Postfix queue state. Requires the operator Bearer token. |
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
@@ -84,6 +86,11 @@ Mail domain and alias list endpoints default to `page=1&limit=250`; `limit`
 must be between 1 and 250. Responses include `data` and sibling `pagination`
 metadata. Alias creation accepts a source address on a configured mail domain
 and one destination address:
+
+Delivery and spam statistics accept `period=24h`, `7d`, `30d`, `90d`, or `365d`;
+the default is `30d`. Responses include the selected period and its UTC start
+time. Delivery totals are grouped by the status stored in the delivery log.
+Spam and virus totals are summed from daily mail statistics.
 
 ```json
 {

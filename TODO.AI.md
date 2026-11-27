@@ -113,7 +113,10 @@ its implementation is complete and committed.
   13–14. The health payload now has canonical fields and JSON/text/API
   negotiation; the page renders project/build/runtime/features/checks/stats,
   uses human-readable values, and has translated labels. The `.txt` API
-  aliases are registered and override `Accept`. Privacy, DPO, and disclosure
+  aliases are registered and override `Accept`. Health and version endpoints
+  now use linker-injected version/commit values and the UTC build date derived
+  from `BuildEpoch`; focused tests and the rebuilt production image confirm
+  those fields match `--version`. Privacy, DPO, and disclosure
   policy JSON mirrors are present; help also has a Markdown mirror and a
   registered-page list. Runtime metadata still lacks
   branding values, Tor/I2P/GeoIP providers, cache-provider and disk-capacity
@@ -293,11 +296,11 @@ its implementation is complete and committed.
   integration. Dockerfiles, Compose files, OCI annotations, and the basic
   isolated Docker test harness now exist. Both production and development
   Dockerfiles build successfully; the production image contains the required
-  runtime tools. The production image runtime probe returned
-  `features.tor.status=disabled`, contradicting PART 26's required Tor health
-  check and PART 31.1's auto-enable rule; Tor process management and runtime
-  bootstrap are not implemented. CI image publishing and the remaining
-  service/Valkey integration are also incomplete.
+  runtime tools. The production image runtime probe returned Tor and I2P as
+  disabled. This contradicts PART 26's Tor health contract, PART 31.1's
+  auto-enable rule, and PART 31.2's application-container I2P default. Tor/I2P
+  process management and runtime bootstrap are not implemented. CI image
+  publishing and the remaining service/Valkey integration are also incomplete.
 - [ ] Finish CI and release alignment from AI.md PART 27: verify the workflows
   on every provider, satisfy CODEOWNERS and branch-protection rules, complete
   the release flow, and resolve post-push CI results. GitHub private
@@ -313,8 +316,8 @@ its implementation is complete and committed.
   `make build` also passed. Incus and browser E2E coverage and tests for
   complete product behavior are missing. Production and development image
   builds and all three Compose config checks pass. The production image's
-  required runtime-tool check passes; its required Tor health check fails
-  because the health payload reports Tor disabled.
+  required runtime-tool check passes; the required Tor and application-container
+  I2P health behavior remain incomplete because health reports both disabled.
 
 ## Documentation and compliance
 
