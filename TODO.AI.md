@@ -249,10 +249,10 @@ its implementation is complete and committed.
   vulnerability reporting, secret scanning, and push protection are enabled;
   CI/security workflows and public community files now exist.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest full `make test` gate passed with 61.4%
-  statement coverage. The most recent Docker smoke run predates the current
-  mailbox/forwarding routes; the suite covers CLI/server startup, health, API,
-  and rendered-page shells. Incus and browser E2E coverage and tests for the
+  required by AI.md PART 28. The latest full `make test SMOKE=1` gate passed with
+  60.4% statement coverage and exercised the current CLI/server startup,
+  health, API, mail routes, and rendered-page shells. Incus and browser E2E
+  coverage and tests for the
   complete product behavior are missing.
 
 ## Documentation and compliance
