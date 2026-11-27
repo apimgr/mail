@@ -143,6 +143,3 @@ saved only when their configured values are empty or invalid. Retry execution,
 client automatic update checking/downloading/checksum verification/re-exec,
 complete TUI preference behavior, and GUI remain incomplete and are tracked in
 [TODO.AI.md](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
-
-Use `make dev` to build the server and client binaries in a project-scoped
-temporary directory. The Makefile performs the build inside Docker.

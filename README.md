@@ -105,13 +105,14 @@ Italian, and Spanish; localization coverage is still incomplete. See the
 
 ## Development
 
-The Makefile provides Docker-backed `make dev`, `make build`, and `make test`
-targets using `casjaysdev/go:latest`. Go build and test
-commands must not run directly on the host. See
+The Makefile provides `make build`, `make test`, `make release`, and
+`make docker`; Go commands run inside `casjaysdev/go:latest`. Go build and
+test commands must not run directly on the host. `make build` creates
+unstripped debug binaries for all supported platforms. `make test` runs the CI
+quality gates, enforces the 60% coverage floor, and runs the Docker smoke suite.
+`make release` builds local production artifacts without publishing, and
+`make docker` loads a host-platform image locally without pushing it. See the
 [development documentation](docs/development.md).
-`make test` verifies dependency licenses, runs vet and govulncheck, runs unit
-tests, and enforces the 60% coverage floor. Run `bash tests/run_tests.sh` for
-the Docker-based server, client, API, and rendered-page smoke suite.
 
 ## Disclaimer
 

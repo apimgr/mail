@@ -15,12 +15,13 @@ inside `casjaysdev/go:latest`; do not run Go tooling directly on the host.
 
 ## Build from source
 
-From the repository root, run `make build` to produce server and client
-binaries for the supported release targets under `binaries/`. For a
-host-platform development build, `make dev` writes binaries to a project-scoped
-temporary directory and prints its location. The Makefile targets invoke Go
-inside Docker. Use `make test` and `bash tests/run_tests.sh` before evaluating a
-change; see the [development guide](development.md).
+From the repository root, run `make build` to produce unstripped server and
+client debug binaries for the local platform and all eight supported
+distribution targets under `binaries/`. `make release` creates stripped
+production artifacts, a source archive, and checksums under `releases/` for
+local review; it does not publish them. The Makefile runs Go inside Docker.
+Use `make test` to run the quality gates and binary smoke suite; see the
+[development guide](development.md).
 
 ## Current runtime
 

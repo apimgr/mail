@@ -271,10 +271,13 @@ its implementation is complete and committed.
 
 ## Build, packaging, and release
 
-- [ ] Complete the required Makefile targets, safe temporary build output, and
-  all-platform static release builds from AI.md PART 25. `make build` now
-  succeeds for the host binaries and all eight OS/architecture targets; target
-  safety, release behavior and remaining required targets are still incomplete.
+- [ ] Complete build and release alignment from AI.md PART 25. The Makefile now
+  has only the six required targets; `build` creates symbol-preserving,
+  unoptimized binaries for the local platform and all eight targets, `release`
+  builds production artifacts locally without publishing, and `docker` loads
+  the host image without pushing. The wrapped `make test` passed and exercised
+  the full debug build matrix. Direct `make release` artifact/checksum and
+  `make docker` image checks remain to be run.
 - [ ] Complete container integration from AI.md PART 26: devel/release image
   publishing, privilege setup/drop, service-aware startup, and Valkey
   integration. Dockerfiles, Compose files, OCI annotations, and the basic

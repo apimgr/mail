@@ -11,27 +11,20 @@ work in [TODO.AI.md](https://github.com/apimgr/mail/blob/main/TODO.AI.md).
 
 ## Build and checks
 
-The Makefile provides `make dev`, `make local`, `make build`, `make test`,
-`make release`, and `make docker`; Go commands run inside the
-`casjaysdev/go:latest` Docker image. Go commands must not run directly on the
-host. `make test` verifies dependency licenses, runs vet and govulncheck, runs
-the unit tests, and enforces the 60% coverage gate. `bash tests/run_tests.sh`
-runs the containerized server, client, API, and rendered-page smoke checks.
-Both `make build` and `make test` run the GraphQL schema-first validator before
-building or testing, so SDL/resolver drift fails the normal Docker gates.
-`make local`
-builds local server and client binaries, and `make build` builds both for all
-eight release platforms. CI runs vet, Staticcheck, and govulncheck in its
-dedicated lint and vulnerability jobs. `make release` creates a
-stable GitHub release, and `make docker` publishes
-multi-platform images to `ghcr.io/apimgr/mail` by default; set `REGISTRY` to
-publish to a different registry.
+The Makefile has six targets: `build`, `test`, `release`, `docker`, `clean`,
+and `help`. Go commands run inside the `casjaysdev/go:latest` Docker image and
+must not run directly on the host. `make build` creates unstripped debug
+binaries for the local platform and all eight supported distribution targets.
+`make test` builds the current tree, runs dependency-license verification,
+`go vet`, Staticcheck, govulncheck, ShellCheck, shfmt, unit tests with the 60%
+coverage floor, and the Docker server/client/API/page smoke suite. `make
+release` builds stripped production binaries for all eight platforms and
+creates a source archive and checksums in `releases/`; it never tags, uploads,
+or publishes. `make docker` builds and loads the host-platform image into the
+local Docker image store without pushing it.
 
-GitHub Actions has a Docker workflow that builds multi-architecture images on
-pushes and publishes the `devel` image on its daily schedule and default-branch
-updates. Tagged image publication includes version, `latest`, year-month, and
-commit tags. Registry publication is performed by CI and requires the
-repository's normal GitHub Packages permissions.
+CI workflows build and publish multi-architecture images and tagged releases;
+local Makefile targets never publish artifacts.
 
 ## Contributions
 
