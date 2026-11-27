@@ -1,0 +1,119 @@
+name: Docker
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+      - '[0-9]*.[0-9]*.[0-9]*'
+      - '*-beta'
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-standard:
+    if: github.event_name != 'schedule' && (github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main' || github.ref_type == 'tag')
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a  # v4.3.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
+        with:
+          name: multiarch-builder
+      - name: Log in to GHCR
+        run: printf '%s' "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish standard image
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          COMMIT_ID: ${{ github.sha }}
+          OFFICIAL_SITE: ${{ vars.OFFICIAL_SITE }}
+        run: |
+          set -eu
+          commit_id=${COMMIT_ID:0:7}
+          tags="$IMAGE:$commit_id"
+          if [ "$REF_TYPE" = tag ]; then
+            version=${REF_NAME#v}
+            tags="$IMAGE:$version,$IMAGE:$commit_id"
+            if [[ "$REF_NAME" == *-beta ]]; then
+              tags="$tags,$IMAGE:beta"
+            else
+              year_month=$(date -u +%y%m)
+              tags="$tags,$IMAGE:latest,$IMAGE:$year_month"
+            fi
+          fi
+          version=$commit_id
+          if [ "$REF_TYPE" = tag ]; then version=${REF_NAME#v}; fi
+          IFS=, read -ra image_tags <<< "$tags"
+          docker_args=()
+          for image_tag in "${image_tags[@]}"; do docker_args+=(--tag "$image_tag"); done
+          epoch=$(date -u +%s)
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg VERSION="$version" \
+            --build-arg BUILD_EPOCH="$epoch" \
+            --build-arg COMMIT_ID="$commit_id" \
+            --build-arg OFFICIAL_SITE="$OFFICIAL_SITE" \
+            --annotation "index:org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --annotation "index:org.opencontainers.image.revision=$COMMIT_ID" \
+            --annotation "index:org.opencontainers.image.version=$version" \
+            --annotation "index:org.opencontainers.image.title=Mail" \
+            --annotation "index:org.opencontainers.image.description=Mail infrastructure management service" \
+            --annotation "index:org.opencontainers.image.licenses=MIT" \
+            --annotation "index:org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            "${docker_args[@]}" \
+            --push -f docker/Dockerfile .
+
+  build-devel:
+    if: (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a  # v4.3.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
+        with:
+          name: multiarch-builder
+      - name: Log in to GHCR
+        run: printf '%s' "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish devel image
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}
+          OFFICIAL_SITE: ${{ vars.OFFICIAL_SITE }}
+        run: |
+          set -eu
+          commit_id=$(git rev-parse --short=7 HEAD)
+          epoch=$(date -u +%s)
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg VERSION="$commit_id" \
+            --build-arg BUILD_EPOCH="$epoch" \
+            --build-arg COMMIT_ID="$commit_id" \
+            --build-arg OFFICIAL_SITE="$OFFICIAL_SITE" \
+            --annotation "index:org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --annotation "index:org.opencontainers.image.revision=$GITHUB_SHA" \
+            --annotation "index:org.opencontainers.image.version=$commit_id" \
+            --annotation "index:org.opencontainers.image.title=Mail" \
+            --annotation "index:org.opencontainers.image.description=Mail infrastructure management service" \
+            --annotation "index:org.opencontainers.image.licenses=MIT" \
+            --annotation "index:org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --tag "$IMAGE:devel" \
+            --push -f docker/Dockerfile.dev .

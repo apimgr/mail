@@ -1,0 +1,60 @@
+name: mail
+
+x-logging: &default-logging
+  options:
+    max-size: "5m"
+    max-file: "1"
+  driver: json-file
+
+services:
+  mail:
+    image: ghcr.io/apimgr/mail:devel
+    pull_policy: always
+    container_name: mail-app
+    hostname: mail
+    restart: "no"
+    logging: *default-logging
+    environment:
+      PORT: 80
+      DEBUG: true
+      MODE: development
+      TZ: ${TZ:-America/New_York}
+      CACHE_URL: valkey://mail-cache:6379
+    volumes:
+      - ./volumes/config:/config:z
+      - ./volumes/data:/data:z
+    ports:
+      - "172.17.0.1:${MAIL_PORT:-64581}:80"
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/mail", "--status"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    depends_on:
+      mail-cache:
+        condition: service_healthy
+    networks:
+      - mail
+
+  mail-cache:
+    image: valkey/valkey:alpine
+    pull_policy: always
+    container_name: mail-cache
+    restart: "no"
+    logging: *default-logging
+    tmpfs:
+      - /data
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - mail
+
+networks:
+  mail:
+    name: mail
+    external: false

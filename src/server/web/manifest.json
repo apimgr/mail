@@ -1,0 +1,26 @@
+{
+  "name": "Mail Infrastructure Management",
+  "short_name": "Mail",
+  "description": "Self-hosted mail infrastructure management information and API service.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#282a36",
+  "theme_color": "#282a36",
+  "categories": ["utilities"],
+  "icons": [
+    {
+      "src": "/static/icons/mail.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/mail.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

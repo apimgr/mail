@@ -1,0 +1,134 @@
+stages:
+  - test
+  - security
+  - build
+  - release
+
+variables:
+  CGO_ENABLED: "0"
+  GOFLAGS: "-buildvcs=false"
+
+default:
+  image: casjaysdev/go:latest
+
+test:
+  stage: test
+  script:
+    - mkdir -p "${TMPDIR:-/tmp}/apimgr"
+    - COVDIR=$(mktemp -d "${TMPDIR:-/tmp}/apimgr/mail-XXXXXX")
+    - trap 'rm -rf "$COVDIR"' EXIT
+    - go generate ./src/graphql
+    - mkdir -p "$COVDIR/data"
+    - TMPDIR="$COVDIR" go test -cover ./... -args -test.gocoverdir="$COVDIR/data"
+    - go tool covdata textfmt -i="$COVDIR/data" -o="$COVDIR/coverage.out"
+    - COVERAGE=$(go tool cover -func="$COVDIR/coverage.out" | awk '/^total:/ {gsub("%", "", $3); print int($3)}')
+    - echo "Coverage: ${COVERAGE}%"
+    - test "$COVERAGE" -ge 60 || { echo "coverage $COVERAGE% < threshold 60%"; exit 1; }
+  coverage: '/Coverage: ([0-9.]+)%/'
+
+lint:
+  stage: test
+  script:
+    - go vet ./...
+    - staticcheck ./...
+
+secret-scan:
+  stage: security
+  image: trufflesecurity/trufflehog:latest
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - |
+        if [ "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+          trufflehog git file://. --since-commit "$CI_COMMIT_BEFORE_SHA" --branch "$CI_COMMIT_SHA" --results=verified,unknown --fail --fail-on-scan-errors
+        else
+          trufflehog git file://. --results=verified --fail --fail-on-scan-errors
+          trufflehog git file://. --results=unverified,unknown
+        fi
+
+workflow-policy:
+  stage: security
+  script:
+    - |
+        bad=$(grep -RnE '^[[:space:]]*uses:' .github/ .gitea/ .forgejo/ 2>/dev/null | grep -vE '@[0-9a-f]{40}([[:space:]]|$)' || true)
+        if [ -n "$bad" ]; then
+          echo "$bad"
+          exit 1
+        fi
+
+image-scan:
+  stage: security
+  image: docker:27-cli
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - |
+        set -eu
+        timeout -k 30 3600 docker buildx build --platform linux/amd64 --load \
+          --tag ghcr.io/apimgr/mail:gitlab-scan \
+          --annotation manifest:org.opencontainers.image.source="$CI_PROJECT_URL" \
+          --annotation manifest:org.opencontainers.image.revision="$CI_COMMIT_SHA" \
+          --annotation manifest:org.opencontainers.image.created="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+          -f docker/Dockerfile .
+        SCAN_DIR=$(mktemp -d "${TMPDIR:-/tmp}/apimgr/mail-XXXXXX")
+        trap 'rm -rf "$SCAN_DIR"' EXIT
+        docker save ghcr.io/apimgr/mail:gitlab-scan -o "$SCAN_DIR/image.tar"
+        container_name="mail-$(tr -dc 'a-z0-9' </dev/urandom | head -c8)"
+        timeout -k 30 3600 docker run --rm --no-healthcheck --name "$container_name" \
+          --memory=2g --cpus=2 -v "$SCAN_DIR:/scan" aquasec/trivy:0.76.2 image \
+          --input /scan/image.tar --exit-code 1 --severity CRITICAL,HIGH
+
+vuln-scan:
+  stage: security
+  rules:
+    - exists:
+        - go.sum
+  script:
+    - govulncheck ./...
+
+build:
+  stage: build
+  script:
+    - |
+        set -eu
+        COMMIT_ID=$(git rev-parse --short=7 HEAD)
+        INTERNAL_NAME=$(sed -n 's/^internal_name:[[:space:]]*//p' IDEA.md | head -n1 | tr -d '[:space:]')
+        test -n "$INTERNAL_NAME"
+        if [ -n "$CI_COMMIT_TAG" ]; then VERSION=${CI_COMMIT_TAG#v}; else VERSION=$COMMIT_ID; fi
+        BUILD_EPOCH=$(date -u +%s)
+        OFFICIAL_SITE="${OFFICIAL_SITE:-}"
+        if [ -s site.txt ]; then OFFICIAL_SITE=$(cat site.txt); fi
+        mkdir -p binaries
+        go generate ./src/graphql
+        for platform in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64 freebsd/amd64 freebsd/arm64; do
+          OS=${platform%/*}; ARCH=${platform#*/}; EXT=; [ "$OS" = windows ] && EXT=.exe
+          LDFLAGS="-s -w -X 'main.Version=$VERSION' -X 'main.CommitID=$COMMIT_ID' -X 'main.BuildEpoch=$BUILD_EPOCH' -X 'main.OfficialSite=$OFFICIAL_SITE' -X 'main.internalName=$INTERNAL_NAME'"
+          GOOS=$OS GOARCH=$ARCH go build -buildvcs=false -trimpath -ldflags "$LDFLAGS" -o "binaries/mail-$OS-$ARCH$EXT" ./src
+          GOOS=$OS GOARCH=$ARCH go build -buildvcs=false -trimpath -ldflags "$LDFLAGS" -o "binaries/mail-cli-$OS-$ARCH$EXT" ./src/client
+        done
+  artifacts:
+    paths:
+      - binaries/
+
+release:
+  stage: release
+  rules:
+    - if: '$CI_COMMIT_TAG'
+  needs:
+    - build
+  script:
+    - |
+        set -eu
+        VERSION=${CI_COMMIT_TAG#v}
+        echo "$VERSION" > binaries/version.txt
+        tar --exclude='.git' --exclude='.github' --exclude='.gitea' --exclude='.forgejo' --exclude='binaries' --exclude='releases' --exclude='*.tar.gz' -czf "binaries/mail-${VERSION}-source.tar.gz" .
+        cyclonedx-gomod mod -json -output "binaries/mail-${VERSION}-sbom.cdx.json"
+        files=$(find binaries -maxdepth 1 -type f -printf '%f\n' | sort)
+        (cd binaries && sha256sum $files > sha256.txt && sha512sum $files > sha512.txt)
+  artifacts:
+    paths:
+      - binaries/

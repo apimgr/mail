@@ -1,0 +1,38 @@
+"""Read-only mail management queries. Every field requires the operator credential."""
+type Query {
+  mailUsers(page: Int, limit: Int): MailUserPage!
+  mailUser(id: String!): MailUser!
+  mailDomains(page: Int, limit: Int): MailDomainPage!
+  mailDomain(domain: String!): MailDomain!
+  mailDNS(domain: String!): MailDNS!
+  mailDKIM(domain: String!): [MailDKIM!]!
+  mailAliases(page: Int, limit: Int): MailAliasPage!
+  mailForwards(page: Int, limit: Int): MailForwardPage!
+  mailQueue(page: Int, limit: Int): MailQueuePage!
+  mailQueueEntry(id: ID!): MailQueueEntry!
+  mailQueueStats: MailQueueStats!
+  mailServices: [MailService!]!
+  mailService(name: String!): MailService
+  mailHealth: MailHealth!
+}
+
+scalar Long
+type Pagination { page: Int!, limit: Int!, total: Int!, pages: Int! }
+type MailUserPage { data: [MailUser!]!, pagination: Pagination! }
+type MailDomainPage { data: [MailDomain!]!, pagination: Pagination! }
+type MailAliasPage { data: [MailAlias!]!, pagination: Pagination! }
+type MailForwardPage { data: [MailForward!]!, pagination: Pagination! }
+type MailQueuePage { data: [MailQueueEntry!]!, pagination: Pagination! }
+type MailUser { id: String!, kind: String!, email: String!, localPart: String!, domain: String!, quotaBytes: Long!, enabled: Boolean!, createdAt: Long!, updatedAt: Long! }
+type MailDomain { id: String!, domain: String!, description: String!, maxMailboxes: Long!, maxAliases: Long!, maxQuotaMB: Long!, enabled: Boolean!, createdAt: Long!, updatedAt: Long! }
+type MailAlias { id: String!, source: String!, destination: String!, domain: String!, enabled: Boolean!, createdAt: Long! }
+type MailForward { id: String!, source: String!, destinations: [String!]!, keepLocal: Boolean!, enabled: Boolean!, createdAt: Long! }
+type MailQueueEntry { id: String!, queue: String!, size: Long!, sender: String!, recipients: [String!]!, arrivalTime: String!, reason: String! }
+type MailQueueStats { currentQueueSize: Int!, totalSizeBytes: Long!, byState: [MailQueueState!]! }
+type MailQueueState { state: String!, count: Int! }
+type MailService { name: String!, installed: Boolean!, status: String!, running: Boolean, enabled: Boolean, pid: Int!, uptime: String!, version: String!, executable: String!, packages: [String!]!, serviceAccount: String! }
+type MailDNS { records: [MailDNSRecord!]!, missing: [String!]! }
+type MailDNSRecord { type: String!, name: String!, value: String!, preference: Int }
+type MailDKIM { selector: String!, record: String! }
+type MailHealth { status: String!, summary: MailHealthSummary!, services: [MailService!]! }
+type MailHealthSummary { installed: Int!, running: Int!, stopped: Int!, unknown: Int! }

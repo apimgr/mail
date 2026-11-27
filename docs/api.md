@@ -71,7 +71,7 @@ separate operator-authenticated GraphQL response format.
 | `POST` | `/api/v1/queue/flush-all` | Requests Postfix delivery for the queue. Requires the operator Bearer token. |
 | `GET` | `/api/v1/stats/delivery` | Returns delivery-log counts grouped by recorded status. Requires the operator Bearer token. |
 | `GET` | `/api/v1/stats/spam` | Returns aggregate spam and virus detections. Requires the operator Bearer token. |
-| `GET` | `/api/v1/stats/queue` | Returns current queue count, bytes, and counts by Postfix queue state. Requires the operator Bearer token. |
+| `GET` | `/api/v1/stats/queue` | Returns `queued_messages`, `queued_size_bytes`, and `by_state` for messages still queued that arrived within the requested `period` (`24h`, `7d`, `30d`, `90d`, or `365d`; defaults to `30d`). `since` identifies the UTC start time. Requires the operator Bearer token. |
 | `GET` | `/api/v1/services` | Lists supported mail components with detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/services/{service}` | Returns one supported mail component's detected status; operator Bearer authorization is required. |
 | `GET` | `/api/v1/health` | Returns mail component status and installed/running/stopped/unknown counts; operator Bearer authorization is required. |
@@ -90,7 +90,9 @@ and one destination address:
 Delivery and spam statistics accept `period=24h`, `7d`, `30d`, `90d`, or `365d`;
 the default is `30d`. Responses include the selected period and its UTC start
 time. Delivery totals are grouped by the status stored in the delivery log.
-Spam and virus totals are summed from daily mail statistics.
+Spam and virus totals use hourly aggregates for periods up to seven days and
+daily aggregates for longer periods; the response reports that granularity.
+The first UTC hour or day overlapping the selected period is included in full.
 
 ```json
 {
@@ -139,10 +141,12 @@ single-message flush/hold/release/delete, flush-all, and live queue counts use
 the installed Postfix commands; hold/release/delete require the server process
 to have the permissions Postfix requires. User-facing mail pages and
 integration with the live MTA configuration remain incomplete. Unix mail-account
-management, component configuration, delivery/spam statistics, and log
-management are not implemented. The generated OpenAPI schemas are
-generic for several responses and omit complete query parameters and error
-metadata. GraphQL currently exposes paginated users, user detail, paginated
+management, component configuration, and log management are not implemented.
+Delivery and spam statistics aggregate persisted mail logs and hourly/daily
+counters. Queue statistics count currently queued messages by Postfix state and
+size for messages whose arrival timestamp falls within the requested period.
+Some generated OpenAPI schemas remain generic and other routes still omit
+query parameters or error metadata. GraphQL currently exposes paginated users, user detail, paginated
 domains and domain detail, DNS and public DKIM records, aliases, forwards,
 queue entries and statistics, complete detected service details (including
 packages, executable, and service account), and aggregate mail health. It

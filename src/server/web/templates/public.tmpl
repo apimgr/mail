@@ -1,0 +1,362 @@
+{{define "public"}}<!doctype html>
+<html lang="{{.Lang}}" dir="{{.Dir}}" {{if .Theme}}data-theme="{{.Theme}}"{{end}}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{t .Lang .DescriptionKey}}">
+  <meta name="robots" content="{{if .NoIndex}}noindex,nofollow{{else}}index,follow{{end}}">
+  <meta name="theme-color" content="#282a36">
+  <meta name="offline-title" content="{{t .Lang "offline.title"}}">
+  <meta name="offline-heading" content="{{t .Lang "offline.heading"}}">
+  <meta name="offline-message" content="{{t .Lang "offline.message"}}">
+  <meta name="offline-reload" content="{{t .Lang "offline.reload"}}">
+  <title>{{if .Status}}{{t .Lang "app.name"}} - {{t .Lang "health.page.title"}}{{else}}{{t .Lang .TitleKey}} · {{t .Lang "app.name"}}{{end}}</title>
+  {{if .Canonical}}<link rel="canonical" href="{{.Canonical}}">{{end}}
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="{{path "/static/icons/mail.svg"}}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{path "/static/css/app.css"}}">
+  {{if .GraphQLEndpoint}}
+  <link rel="stylesheet" href="{{path "/static/vendor/graphiql/graphiql-1.4.7.min.css"}}">
+  <link rel="stylesheet" href="{{path "/static/css/graphql.css"}}">
+  <script src="{{path "/static/vendor/graphiql/react-16.13.1.min.js"}}" defer></script>
+  <script src="{{path "/static/vendor/graphiql/react-dom-16.13.1.min.js"}}" defer></script>
+  <script src="{{path "/static/vendor/graphiql/graphiql-1.4.7.min.js"}}" defer></script>
+  <script src="{{path "/static/js/docs-graphql.js"}}" defer></script>
+  {{end}}
+  {{if .SwaggerEndpoint}}
+  <link rel="stylesheet" href="{{path "/static/vendor/swagger-ui/swagger-ui-5.20.1.css"}}">
+  <link rel="stylesheet" href="{{path "/static/css/swagger.css"}}">
+  <script src="{{path "/static/vendor/swagger-ui/swagger-ui-bundle-5.20.1.js"}}" defer></script>
+  <script src="{{path "/static/vendor/swagger-ui/swagger-ui-standalone-preset-5.20.1.js"}}" defer></script>
+  <script src="{{path "/static/js/docs-swagger.js"}}" defer></script>
+  {{end}}
+  <script src="{{path "/static/app.js"}}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">{{t .Lang "skip.main"}}</a>
+  <a class="skip-link" href="#navigation">{{t .Lang "skip.navigation"}}</a>
+  <input class="nav-toggle" type="checkbox" id="nav-toggle" aria-label="{{t .Lang "nav.menu"}}">
+  <header class="site-header">
+    <a class="brand" href="{{path "/"}}">{{t .Lang "app.name"}}</a>
+    <nav id="navigation" class="nav-links" aria-label="{{t .Lang "nav.label"}}">
+      <a href="{{path "/"}}" {{if eq .CurrentPath "/"}}aria-current="page" class="active"{{end}}>{{t .Lang "nav.home"}}</a>
+    </nav>
+    <label class="hamburger" for="nav-toggle" aria-label="{{t .Lang "nav.menu"}}"><span aria-hidden="true">☰</span></label>
+    <div class="header-actions">
+      <a class="preferences-link{{if eq .CurrentPath "/server/preferences"}} active{{end}}" href="{{path "/server/preferences"}}" {{if eq .CurrentPath "/server/preferences"}}aria-current="page"{{end}}>{{t .Lang "nav.preferences"}}</a>
+      <form method="post" action="/server/preferences">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <input type="hidden" name="lang" value="{{if .AutomaticLang}}auto{{else}}{{.Lang}}{{end}}">
+        <input type="hidden" name="theme" value="{{.ThemeNext}}">
+        <button type="submit" aria-label="{{t .Lang (printf "preferences.theme.%s" .ThemeNext)}}">
+          {{if eq .ThemeNext "dark"}}<svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.5 15.3A8.5 8.5 0 0 1 8.7 3.5 8.5 8.5 0 1 0 20.5 15.3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>{{else}}<svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>{{end}}
+          <span>{{t .Lang (printf "preferences.theme.%s" .ThemeNext)}}</span>
+        </button>
+      </form>
+    </div>
+    {{if .HeaderHTML}}{{.HeaderHTML}}{{end}}</header>
+  <nav class="nav-drawer" aria-label="{{t .Lang "nav.label"}}"><a href="{{path "/"}}" {{if eq .CurrentPath "/"}}aria-current="page" class="active"{{end}}>{{t .Lang "nav.home"}}</a></nav>
+  <label class="nav-scrim" for="nav-toggle" aria-hidden="true"></label>
+  <p id="update-notice" class="update-notice" role="status" hidden>
+    <span>{{t .Lang "pwa.update"}}</span>
+    <button id="apply-update" type="button">{{t .Lang "pwa.update.apply"}}</button>
+  </p>
+  <main id="main-content">
+    <div class="container container-md">
+      {{if not .Status}}<header class="page-header">
+        {{if .BreadcrumbKey}}<nav class="breadcrumb" aria-label="{{t .Lang "breadcrumb.label"}}"><a href="{{path .BreadcrumbPath}}">← {{t .Lang .BreadcrumbKey}}</a></nav>{{end}}
+        <h1 class="page-title">{{t .Lang .TitleKey}}</h1>
+        <p class="page-lead">{{t .Lang .DescriptionKey}}</p>
+      </header>{{end}}
+      {{if .ConsentRequired}}<p class="alert alert-info" role="status">{{t .Lang "preferences.consent.required"}} <a href="/server/preferences#privacy">{{t .Lang "preferences.consent.manage"}}</a>.</p>{{end}}
+      {{if .Privacy}}
+      <article>
+        <p class="last-updated">{{t .Lang "privacy.last_updated"}}: <time>{{.Privacy.LastUpdated}}</time></p>
+        <section class="section-card" id="summary"><h2>{{t .Lang "privacy.summary"}}</h2><ul>
+          <li>🔒 <strong>{{t .Lang "privacy.stored.title"}}</strong><p>{{if .Privacy.StoredOnServer}}{{t .Lang "privacy.stored.yes"}}{{else}}{{t .Lang "privacy.stored.no"}}{{end}}</p></li>
+          {{if .Privacy.DataSold}}<li class="feature-disabled">⚠️ <strong>{{t .Lang "privacy.sold.title"}}</strong><p>{{t .Lang "privacy.sold.body"}} <a href="#ccpa-opt-out">{{t .Lang "privacy.sold.optout"}}</a>.</p></li>{{else}}<li>🚫 <strong>{{t .Lang "privacy.not_sold.title"}}</strong><p>{{t .Lang "privacy.not_sold.notice"}}</p></li>{{end}}
+          <li>🎛️ <strong>{{t .Lang "privacy.control.title"}}</strong><p>{{t .Lang "privacy.control.body"}}</p></li>
+        </ul></section>
+        <section class="section-card" id="cookies"><h2>{{t .Lang "privacy.cookies.title"}}</h2><p>{{t .Lang "privacy.cookies.body"}}</p>
+          <h3>{{t .Lang "privacy.cookies.essential"}}</h3><p>{{.Privacy.Essential.Description}}</p>
+          <h3>{{t .Lang "privacy.cookies.preferences"}}</h3><p>{{.Privacy.Preferences.Description}}</p>
+          <h3>{{t .Lang "privacy.cookies.analytics"}}</h3>{{if .Privacy.TrackingTypeName}}<p>{{.Privacy.Analytics.Description}}</p><p>{{t .Lang "privacy.analytics.use"}} <strong>{{.Privacy.TrackingTypeName}}</strong>.</p>{{else}}<p>{{t .Lang "privacy.analytics.disabled"}}</p>{{end}}
+          <p><a class="button" href="/server/preferences#privacy">{{t .Lang "privacy.cookies.manage"}}</a></p>
+        </section>
+        <section class="section-card" id="data-collection"><h2>{{t .Lang "privacy.collection.title"}}</h2><p>{{.Privacy.DataCollection}}</p></section>
+        <section class="section-card" id="data-usage"><h2>{{t .Lang "privacy.usage.title"}}</h2>{{.Privacy.DataUsage}}</section>
+        <section class="section-card" id="data-security"><h2>{{t .Lang "privacy.security.title"}}</h2><p>{{.Privacy.DataSecurity}}</p></section>
+        <section class="section-card" id="data-storage"><h2>{{t .Lang "privacy.storage.title"}}</h2>
+          <p>{{if .Privacy.StoredOnServer}}{{t .Lang "privacy.storage.yes"}}{{else}}{{t .Lang "privacy.storage.no"}}{{end}}</p>
+          <h3>{{t .Lang "privacy.sharing.title"}}</h3><ul>{{range .Privacy.Sharing}}<li><strong>{{.Condition}}:</strong> {{.When}} — {{.Data}}</li>{{else}}<li>{{t .Lang "privacy.sharing.empty"}}</li>{{end}}</ul>
+          {{if .Privacy.DataSold}}<p>{{t .Lang "privacy.sold.disclaimer"}} <a href="#ccpa-opt-out">{{t .Lang "privacy.ccpa.optout"}}</a>.</p>{{else}}<p>{{t .Lang "privacy.not_sold.disclaimer"}}</p>{{end}}
+        </section>
+        <section class="section-card" id="data-retention"><h2>{{t .Lang "privacy.retention.title"}}</h2><p>{{.Privacy.Retention}}</p></section>
+        <section class="section-card" id="third-parties"><h2>{{t .Lang "privacy.third_party.title"}}</h2>{{if .Privacy.Services}}<div class="table-wrapper"><table class="data-table"><thead><tr><th>{{t .Lang "privacy.third_party.service"}}</th><th>{{t .Lang "privacy.third_party.purpose"}}</th><th>{{t .Lang "privacy.third_party.data"}}</th><th>{{t .Lang "privacy.third_party.policy"}}</th></tr></thead><tbody>{{range .Privacy.Services}}<tr><td>{{.Name}}</td><td>{{.Purpose}}</td><td>{{.DataSent}}</td><td>{{if .PolicyURL}}<a href="{{.PolicyURL}}" target="_blank" rel="noopener noreferrer">{{t $.Lang "privacy.third_party.view_policy"}}</a>{{end}}</td></tr>{{end}}</tbody></table></div>{{else}}<p><strong>{{t .Lang "privacy.third_party.empty"}}</strong></p>{{if .Privacy.TrackingTypeName}}<p>{{t .Lang "privacy.third_party.analytics"}} {{.Privacy.TrackingTypeName}}.</p>{{end}}{{end}}</section>
+        <section class="section-card" id="your-rights"><h2>{{t .Lang "privacy.rights.title"}}</h2><p>{{t .Lang "privacy.rights.body"}}</p><ul>{{if .Privacy.ExportAvailable}}<li>{{t .Lang "privacy.rights.export"}}</li>{{end}}{{if .Privacy.DeleteAvailable}}<li>{{t .Lang "privacy.rights.delete"}}</li>{{end}}<li><a href="/server/preferences#privacy">{{t .Lang "privacy.cookies.manage"}}</a></li></ul></section>
+        {{if .Privacy.DataSold}}<section class="section-card" id="ccpa-opt-out"><h2>{{t .Lang "privacy.ccpa.title"}}</h2><h3>{{t .Lang "privacy.ccpa.do_not_sell"}}</h3><p>{{t .Lang "privacy.ccpa.body"}}</p>{{if .Privacy.CCPAOptOut}}<p role="status">{{t .Lang "privacy.ccpa.opted_out"}}</p><form method="post" action="/server/ccpa"><input type="hidden" name="csrf_token" value="{{.Privacy.CSRFToken}}"><input type="hidden" name="choice" value="opt-in"><button type="submit">{{t .Lang "privacy.ccpa.opt_in"}}</button></form>{{else}}<form method="post" action="/server/ccpa"><input type="hidden" name="csrf_token" value="{{.Privacy.CSRFToken}}"><input type="hidden" name="choice" value="opt-out"><button type="submit">{{t .Lang "privacy.ccpa.optout"}}</button></form>{{end}}<p>{{t .Lang "privacy.ccpa.essential"}}</p></section>{{end}}
+        {{if .Privacy.ExtensionHTML}}<section class="section-card" id="operator-extension"><h2>{{t .Lang "privacy.additional.title"}}</h2>{{.Privacy.ExtensionHTML}}</section>{{end}}
+        <section class="section-card" id="contact"><h2>{{t .Lang "privacy.contact.title"}}</h2>{{if .Privacy.DPOEmail}}<p>{{if .Privacy.DPOName}}{{.Privacy.DPOName}}: {{end}}<a href="mailto:{{.Privacy.DPOEmail}}">{{.Privacy.DPOEmail}}</a></p>{{else}}<p>{{t .Lang "privacy.contact.inquiry"}} <a href="/server/security">{{t .Lang "privacy.contact.security"}}</a>.</p>{{end}}<p><a href="/server/dpo">{{t .Lang "privacy.contact.dpo"}}</a></p></section>
+      </article>
+      {{end}}
+      {{if .DPO}}
+      <section class="section-card" aria-labelledby="dpo-contact-title">
+        <h2 id="dpo-contact-title">{{t .Lang "dpo.contact.title"}}</h2>
+        {{if .DPO.Name}}<p>{{.DPO.Name}}</p>{{end}}
+        {{if .DPO.Email}}<p><a href="mailto:{{.DPO.Email}}">{{.DPO.Email}}</a></p>{{else}}<p>{{t .Lang "dpo.contact.body"}}</p><p><a href="{{.DPO.SecurityURL}}">{{t .Lang "page.security.title"}}</a></p>{{end}}
+        <p><a href="{{.DPO.PrivacyURL}}">{{t .Lang "page.privacy.title"}}</a></p>
+      </section>
+      {{end}}
+      {{if .SecurityPolicyHTML}}<section class="section-card">{{.SecurityPolicyHTML}}</section>{{end}}
+      {{if .Help}}<article><section class="section-card">{{.Help.HTML}}</section><section class="section-card"><h2>{{t .Lang "help.more.title"}}</h2><ul class="hub-list">{{range .Help.Pages}}<li><a class="hub-link" href="{{path .Path}}"><span class="hub-title">{{t $.Lang .TitleKey}}</span><span class="hub-desc">{{t $.Lang .DescriptionKey}}</span></a></li>{{end}}</ul></section></article>{{end}}
+      {{if .MCPHelp}}
+      <article class="mcp-help">
+        <section class="section-card" id="overview"><h2>{{t .Lang "mcp.help.overview.title"}}</h2><p>{{t .Lang "mcp.help.overview.body"}}</p></section>
+        <section class="section-card" id="endpoint"><h2>{{t .Lang "mcp.help.endpoint.title"}}</h2><label for="mcp-endpoint">{{t .Lang "mcp.help.endpoint.label"}}</label><div class="copy-value"><input id="mcp-endpoint" readonly value="{{.MCPHelp.Endpoint}}"><button type="button" data-copy="mcp-endpoint" aria-label="{{t .Lang "mcp.help.copy"}}">{{t .Lang "mcp.help.copy"}}</button></div><p>{{t .Lang "mcp.help.endpoint.aliases"}} <code>{{.MCPHelp.APIEndpoint}}</code> <code>{{.MCPHelp.RootEndpoint}}</code></p></section>
+        <section class="section-card" id="authentication"><h2>{{t .Lang "mcp.help.authentication.title"}}</h2><p>{{t .Lang "mcp.help.authentication.body"}} <a href="{{path "/server/preferences/tokens"}}">{{t .Lang "mcp.help.authentication.link"}}</a></p></section>
+        <section class="section-card" id="connect"><h2>{{t .Lang "mcp.help.connect.title"}}</h2><h3>{{t .Lang "mcp.help.connect.claude"}}</h3><pre><code>{{.MCPHelp.ClaudeCommand}}</code></pre><h3>{{t .Lang "mcp.help.connect.json"}}</h3><pre><code>{{.MCPHelp.JSONConfig}}</code></pre><h3>{{t .Lang "mcp.help.connect.verify"}}</h3><pre><code>{{.MCPHelp.CurlCommand}}</code></pre></section>
+        <section class="section-card" id="tools"><h2>{{t .Lang "mcp.help.tools.title"}}</h2><p>{{t .Lang "mcp.help.tools.body"}}</p><ul>{{range .MCPHelp.Tools}}<li><code>{{.Name}}</code> — {{.Description}}</li>{{end}}</ul></section>
+        <section class="section-card" id="limits"><h2>{{t .Lang "mcp.help.limits.title"}}</h2><p>{{t .Lang "mcp.help.limits.body"}}</p></section>
+        <section class="section-card" id="troubleshooting"><h2>{{t .Lang "mcp.help.troubleshooting.title"}}</h2><div class="table-wrapper"><table><thead><tr><th>{{t .Lang "mcp.help.troubleshooting.status"}}</th><th>{{t .Lang "mcp.help.troubleshooting.resolution"}}</th></tr></thead><tbody>{{range $status, $key := .MCPHelp.Errors}}<tr><th scope="row">{{$status}}</th><td>{{t $.Lang $key}}</td></tr>{{end}}</tbody></table></div></section>
+        <section class="section-card" id="project"><h2>{{t .Lang "mcp.help.project.title"}}</h2>{{.MCPHelp.ProjectHTML}}</section>
+      </article>
+      {{end}}
+      {{if .About}}<article class="section-card">{{.About.HTML}}</article>{{end}}
+      {{if .Terms}}<article class="section-card">{{.Terms.HTML}}</article>{{end}}
+      {{if .GraphQLEndpoint}}
+      <section class="section-card api-explorer" aria-labelledby="graphql-explorer-title">
+        <h2 id="graphql-explorer-title">{{t .Lang "graphql.status.title"}}</h2>
+        <p>{{t .Lang "graphql.status.body"}} <a href="{{.GraphQLEndpoint}}">{{t .Lang "page.graphql.title"}}</a></p>
+        <noscript><p role="status">{{t .Lang "graphql.status.body"}} <a href="{{.GraphQLEndpoint}}">{{t .Lang "page.graphql.title"}}</a></p></noscript>
+        <div id="graphiql" data-endpoint="{{.GraphQLEndpoint}}" aria-label="{{t .Lang "page.graphql.title"}}"></div>
+      </section>
+      {{end}}
+      {{if .SwaggerEndpoint}}
+      <section class="section-card" aria-label="{{t .Lang "page.swagger.title"}}">
+        <div id="swagger-ui" data-endpoint="{{.SwaggerEndpoint}}" data-theme="{{.Theme}}"></div>
+        <noscript><p role="status">{{t .Lang "swagger.noscript.body"}}</p><p><a href="{{.SwaggerEndpoint}}">{{t .Lang "swagger.noscript.link"}}</a></p></noscript>
+      </section>
+      {{end}}
+      {{range .Sections}}
+      <section class="section-card" aria-labelledby="{{.ID}}">
+        <h2 id="{{.ID}}">{{t $.Lang .HeadingKey}}</h2>
+        <p>{{t $.Lang .BodyKey}}</p>
+        {{if .Links}}<ul class="hub-list">{{range .Links}}<li><a href="{{path .Path}}">{{t $.Lang .LabelKey}}</a></li>{{end}}</ul>{{end}}
+      </section>
+      {{end}}
+      {{if .SecurityExpires}}
+      <section class="section-card" aria-labelledby="security-expires-title">
+        <h2 id="security-expires-title">{{t .Lang "security.expires"}}</h2>
+        <p><time datetime="{{.SecurityExpires}}">{{.SecurityExpires}}</time></p>
+      </section>
+      {{end}}
+      {{if .SecurityEncryptionURL}}
+      <section class="section-card" aria-labelledby="security-encryption-title">
+        <h2 id="security-encryption-title">{{t .Lang "security.encryption"}}</h2>
+        <p><a href="{{.SecurityEncryptionURL}}">{{t .Lang "security.encryption.key"}}</a></p>
+        <p><strong>{{t .Lang "security.fingerprint"}}</strong> <code>{{.SecurityFingerprint}}</code></p>
+      </section>
+      {{end}}
+      {{if .ContactForm}}
+      <section class="section-card" aria-labelledby="security-report-form-title">
+        <h2 id="security-report-form-title">{{t .Lang "security.report.form.title"}}</h2>
+        {{if .ContactForm.Error}}<p class="alert alert-error" role="alert">{{t .Lang .ContactForm.Error}}</p>{{end}}
+        <form method="post" action="/server/contact">
+          <input type="hidden" name="type" value="security">
+          <input type="hidden" name="security_id" value="{{.ContactForm.SecurityID}}">
+          <input type="hidden" name="form_token" value="{{.ContactForm.FormToken}}">
+          <label for="report-name">{{t .Lang "security.report.name"}} <span>{{t .Lang "form.required"}}</span></label><input id="report-name" name="name" maxlength="100" autocomplete="name" required>
+          <label for="report-email">{{t .Lang "security.report.email"}} <span>{{t .Lang "form.required"}}</span></label><input id="report-email" name="email" type="email" maxlength="254" autocomplete="email" required>
+          <label for="report-gpg">{{t .Lang "security.report.gpg"}} <span>{{t .Lang "form.optional"}}</span></label><textarea id="report-gpg" name="researcher_gpg" maxlength="16384"></textarea>
+          <label for="report-component">{{t .Lang "security.report.component"}} <span>{{t .Lang "form.required"}}</span></label><input id="report-component" name="component" list="report-components" maxlength="255" required><datalist id="report-components"><option value="API"><option value="Web interface" label="{{t .Lang "security.report.component.web"}}"><option value="CLI"><option value="Postfix"><option value="Dovecot"><option value="SpamAssassin"><option value="Rspamd"><option value="ClamAV"><option value="OpenDKIM"><option value="Other" label="{{t .Lang "security.report.component.other"}}"></datalist>
+          <label for="report-url">{{t .Lang "security.report.url"}} <span>{{t .Lang "form.optional"}}</span></label><input id="report-url" name="reported_url" type="url" maxlength="2048">
+          <label for="report-severity">{{t .Lang "security.report.severity"}} <span>{{t .Lang "form.required"}}</span></label><select id="report-severity" name="severity" required><option value="critical">{{t .Lang "security.report.severity.critical"}}</option><option value="high">{{t .Lang "security.report.severity.high"}}</option><option value="medium">{{t .Lang "security.report.severity.medium"}}</option><option value="low">{{t .Lang "security.report.severity.low"}}</option><option value="informational">{{t .Lang "security.report.severity.informational"}}</option></select>
+          <label for="report-summary">{{t .Lang "security.report.summary"}} <span>{{t .Lang "form.required"}}</span></label><input id="report-summary" name="summary" maxlength="200" required>
+          <label for="report-steps">{{t .Lang "security.report.steps"}} <span>{{t .Lang "form.required"}}</span></label><textarea id="report-steps" name="steps" maxlength="10000" required></textarea>
+          <label for="report-impact">{{t .Lang "security.report.impact"}} <span>{{t .Lang "form.required"}}</span></label><textarea id="report-impact" name="impact" maxlength="5000" required></textarea>
+          <label for="report-fix">{{t .Lang "security.report.fix"}} <span>{{t .Lang "form.optional"}}</span></label><textarea id="report-fix" name="suggested_fix" maxlength="5000"></textarea>
+          <label><input type="checkbox" name="cve_requested"> {{t .Lang "security.report.cve"}}</label>
+          <label for="report-days">{{t .Lang "security.report.disclosure"}}</label><input id="report-days" name="disclosure_days" type="number" min="1" max="365" value="90">
+          <label for="report-credit">{{t .Lang "security.report.credit"}} <span>{{t .Lang "form.required"}}</span></label><select id="report-credit" name="credit_preference" required><option value="name">{{t .Lang "security.report.credit.name"}}</option><option value="handle">{{t .Lang "security.report.credit.handle"}}</option><option value="no">{{t .Lang "security.report.credit.no"}}</option><option value="anonymous">{{t .Lang "security.report.credit.anonymous"}}</option></select>
+          <label for="report-handle">{{t .Lang "security.report.credit_handle"}}</label><input id="report-handle" name="credit_handle" maxlength="100">
+          <label><input type="checkbox" name="agreement" required> {{t .Lang "security.report.agreement"}} <span>{{t .Lang "form.required"}}</span></label>
+          <div class="honeypot" aria-hidden="true"><label for="report-website">Website</label><input id="report-website" name="website" tabindex="-1" autocomplete="off"></div>
+          <input type="hidden" name="captcha_id" value="{{.ContactForm.CaptchaID}}">
+          <label for="report-captcha">{{t .Lang "security.report.captcha"}}: {{.ContactForm.CaptchaQuestion}} <span>{{t .Lang "form.required"}}</span></label><input id="report-captcha" name="captcha_answer" inputmode="numeric" required>
+          <input type="hidden" name="step" value="submit">
+          <button class="btn-primary" type="submit">{{t .Lang "security.report.review"}}</button>
+        </form>
+      </section>
+      {{end}}
+      {{if .SecurityReview}}
+      <section class="section-card" aria-labelledby="security-report-review-title">
+        <h2 id="security-report-review-title">{{t .Lang "security.report.review.title"}}</h2>
+        <dl><dt>{{t .Lang "security.report.summary"}}</dt><dd>{{.SecurityReview.Summary}}</dd><dt>{{t .Lang "security.report.component"}}</dt><dd>{{.SecurityReview.Component}}</dd><dt>{{t .Lang "security.report.severity"}}</dt><dd>{{.SecurityReview.Severity}}</dd>{{if .SecurityReview.ReportedURL}}<dt>{{t .Lang "security.report.url"}}</dt><dd>{{.SecurityReview.ReportedURL}}</dd>{{end}}</dl>
+        <form method="post" action="/server/contact">
+          <input type="hidden" name="type" value="security"><input type="hidden" name="security_id" value="{{.SecurityReview.SecurityID}}"><input type="hidden" name="review_token" value="{{.SecurityReview.ReviewToken}}"><input type="hidden" name="step" value="confirm">
+          <div class="honeypot" aria-hidden="true"><label for="review-website">Website</label><input id="review-website" name="website" tabindex="-1" autocomplete="off"></div>
+          <label><input type="checkbox" name="confirmed" required> {{t .Lang "security.report.confirm"}} <span>{{t .Lang "form.required"}}</span></label>
+          <button class="btn-primary" type="submit">{{t .Lang "security.report.submit"}}</button>
+        </form>
+      </section>
+      {{end}}
+      {{if .ContactNotice}}
+      <p class="alert alert-info" role="status">{{if eq .ContactNotice "contact.received"}}{{t .Lang .ContactNotice}} <strong>{{.ContactTrackingID}}</strong>.{{else}}{{t .Lang .ContactNotice}}{{end}}</p>
+      {{end}}
+      {{if .SecurityReport}}
+      <section class="section-card" aria-labelledby="security-report-status-title">
+        <h2 id="security-report-status-title">{{t .Lang "security.report.status.title"}}</h2>
+        <dl><dt>{{t .Lang "security.report.status.id"}}</dt><dd>{{.SecurityReport.TrackingID}}</dd><dt>{{t .Lang "security.report.status.state"}}</dt><dd>{{t .Lang (printf "security.report.status.%s" .SecurityReport.Status)}}</dd><dt>{{t .Lang "security.report.status.severity"}}</dt><dd>{{.SecurityReport.Severity}}</dd><dt>{{t .Lang "security.report.status.comment"}}</dt><dd>{{.SecurityReport.ResearcherComment}}</dd>{{if .SecurityReport.DisclosureDate}}<dt>{{t .Lang "security.report.status.date"}}</dt><dd><time>{{.SecurityReport.DisclosureDate}}</time></dd>{{end}}</dl>
+      </section>
+      {{end}}
+      {{if eq .TitleKey "security.thanks.title"}}
+      <section class="section-card" aria-labelledby="security-thanks-title"><h2 id="security-thanks-title">{{t .Lang "security.thanks.title"}}</h2>
+        {{if .SecurityThanks}}<div class="table-wrapper"><table class="data-table"><thead><tr><th>{{t .Lang "security.thanks.credit"}}</th><th>{{t .Lang "security.thanks.severity"}}</th><th>{{t .Lang "security.thanks.date"}}</th></tr></thead><tbody>{{range .SecurityThanks}}<tr><td>{{.Credit}}</td><td>{{.Severity}}</td><td><time>{{.DisclosedOn}}</time></td></tr>{{end}}</tbody></table></div>{{else}}<p>{{t .Lang "security.thanks.empty"}}</p>{{end}}
+      </section>
+      {{end}}
+      {{if .Tokens}}
+      {{if .Tokens.ErrorKey}}<p class="alert alert-error" role="alert">{{t .Lang .Tokens.ErrorKey}}</p>{{end}}
+      {{if .Tokens.NoticeKey}}<p class="alert alert-info" role="status">{{t .Lang .Tokens.NoticeKey}}</p>{{end}}
+      <div class="token-layout">
+        {{if not .Tokens.Authenticated}}
+        <section class="section-card token-card"><h2>{{t .Lang "tokens.new.title"}}</h2><p>{{t .Lang "tokens.new.body"}}</p><form method="post" action="/server/preferences/token/create"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><button class="btn-primary" type="submit">{{t .Lang "tokens.create"}}</button></form></section>
+        <section class="section-card token-card"><h2>{{t .Lang "tokens.restore.title"}}</h2><form method="post" action="/server/preferences/token/restore"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><label for="restore-token">{{t .Lang "tokens.primary.label"}}</label><input id="restore-token" name="token" type="text" autocomplete="off" required placeholder="{{t .Lang "tokens.restore.hint"}}"><button class="btn-primary" type="submit">{{t .Lang "tokens.restore.button"}}</button></form></section>
+        {{else}}
+        <section class="section-card token-card" id="primary"><h2>{{t .Lang "tokens.primary.title"}} <span class="status-badge status-active">{{t .Lang "tokens.status.active"}}</span></h2>
+          <div class="copy-value"><input class="token-value" id="primary-token-value" type="text" readonly value="{{if .Tokens.Primary.Raw}}{{.Tokens.Primary.Raw}}{{else}}{{.Tokens.Primary.Masked}}{{end}}" aria-label="{{t .Lang "tokens.primary.label"}}">{{if .Tokens.Primary.Raw}}<button type="button" data-copy="primary-token-value">{{t .Lang "tokens.copy"}}</button>{{end}}</div>
+          {{if .Tokens.Primary.Raw}}<p role="status">{{t .Lang "tokens.shown_once"}}</p>{{end}}<p>{{t .Lang "tokens.primary.help"}}</p>
+          <div class="token-actions"><form method="post" action="/server/preferences/token/reveal"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><button type="submit">{{t .Lang "tokens.reveal"}}</button></form><button type="button" popovertarget="rotate-primary-confirm">{{t .Lang "tokens.rotate"}}</button></div>
+          <div id="rotate-primary-confirm" popover><h3>{{t .Lang "tokens.rotate.confirm_title"}}</h3><p>{{t .Lang "tokens.rotate.confirm"}}</p><form method="post" action="/server/preferences/token/rotate"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><button type="submit">{{t .Lang "tokens.rotate"}}</button><button type="button" popovertarget="rotate-primary-confirm" popovertargetaction="hide">{{t .Lang "tokens.cancel"}}</button></form></div>
+        </section>
+        <section class="section-card token-card token-linked" id="linked-tokens"><h2>{{t .Lang "tokens.linked.title"}} ({{len .Tokens.Linked}})</h2>
+          {{if .Tokens.Linked}}<ul class="linked-token-list">{{range .Tokens.Linked}}<li class="linked-token-item" id="token-{{.ID}}"><h3>{{.Name}} <span class="status-badge status-{{.Status}}">{{t $.Lang (printf "tokens.status.%s" .Status)}}</span></h3>
+            <div class="copy-value"><input class="token-value" id="token-value-{{.ID}}" type="text" readonly value="{{if .Raw}}{{.Raw}}{{else}}{{.Masked}}{{end}}" aria-label="{{.Name}}">{{if .Raw}}<button type="button" data-copy="token-value-{{.ID}}">{{t $.Lang "tokens.copy"}}</button>{{end}}</div>{{if .Raw}}<p role="status">{{t $.Lang "tokens.shown_once"}}</p>{{end}}
+            <dl><dt>{{t $.Lang "tokens.created"}}</dt><dd><time>{{.Created}}</time></dd><dt>{{t $.Lang "tokens.last_used"}}</dt><dd>{{if .LastUsed}}<time>{{.LastUsed}}</time>{{else}}{{t $.Lang "tokens.never"}}{{end}}</dd><dt>{{t $.Lang "tokens.expires"}}</dt><dd>{{if .Expires}}<time>{{.Expires}}</time>{{else}}{{t $.Lang "tokens.never"}}{{end}}</dd></dl>
+            <div class="token-actions"><form method="post" action="/server/preferences/tokens/{{.ID}}/reveal"><input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"><button type="submit">{{t $.Lang "tokens.reveal"}}</button></form><button type="button" popovertarget="rotate-{{.ID}}">{{t $.Lang "tokens.rotate"}}</button><details class="token-edit"><summary>{{t $.Lang "tokens.edit"}}</summary>
+            <div id="rotate-{{.ID}}" popover><h3>{{t $.Lang "tokens.rotate.confirm_title"}}</h3><p>{{t $.Lang "tokens.rotate.confirm"}}</p><form method="post" action="/server/preferences/tokens/{{.ID}}/rotate"><input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"><button type="submit">{{t $.Lang "tokens.rotate"}}</button><button type="button" popovertarget="rotate-{{.ID}}" popovertargetaction="hide">{{t $.Lang "tokens.cancel"}}</button></form></div>
+            <form method="post" action="/server/preferences/tokens/{{.ID}}/update"><input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"><label for="name-{{.ID}}">{{t $.Lang "tokens.name"}}</label><input id="name-{{.ID}}" name="name" value="{{.Name}}" maxlength="64" required><label for="expiry-{{.ID}}">{{t $.Lang "tokens.expiry"}}</label><select id="expiry-{{.ID}}" name="expires"><option value="unchanged">{{t $.Lang "tokens.expiry.keep"}}</option><option value="never">{{t $.Lang "tokens.expiry.never"}}</option><option value="7d">{{t $.Lang "tokens.expiry.7d"}}</option><option value="30d">{{t $.Lang "tokens.expiry.30d"}}</option><option value="90d">{{t $.Lang "tokens.expiry.90d"}}</option><option value="1y">{{t $.Lang "tokens.expiry.1y"}}</option><option value="custom">{{t $.Lang "tokens.expiry.custom"}}</option></select><details><summary>{{t $.Lang "tokens.expiry.custom"}}</summary><label for="expires-on-{{.ID}}">{{t $.Lang "tokens.expires_on"}} (UTC)<input id="expires-on-{{.ID}}" name="expires_on" type="date"></label></details><button type="submit">{{t $.Lang "tokens.save"}}</button></form></details><button class="btn-danger-ghost" type="button" popovertarget="revoke-{{.ID}}">{{t $.Lang "tokens.revoke"}}</button></div>
+            <div id="revoke-{{.ID}}" popover><h3>{{t $.Lang "tokens.revoke"}}</h3><p>{{t $.Lang "tokens.linked.revoke.confirm"}}</p><form method="post" action="/server/preferences/tokens/{{.ID}}/revoke"><input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"><button class="btn-danger" type="submit">{{t $.Lang "tokens.revoke"}}</button><button type="button" popovertarget="revoke-{{.ID}}" popovertargetaction="hide">{{t $.Lang "tokens.cancel"}}</button></form></div>
+          </li>{{end}}</ul>{{else}}<p>{{t .Lang "tokens.linked.empty"}}</p>{{end}}
+          <p>{{t .Lang "tokens.linked.hint"}}</p>
+        </section>
+        <section class="section-card token-card"><h2>{{t .Lang "tokens.create_linked.title"}}</h2><form method="post" action="/server/preferences/tokens"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><div class="token-field-row"><label for="linked-name">{{t .Lang "tokens.name"}}<input id="linked-name" name="name" maxlength="64" required placeholder="{{t .Lang "tokens.name.hint"}}"></label><label for="linked-expiry">{{t .Lang "tokens.expiry"}}<select id="linked-expiry" name="expires"><option value="never">{{t .Lang "tokens.expiry.never"}}</option><option value="7d">{{t .Lang "tokens.expiry.7d"}}</option><option value="30d">{{t .Lang "tokens.expiry.30d"}}</option><option value="90d">{{t .Lang "tokens.expiry.90d"}}</option><option value="1y">{{t .Lang "tokens.expiry.1y"}}</option><option value="custom">{{t .Lang "tokens.expiry.custom"}}</option></select></label></div><details><summary>{{t .Lang "tokens.expiry.custom"}}</summary><label for="linked-expires-on">{{t .Lang "tokens.expires_on"}} (UTC)<input id="linked-expires-on" name="expires_on" type="date"></label></details><button class="btn-primary" type="submit">{{t .Lang "tokens.create"}}</button></form></section>
+        <section class="section-card token-card"><h2>{{t .Lang "tokens.browser.title"}}</h2><p>{{t .Lang "tokens.browser.body"}}</p><button class="btn-danger-ghost" type="button" popovertarget="forget-token-confirm">{{t .Lang "tokens.forget"}}</button><div id="forget-token-confirm" popover><h3>{{t .Lang "tokens.forget"}}</h3><p>{{t .Lang "tokens.forget.confirm"}}</p><form method="post" action="/server/preferences/token/forget"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><button class="btn-danger-ghost" type="submit">{{t .Lang "tokens.forget"}}</button><button type="button" popovertarget="forget-token-confirm" popovertargetaction="hide">{{t .Lang "tokens.cancel"}}</button></form></div></section>
+        <section class="section-card token-card token-revoke-primary" id="revoke-primary"><h2>{{t .Lang "tokens.revoke_primary.title"}}</h2><p>{{t .Lang "tokens.revoke_primary.body"}} {{.Tokens.LinkedCount}} {{t .Lang "tokens.linked.tokens"}} {{t .Lang "tokens.and"}} {{.Tokens.ResourceCount}} {{t .Lang "tokens.items"}}.</p><button class="btn-danger" type="button" popovertarget="revoke-primary-confirm">{{t .Lang "tokens.revoke_primary.button"}}</button><div id="revoke-primary-confirm" popover><h3>{{t .Lang "tokens.revoke_primary.title"}}</h3><p>{{t .Lang "tokens.revoke_primary.confirm"}}</p><form method="post" action="/server/preferences/token/revoke"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><label for="confirm-last4">{{t .Lang "tokens.revoke_primary.last4"}} ({{.Tokens.TokenLast4}})</label><input id="confirm-last4" name="confirm" type="text" maxlength="4" required autocomplete="off"><button class="btn-danger" type="submit">{{t .Lang "tokens.revoke_primary.button"}}</button><button type="button" popovertarget="revoke-primary-confirm" popovertargetaction="hide">{{t .Lang "tokens.cancel"}}</button></form></div></section>
+        {{end}}
+      </div>
+      {{end}}
+      {{if and .Preferences (not .Sync)}}
+      <section class="section-card" aria-labelledby="language">
+        <h2 id="language">{{t .Lang "preferences.language.title"}}</h2>
+        <p>{{t .Lang "preferences.language.body"}}</p>
+        {{if .ErrorKey}}<p role="alert">{{t .Lang .ErrorKey}}</p>{{end}}
+        <form method="post" action="/server/preferences">
+          <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+          <input type="hidden" name="consent_form" value="1">
+          <label for="language">{{t .Lang "preferences.language.label"}}</label>
+          <select id="language" name="lang">
+            <option value="auto" {{if .AutomaticLang}}selected{{end}}>{{t .Lang "preferences.language.auto"}} ({{.AutomaticLanguageName}})</option>
+            {{range .Languages}}<option value="{{.Code}}" lang="{{.Code}}" {{if and (not $.AutomaticLang) (eq $.Lang .Code)}}selected{{end}}>{{.Native}}</option>{{end}}
+          </select>
+          <label for="theme">{{t .Lang "preferences.theme.label"}}</label>
+          <select id="theme" name="theme">
+            <option value="auto" {{if eq .Theme ""}}selected{{end}}>{{t .Lang "preferences.theme.auto"}}</option>
+            <option value="light" {{if eq .Theme "light"}}selected{{end}}>{{t .Lang "preferences.theme.light"}}</option>
+            <option value="dark" {{if eq .Theme "dark"}}selected{{end}}>{{t .Lang "preferences.theme.dark"}}</option>
+          </select>
+          <fieldset id="privacy">
+            <legend>{{t .Lang "preferences.privacy.title"}}</legend>
+            <label><input type="checkbox" checked disabled> {{t .Lang "preferences.cookies.essential"}}</label>
+            <label><input type="checkbox" name="consent_preferences" {{if .ConsentPreferences}}checked{{end}}> {{t .Lang "preferences.cookies.preferences"}}</label>
+            <label><input type="checkbox" name="consent_analytics" {{if .ConsentAnalytics}}checked{{end}}> {{t .Lang "preferences.cookies.analytics"}}</label>
+            {{if .DataSold}}<label><input type="checkbox" name="ccpa_opt_out" {{if .CCPAOptOut}}checked{{end}}> {{t .Lang "preferences.ccpa"}}</label>{{end}}
+          </fieldset>
+          <div class="form-actions">
+            <a href="{{.CancelTarget}}">{{t .Lang "preferences.cancel"}}</a>
+            <button type="button" popovertarget="reset-warning">{{t .Lang "preferences.reset"}}</button>
+            <button type="submit">{{t .Lang "preferences.save"}}</button>
+          </div>
+          <div id="reset-warning" popover>
+            <h2>{{t .Lang "preferences.reset.title"}}</h2>
+            <p>{{t .Lang "preferences.reset.warning"}}</p>
+            <button type="button" popovertarget="reset-warning" popovertargetaction="hide">{{t .Lang "preferences.reset.keep"}}</button>
+            <button type="submit" name="action" value="reset">{{t .Lang "preferences.reset.confirm"}}</button>
+          </div>
+        </form>
+      </section>
+      <section class="section-card" aria-labelledby="more-preferences"><h2 id="more-preferences">{{t .Lang "preferences.more"}}</h2><ul class="hub-list">{{range .MorePreferences}}<li><a class="hub-link" href="{{path .Path}}"><span class="hub-title">{{t $.Lang .TitleKey}}</span><span class="hub-desc">{{t $.Lang .DescriptionKey}}</span></a></li>{{end}}</ul></section>
+      {{end}}
+      {{if .Sync}}
+      <section class="section-card" aria-labelledby="preference-sync">
+        <h2 id="preference-sync">{{t .Lang "preferences.sync.export"}}</h2>
+        <label for="sync-url">{{t .Lang "preferences.sync.link"}}</label><div class="copy-value"><input id="sync-url" readonly value="{{.SyncURL}}"><button type="button" class="copy-btn" data-copy="sync-url">{{t .Lang "preferences.copy"}}</button></div>
+        <label for="sync-code">{{t .Lang "preferences.sync.code"}}</label><div class="copy-value"><input id="sync-code" readonly value="{{.SyncCode}}"><button type="button" class="copy-btn" data-copy="sync-code">{{t .Lang "preferences.copy"}}</button></div>
+        <form method="post" action="/server/preferences/sync">
+          <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+          <label for="sync-import">{{t .Lang "preferences.sync.import"}}</label><input id="sync-import" name="code" autocomplete="off">
+          <button type="submit">{{t .Lang "preferences.sync.import"}}</button>
+        </form>
+      </section>{{end}}
+      {{if .Status}}
+      {{with .Health}}
+      <header class="health-header">
+        <h1>📦 {{.Project.Name}}</h1>
+        <p class="tagline">{{.Project.Tagline}}</p>
+        <p>{{.Project.Description}}</p>
+      </header>
+      <div class="status-banner {{if eq .Status "healthy"}}status-ok{{else if eq .Status "degraded"}}status-warning{{else}}status-error{{end}}" role="status">
+        <span class="status-icon" aria-hidden="true">{{if eq .Status "healthy"}}✅{{else if eq .Status "degraded"}}⚠️{{else}}❌{{end}}</span>
+        <span class="status-text">{{t $.Lang (printf "health.state.%s" .Status)}}</span>
+      </div>
+      <section class="section-card" aria-labelledby="health-version"><h2 id="health-version">{{t $.Lang "health.version_build"}}</h2>
+        <dl class="key-value-list"><dt>{{t $.Lang "health.version"}}</dt><dd><code>{{.Version}}</code></dd><dt>{{t $.Lang "health.go_version"}}</dt><dd><code>{{.GoVersion}}</code></dd><dt>{{t $.Lang "health.build"}}</dt><dd><code>{{.Build.Commit}}</code> {{if eq .Build.Date "unknown"}}{{t $.Lang "health.unavailable"}}{{else}}<time datetime="{{.Build.Date}}">{{humanTimestamp $.Lang .Build.Date}}</time>{{end}}</dd></dl>
+      </section>
+      <section class="section-card" aria-labelledby="health-runtime"><h2 id="health-runtime">{{t $.Lang "health.runtime"}}</h2>
+        <dl class="key-value-list"><dt>{{t $.Lang "health.uptime"}}</dt><dd>{{$.UptimeHuman}}</dd><dt>{{t $.Lang "health.mode"}}</dt><dd><span class="badge badge-{{.Mode}}">{{t $.Lang (printf "health.mode.%s" .Mode)}}</span></dd><dt>{{t $.Lang "health.checked"}}</dt><dd><time datetime="{{.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}">{{humanTimestamp $.Lang (.Timestamp.Format "2006-01-02T15:04:05Z07:00")}}</time></dd></dl>
+      </section>
+      <section class="section-card" aria-labelledby="health-features"><h2 id="health-features">{{t $.Lang "health.features"}}</h2>
+        <ul class="feature-list">
+          <li class="{{if .Features.Tor.Enabled}}feature-enabled{{else}}feature-disabled{{end}}">🧅 {{t $.Lang "health.feature.tor"}}: {{t $.Lang (printf "health.state.%s" .Features.Tor.Status)}}{{if .Features.Tor.Hostname}}<div class="code-block"><code class="code-content">{{.Features.Tor.Hostname}}</code><button type="button" class="copy-btn" data-copy="{{.Features.Tor.Hostname}}">{{t $.Lang "preferences.copy"}}</button></div>{{end}}</li>
+          {{if .Features.I2P.Enabled}}<li class="feature-enabled">🔗 {{t $.Lang "health.feature.i2p"}}: {{t $.Lang (printf "health.state.%s" .Features.I2P.Status)}}<div class="code-block"><code class="code-content">{{.Features.I2P.Hostname}}</code><button type="button" class="copy-btn" data-copy="{{.Features.I2P.Hostname}}">{{t $.Lang "preferences.copy"}}</button></div></li>{{else}}<li class="feature-disabled">🔗 {{t $.Lang "health.feature.i2p"}}: {{t $.Lang "health.state.disabled"}}</li>{{end}}
+          <li class="{{if .Features.GeoIP}}feature-enabled{{else}}feature-disabled{{end}}">🌍 {{t $.Lang "health.feature.geoip"}}</li>
+        </ul>
+      </section>
+      <section class="section-card" aria-labelledby="health-checks"><h2 id="health-checks">{{t $.Lang "health.components"}}</h2>
+        <div class="table-wrapper"><table class="data-table"><thead><tr><th>{{t $.Lang "health.component"}}</th><th>{{t $.Lang "health.status_label"}}</th></tr></thead><tbody>
+          <tr><td>{{t $.Lang "health.database"}}</td><td><span class="status {{if eq .Checks.Database "ok"}}status-ok{{else}}status-error{{end}}">{{t $.Lang (printf "health.check.%s" .Checks.Database)}}</span></td></tr>
+          <tr><td>{{t $.Lang "health.cache"}}</td><td><span class="status {{checkClass .Checks.Cache}}">{{t $.Lang (printf "health.check.%s" .Checks.Cache)}}</span></td></tr>
+          <tr><td>{{t $.Lang "health.disk"}}</td><td><span class="status {{checkClass .Checks.Disk}}">{{t $.Lang (printf "health.check.%s" .Checks.Disk)}}</span></td></tr>
+          <tr><td>{{t $.Lang "health.scheduler"}}</td><td><span class="status {{checkClass .Checks.Scheduler}}">{{t $.Lang (printf "health.check.%s" .Checks.Scheduler)}}</span></td></tr>
+        </tbody></table></div>
+      </section>
+      <section class="section-card" aria-labelledby="health-stats"><h2 id="health-stats">{{t $.Lang "health.statistics"}}</h2>
+        <dl class="key-value-list"><dt>{{t $.Lang "health.requests_total"}}</dt><dd>{{formatCount $.Lang .Stats.RequestsTotal}}</dd><dt>{{t $.Lang "health.requests_24h"}}</dt><dd>{{formatCount $.Lang .Stats.Requests24h}}</dd><dt>{{t $.Lang "health.active_connections"}}</dt><dd>{{formatCount $.Lang .Stats.ActiveConns}}</dd></dl>
+      </section>
+      {{end}}
+      {{end}}
+    </div>
+  </main>
+  {{if .FooterBrandingHTML}}<section class="footer-branding container container-md">{{.FooterBrandingHTML}}</section>{{end}}
+  <footer class="site-footer">
+    <p class="footer-links">
+      <a href="{{path "/server/about"}}">{{t .Lang "footer.about"}}</a>
+      <a href="{{path "/server/privacy"}}">{{t .Lang "footer.privacy"}}</a>
+      {{range .FooterHubs}}<a href="{{path .Path}}">{{t $.Lang .TitleKey}}</a>{{end}}
+      <a href="{{path "/server/security"}}">{{t .Lang "page.security.title"}}</a>
+      <a href="{{path "/server/terms"}}">{{t .Lang "footer.terms"}}</a>
+      <a href="{{path "/server/dpo"}}">{{t .Lang "page.dpo.title"}}</a>
+    </p>
+    <p>{{t .Lang "footer.version"}} {{.Version}}</p>
+    <p><a href="{{path "/server/preferences#language"}}">{{.LanguageName}}</a></p>
+  </footer>
+  {{if not .HasConsentCookie}}
+  <aside id="cookie-consent" class="cookie-banner" data-sold="{{.DataSold}}" data-position="{{.ConsentPosition}}" aria-label="{{t .Lang "privacy.cookies.consent"}}">
+    <div class="cookie-banner-content"><span>{{.ConsentMessage}} - <a href="{{.ConsentPolicyURL}}">{{.ConsentPolicyText}}</a>{{if .ConsentShowPreferences}} · <a href="/server/preferences#privacy">{{.ConsentPreferencesText}}</a>{{end}}</span>
+      <div class="cookie-buttons">
+        <form method="post" action="/server/consent"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><input type="hidden" name="choice" value="decline"><button type="submit">{{.ConsentDecline}}</button></form>
+        <form method="post" action="/server/consent"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><input type="hidden" name="choice" value="accept"><button type="submit">{{.ConsentAccept}}</button></form>
+      </div>
+    </div>
+  </aside>{{end}}
+</body>
+</html>{{end}}

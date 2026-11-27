@@ -1,0 +1,11 @@
+* @apimgr
+
+.github/ @apimgr
+.github/workflows/ @apimgr
+docker/ @apimgr
+Makefile @apimgr
+src/config/secrets.go @apimgr
+src/database/secrets.go @apimgr
+src/server/token_*.go @apimgr
+src/server/csrf.go @apimgr
+src/main.go @apimgr

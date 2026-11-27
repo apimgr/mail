@@ -1,0 +1,2 @@
+# Upstream modernc.org/sqlite SBOM identifies mathutil v1.7.1 as BSD-3-Clause.
+modernc.org/mathutil BSD-3-Clause https://gitlab.com/cznic/mathutil

@@ -1,0 +1,136 @@
+"use strict";
+
+const APP_NAME = {{.AppName}};
+const BUILD_STAMP = {{.Stamp}};
+const CACHE_NAME = APP_NAME + "-cache-" + BUILD_STAMP;
+const CACHE_PREFIX = APP_NAME + "-cache-";
+const STRINGS_CACHE = APP_NAME + "-offline-strings";
+const ASSETS = [
+  "/static/css/app.css?v={{.AssetStamp}}",
+  "/static/app.js?v={{.AssetStamp}}",
+  "/static/icons/mail.svg?v={{.AssetStamp}}"
+];
+const NAV_TIMEOUT_MS = 8000;
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
+});
+
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  const url = new URL(request.url);
+  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
+
+  if (request.mode === "navigate") {
+    const networkResponse = withTimeout(fetch(request), NAV_TIMEOUT_MS);
+    event.waitUntil(networkResponse.then((response) => cacheNavigationResponse(request, response)).catch(() => {}));
+    event.respondWith(networkResponse.catch(() => navigationFallback(request)).catch(() => defaultOfflineResponse()));
+    return;
+  }
+
+  if (url.pathname.startsWith("/static/")) {
+    event.respondWith(
+      caches.match(request)
+        .then((cached) => cached || fetch(request).then((response) => {
+          if (response.ok && !response.redirected) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone())).catch(() => {});
+          }
+          return response;
+        }))
+        .catch(() => new Response("", { status: 504, statusText: "Gateway Timeout" }))
+    );
+    return;
+  }
+
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        if (response.ok && !response.redirected) {
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone())).catch(() => {});
+        }
+        return response;
+      })
+      .catch(async () => (await caches.match(request)) || new Response("", { status: 504, statusText: "Gateway Timeout" }))
+      .catch(() => new Response("", { status: 504, statusText: "Gateway Timeout" }))
+  );
+});
+
+function cacheNavigationResponse(request, response) {
+  return caches.open(CACHE_NAME).then((cache) => {
+    if (response.ok && !response.redirected && response.headers.get("X-Offline-Cache") === "public") {
+      return cache.put(request, response.clone());
+    }
+    return cache.delete(request);
+  });
+}
+
+function withTimeout(promise, milliseconds) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("navigation timeout")), milliseconds);
+    promise.then(
+      (value) => { clearTimeout(timer); resolve(value); },
+      (error) => { clearTimeout(timer); reject(error); }
+    );
+  });
+}
+
+async function navigationFallback(request) {
+  try {
+    const cached = await caches.match(request);
+    if (cached && !cached.redirected) return cached;
+  } catch (_) {}
+  return offlineFallbackResponse();
+}
+
+const DEFAULT_STRINGS = {
+  lang: "en",
+  dir: "ltr",
+  title: "Offline",
+  heading: "You are offline",
+  message: "This page could not be loaded and no cached copy is available. Check your connection and try again.",
+  reload: "Reload"
+};
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>\"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[character]));
+}
+
+async function offlineFallbackResponse() {
+  let strings = DEFAULT_STRINGS;
+  try {
+    const stored = await (await caches.open(STRINGS_CACHE)).match("/offline-strings.json");
+    if (stored) strings = Object.assign({}, DEFAULT_STRINGS, await stored.json());
+  } catch (_) {
+    strings = DEFAULT_STRINGS;
+  }
+  return makeOfflineResponse(strings);
+}
+
+function makeOfflineResponse(strings) {
+  const page = "<!doctype html><html lang=\"" + escapeHtml(strings.lang) + "\" dir=\"" + escapeHtml(strings.dir) + "\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>" + escapeHtml(strings.title) + "</title></head><body><main><h1>" + escapeHtml(strings.heading) + "</h1><p>" + escapeHtml(strings.message) + "</p></main></body></html>";
+  return new Response(page, {
+    status: 503,
+    statusText: "Service Unavailable",
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" }
+  });
+}
+
+function defaultOfflineResponse() {
+  try {
+    return makeOfflineResponse(DEFAULT_STRINGS);
+  } catch (_) {
+    return new Response("", { status: 503, statusText: "Service Unavailable" });
+  }
+}

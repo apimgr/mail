@@ -1,0 +1,46 @@
+#swagger-ui {
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+#swagger-ui .topbar {
+  display: none;
+}
+
+#swagger-ui.theme-dark {
+  color-scheme: dark;
+}
+
+#swagger-ui.theme-dark .wrapper {
+  background: var(--color-bg-card);
+}
+
+#swagger-ui.theme-dark .info .title,
+#swagger-ui.theme-dark .opblock-tag,
+#swagger-ui.theme-dark .opblock .opblock-summary-description,
+#swagger-ui.theme-dark .parameter__name,
+#swagger-ui.theme-dark .response-col_status {
+  color: var(--color-text);
+}
+
+#swagger-ui.theme-dark .opblock,
+#swagger-ui.theme-dark .model-box,
+#swagger-ui.theme-dark .responses-wrapper,
+#swagger-ui.theme-dark .scheme-container {
+  background: var(--color-bg-secondary);
+}
+
+#swagger-ui.theme-dark input,
+#swagger-ui.theme-dark textarea,
+#swagger-ui.theme-dark select {
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+#swagger-ui.theme-light {
+  color-scheme: light;
+}
+
+#swagger-ui.theme-light .wrapper {
+  background: var(--color-bg-card);
+}

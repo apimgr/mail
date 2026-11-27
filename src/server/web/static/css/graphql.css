@@ -1,0 +1,13 @@
+.api-explorer { overflow: hidden; }
+#graphiql { min-height: 34rem; height: min(72vh, 56rem); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.graphiql-container { color: var(--fg); background: var(--bg); font-family: var(--font-sans); }
+.graphiql-container .topBar, .graphiql-container .docExplorerWrap, .graphiql-container .historyPane { color: var(--fg); background: var(--bg-subtle); border-color: var(--border); }
+.graphiql-container .editorWrap, .graphiql-container .result-window, .graphiql-container .docExplorerContent { color: var(--fg); background: var(--bg); border-color: var(--border); }
+.graphiql-container button, .graphiql-container select { color: var(--fg); background: var(--bg-elevated); border-color: var(--border); }
+.graphiql-container button:hover, .graphiql-container select:hover { border-color: var(--accent); }
+.graphiql-container .execute-button { color: var(--bg); background: var(--accent); }
+.graphiql-container .execute-button:hover { background: var(--accent-hover); }
+.graphiql-container .toolbar, .graphiql-container .toolbar-button { color: var(--fg-muted); }
+.graphiql-container .CodeMirror, .graphiql-container .CodeMirror-gutters { color: var(--fg); background: var(--bg); border-color: var(--border); font-family: var(--font-mono); }
+.graphiql-container .CodeMirror-gutters { background: var(--bg-subtle); }
+@media (max-width: 48rem) { #graphiql { height: 70vh; min-height: 30rem; } }
