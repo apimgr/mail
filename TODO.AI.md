@@ -75,10 +75,10 @@ its implementation is complete and committed.
   prior numeric key. The preserved legacy key still needs final schema
   reconciliation; expiry lifecycle, management, full middleware authorization,
   and rate-limit cache fallback remain incomplete. Startup creates the version 1
-  32-byte AES key in `secrets.yml`; generated DKIM private keys now use
-  versioned AES-256-GCM ciphertext at rest. Security-report encryption,
-  encryption coverage for other sensitive data, and key rotation/re-encryption
-  remain incomplete.
+  32-byte AES key in `secrets.yml`; generated DKIM private keys and security
+  report bodies/contact data now use AES-256-GCM encryption at rest when PGP
+  report encryption is unavailable. Encryption coverage for other sensitive
+  data and AES encryption-key rotation/re-encryption remain incomplete.
   Startup now generates a base62 `server.token`, writes it atomically to
   `secrets.yml` with mode `0600`, migrates it out of `server.yml` and drop-ins,
   and prints it only on generation. The AES key is also generated there and
@@ -179,7 +179,9 @@ its implementation is complete and committed.
   and timestamped publication metadata are implemented. Retry state is durable
   in `config/security/keyservers.state` and the scheduler retries due entries.
   Private-key export, confirmed deletion, and identity-checked key import are
-  implemented; rotation and retired-key cleanup remain incomplete. Researcher acknowledgments now advertise email only after
+  implemented. PGP rotation transactionally re-encrypts retained reports and
+  recovers staged files at startup; security cleanup removes the retired
+  encrypted private key after 30 days. Researcher acknowledgments now advertise email only after
   SMTP accepts the message; acknowledgment email is skipped when a submitted
   key requires unsupported PGP encryption. Closed-report retention cleanup follows the configured days.
   Maintenance security list/show now display only permitted metadata and the

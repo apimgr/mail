@@ -75,7 +75,7 @@ implemented.
 | `--color auto\|yes\|no` | Set terminal color behavior. |
 | `--shell completions [SHELL]`, `--shell init [SHELL]` | Generate shell integration. |
 | `--service COMMAND` | Manage the detected system or per-user service (`status`, `install`, `start`, `stop`, `restart`, `reload`, `disable`, `uninstall`). |
-| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, `email test [--to ADDRESS] [--dry-run]`, PGP generate/publish/export/import/delete, and security-report list/show/update/export are implemented. PGP rotation, backup, restore, setup, secret rotation, PGP maintainer delivery, and researcher status-change email are incomplete. |
+| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, `email test [--to ADDRESS] [--dry-run]`, PGP generate/rotate/publish/export/import/delete, and security-report list/show/update/export are implemented. Backup, restore, setup, secret rotation, PGP maintainer delivery, and researcher status-change email are incomplete. |
 | `--update [check\|yes\|branch NAME]` | Check, install, or select the update channel. |
 
 `--i2p` is accepted, but I2P startup is not yet implemented.

@@ -73,8 +73,11 @@ does not promise an email. When a researcher PGP key is supplied, receipt
 delivery is skipped until PGP encryption is implemented. The status page shows triage state and
 does not disclose report content. Closed reports are removed after the
 configured retention period by the daily security cleanup task; open reports
-are retained. PGP delivery to the configured security contact, status-change
-email, rotation, and retired-key cleanup are not implemented yet. Import accepts
+are retained. PGP delivery to the configured security contact and status-change
+email are not implemented yet. PGP rotation re-encrypts retained PGP reports in
+one database transaction, then installs the staged keypair with startup recovery.
+The previous encrypted private key is retained for 30 days and removed by daily
+security cleanup. Import accepts
 one valid, expiring v4 private key only when no active key exists; an identity
 mismatch requires a second typed override confirmation.
 Operators can export the decrypted private key only to a new file after an
@@ -99,7 +102,7 @@ when researchers opted into a name, handle, or anonymous credit.
 | `/server/security` and `/server/security/policy` | Server-rendered pages; the overview reflects configured public contacts, expiry, and an available PGP key |
 | `GET /api/v1/server/security` | Public JSON mirror of contacts, expiry, PGP key availability/URL/fingerprint, policy, thanks, and the optional contact form URL |
 | `/.well-known/security.txt` | Includes the configured GitHub, enabled security form, and public security email channels, plus expiry, policy, and a valid PGP key URL when available |
-| `/.well-known/pgp-key.asc` | Serves the active ASCII-armored, valid OpenPGP v4 public key only when its fingerprint matches active database metadata; returns 404 if absent, expired, revoked, or invalid. Operators can create a keypair with `--maintenance pgp generate`, publish it with `--maintenance pgp publish`, and export its public key with `--maintenance pgp export public [FILE]`. Keyserver retries are persisted in `config/security/keyservers.state` and run every 15 minutes. Rotation and retired-key cleanup remain incomplete. |
+| `/.well-known/pgp-key.asc` | Serves the active ASCII-armored, valid OpenPGP v4 public key only when its fingerprint matches active database metadata; returns 404 if absent, expired, revoked, or invalid. Operators can create a keypair with `--maintenance pgp generate`, rotate it with `--maintenance pgp rotate`, publish it with `--maintenance pgp publish`, and export its public key with `--maintenance pgp export public [FILE]`. Rotation transactionally re-encrypts retained PGP reports, recovers staged files on startup, and retains the previous encrypted private key for 30 days. Keyserver retries are persisted in `config/security/keyservers.state` and run every 15 minutes. |
 | `/.well-known/llms.txt` and `/llms.txt` | Served with the currently registered public API routes |
 | Unknown `/.well-known/*` paths | Return the normal 404 page |
 
