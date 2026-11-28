@@ -53,8 +53,9 @@ request counts. Database, cache, disk, and scheduler details stay vague;
 credentials, internal paths, configuration values, and mail content must
 never appear in health responses or logs. Mail-service status is available
 through the operator-only service API, but health does not yet probe those
-services. Tor/I2P/GeoIP providers are incomplete, so this health response is
-not a production readiness signal.
+services. Tor starts in an app-scoped hidden-service process when its binary is
+available; I2P and GeoIP providers are not implemented. This health response
+is not a production readiness signal.
 
 For vulnerability reports, use GitHub's private vulnerability reporting for
 the [apimgr/mail repository](https://github.com/apimgr/mail/security/advisories/new).

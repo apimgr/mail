@@ -43,6 +43,7 @@ does not mean the corresponding behavior is available.
 | Section | Current keys and purpose |
 |---|---|
 | `server` | Listener (`port`, `address`, `pidfile`, `daemonize`), mode/logging, FQDN, admin path, setup token, maintenance/debug flags, database and SSL settings, update channel/policy, scheduler, trusted proxies, CORS, request limits, session defaults, rate limits, notifications, token limits, i18n, tracking, contact addresses, branding content, help pages, privacy/consent/cookies/retention/third parties, and optional root health alias. |
+| `cli` | `binary_download.dir` selects the operator-provisioned CLI release directory (default `{data_dir}/cli`); `binary_download.require_auth` optionally requires a Bearer token for downloads (default `false`). Configure this in `yaml.d/maintenance.yml`. |
 | `database` and `server.database` | Driver, URL, token, and connection pool limits. SQLite is the default; libSQL is remote-only. Legacy top-level settings are migrated into the server configuration. |
 | `ssl` and `server.ssl` | SSL enablement, certificate and key paths, Let's Encrypt enablement, contact email, and staging mode. Listener TLS and certificate lifecycle are not implemented. |
 | `email` | Legacy SMTP settings. Current outgoing notification delivery uses `server.notifications.email`. |
@@ -144,7 +145,22 @@ startup re-fetches the official checksum, verifies the staged binary, replaces
 the installed binary, and re-executes. A process that did not start as root
 only notifies the operator and records the skipped installation. Manual
 `--update yes` is not gated by the scheduled defer window. `cli_min_version`
-is retained for API autodiscovery policy; enforcement is still incomplete.
+is returned in autodiscover; the CLI blocks normal requests when its installed
+version is below that minimum.
+
+The server's CLI release directory and download policy belong in
+`yaml.d/maintenance.yml`:
+
+```yaml
+cli:
+  binary_download:
+    dir: "{data_dir}/cli"
+    require_auth: false
+```
+
+The server reads `version.txt` and `sha256.txt` alongside release files named
+`mail-cli-{os}-{arch}[.exe]`. It advertises only binaries whose computed hash
+matches the manifest and rechecks the hash before serving a download.
 
 ```yaml
 server:

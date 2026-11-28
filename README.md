@@ -21,6 +21,9 @@ alias and forwarding CRUD, and Postfix queue operations through the API and
 CLI. Mail records are global operator-managed resources under the reserved
 `system` owner; owner tokens do not authorize mail-stack access. Queue actions
 that need Postfix privileges require those permissions for the server process.
+Tor hidden-service hosting is managed when a Tor binary is available. API/CLI
+discovery and checksum-verified CLI release downloads are supported; the CLI
+can check and install those releases with HTTPS verification.
 Unix mail-account management, live MTA synchronization, transport and filtering
 configuration and certificate management remain incomplete. Operator-only
 delivery, spam/virus, and arrival-period queue statistics are available; see
@@ -66,7 +69,9 @@ state. `/server/healthz` negotiates HTML, JSON, and
 plain text. The health payload includes project/build/runtime information,
 feature states, cached dependency checks, persisted aggregate request counts,
 and in-flight request counts; health does not yet probe mail daemons and is not
-a production readiness signal. API text aliases are `/api/healthz.txt` and
+a production readiness signal. `/api/autodiscover` and `/api/v1` provide API
+and CLI discovery. `/cli/binaries/{project}-cli-{os}-{arch}` serves only
+operator-provisioned binaries whose hashes match the release manifest. API text aliases are `/api/healthz.txt` and
 `/api/v1/server/healthz.txt`; JSON health routes are `/api/healthz` and
 `/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
 sitemap, feed, and AI/security discovery resources are also served. See the [API
@@ -81,8 +86,9 @@ remain incomplete. Initial owner-token issuance,
 token reveal/rotation/revocation, linked-token management, and the
 server-rendered token page are available. A companion `mail-cli` provides the
 Cobra command tree and an interactive Bubble Tea setup/menu. It supports
-server/token profiles and output preferences; automatic updates and complete
-TUI preference behavior remain tracked in [TODO.AI.md](TODO.AI.md). The
+server/token profiles and output preferences. CLI self-update checks and
+checksum-verified installation are implemented; complete TUI preference
+behavior remains tracked in [TODO.AI.md](TODO.AI.md). The
 `status`, `about`, token, service, mailbox, forward, alias, domain, DNS, and DKIM
 CLI operations have matching server routes. The OpenAPI document and machine-only token check are
 generated from the registered API routes.

@@ -128,6 +128,28 @@ for server selection, `MAIL_TOKEN` for authorization, `MAIL_OUTPUT_FORMAT`,
 flags take precedence over these environment settings; command-line tokens
 should be avoided when process listings are exposed.
 
+The server exposes `/api/autodiscover` and `/api/v1` for client and CLI
+discovery. It reports public origins, the current API version, exposed overlay
+addresses, and only checksum-verified CLI release files. Releases are
+operator-provisioned under `{data_dir}/cli`; downloads are public unless
+`cli.binary_download.require_auth` is enabled. The CLI's automatic
+discovery check runs before commands. A newer compatible release prompts in
+an interactive terminal; non-interactive automatic installation requires
+`update.auto: true`. `mail-cli update check|yes` and `mail-cli --update
+check|yes` inspect or install an update explicitly. Downloads require HTTPS and
+must match the discovered SHA-256 before atomic replacement and re-execution.
+If `cli_min_version` is newer than the installed CLI, normal requests stop
+until an update is installed. Update events are written to the private
+`cli.log` beside `cli.yml` and to stderr.
+
+The client setting lives in `cli.yml`:
+
+```yaml
+update:
+  auto: false
+  check_interval: per_invocation
+```
+
 With no command in an interactive terminal, the Bubble Tea interface opens.
 When no server is configured, it prompts for a URL and optional token, checks
 the server and token, and saves the profile with owner-only permissions. The
@@ -140,6 +162,5 @@ Output supports table, JSON, YAML, plain text, and CSV formats. Destructive
 commands require `--force` in non-interactive runs or a confirmation at the
 terminal. Config writes are atomic; server and token command-line values are
 saved only when their configured values are empty or invalid. Retry execution,
-client automatic update checking/downloading/checksum verification/re-exec,
 complete TUI preference behavior, and GUI remain incomplete and are tracked in
 [TODO.AI.md](https://github.com/apimgr/mail/blob/main/TODO.AI.md).

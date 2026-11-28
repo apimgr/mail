@@ -33,6 +33,8 @@ database-aware health and application metadata routes:
 - `GET /api/v1/server/healthz.txt`
 - `GET /api/v1/server/about`
 - `GET /api/v1/server/version`
+- `GET /api/autodiscover` and `/api/v1` for API and CLI discovery
+- `GET /cli/binaries/{project}-cli-{os}-{arch}` for checksum-verified CLI downloads
 - `GET /api/v1/services` and `/api/v1/services/{service}` (operator token)
 - `POST /api/v1/services/{service}/{start|stop|restart|reload}` (operator token)
 - Operator-protected virtual mailbox list/detail/create/update/delete/password
@@ -49,8 +51,9 @@ The information routes return server-rendered HTML. The `/server/healthz`
 route negotiates HTML, JSON, or plain text based on the request's `Accept`
 header and client type. Health responses contain public project/build/runtime
 metadata, feature states, cached checks, persisted aggregate request counters,
-and in-flight request counts. Health does not probe mail daemons; Tor/I2P/GeoIP
-providers are incomplete, so health is not a production readiness signal.
+and in-flight request counts. Health does not probe mail daemons. Tor is
+managed when a Tor binary is available; I2P and GeoIP providers are not
+implemented, so health is not a production readiness signal.
 Mail management pages, Unix mail-account management, live MTA synchronization,
 component configuration, delivery/spam statistics, and log routes remain
 incomplete. Postfix queue operations require the server process to have the

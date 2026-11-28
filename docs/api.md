@@ -13,6 +13,8 @@ separate operator-authenticated GraphQL response format.
 
 | Method | Path | Current behavior |
 |---|---|---|
+| `GET` | `/api/autodiscover`, `/api/v1` | Returns the standard JSON envelope with project/API versions, public origins, exposed overlay addresses, checksum-verified CLI release metadata, and the configured minimum CLI version. The request origin is first in `urls`; an onion request receives no clearnet origins. `/api/v1/` redirects to `/api/v1`. |
+| `GET` | `/cli/binaries/{project}-cli-{os}-{arch}` | Streams a published CLI binary only when its checksum matches `sha256.txt`; returns 404 for missing or invalid releases. Public by default; `cli.binary_download.require_auth: true` requires a Bearer token. |
 | `GET` | `/api/v1/server/healthz` | Returns the public health payload; HTTP 503 indicates unhealthy or maintenance state. It includes project/build/runtime metadata, feature states, cached checks, persisted aggregate request counts, and the in-flight request count. `version` matches the server's `--version`; `build.commit` is the short commit ID and `build.date` is the UTC build time. |
 | `GET` | `/api/v1/server/healthz.txt` | Returns the same health data as flat text; the `.txt` suffix overrides `Accept`. |
 | `GET` | `/api/v1/server/auth/check` | Machine-only token check. Requires one Bearer credential, returns `{ "kind": "operator" }` or `{ "kind": "owner" }`; invalid credentials return 401. Rate limited and never echoes the token. |
@@ -122,6 +124,11 @@ Public discovery resources include `/robots.txt`, `/sitemap.xml`, `/feed.xml`,
 `/llms.txt`. They accept `GET` and `HEAD` only. Preference sync responses are
 not cacheable and never include consent or credential cookies in an export.
 
+CLI release files are operator-provisioned in `{data_dir}/cli` (or the
+`cli.binary_download.dir` override). The server publishes only platform files
+whose SHA-256 matches `sha256.txt`, together with the release version from
+`version.txt`; the server does not build or fetch CLI binaries.
+
 The one-shot researcher status page is `/server/security/report/{tracking_id}`.
 Its emailed status token can be used once per day; the page exposes only
 triage status and sends `no-store` and `no-referrer` headers. It is not a
@@ -170,7 +177,8 @@ reads or future mail routes. The GraphiQL page is
 `/server/docs/graphql`; enter `Authorization: Bearer <operator-token>` in its
 header editor. The header editor does not persist headers. Without JavaScript,
 the page links to the plain GraphQL endpoint. Health checks do not yet probe
-the mail daemons; Tor/I2P/GeoIP providers also remain incomplete.
+the mail daemons. Tor hidden-service management is implemented; I2P and GeoIP
+providers remain unavailable.
 Do not treat this development API as a stable production contract.
 
 Swagger UI is available at `/server/docs/swagger` and loads the OpenAPI document
