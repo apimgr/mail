@@ -11,6 +11,10 @@ and declares their Bearer security; `llms.txt` uses the shared API registry.
 The query-only GraphQL API exposes current mail read operations through a
 separate operator-authenticated GraphQL response format.
 
+The server accepts its normal route paths under the configured `server.baseurl`
+or a prefix supplied by a trusted reverse proxy. API links returned by public
+discovery endpoints use that prefix; API paths below are shown without it.
+
 | Method | Path | Current behavior |
 |---|---|---|
 | `GET` | `/api/autodiscover`, `/api/v1` | Returns the standard JSON envelope with project/API versions, public origins, exposed overlay addresses, checksum-verified CLI release metadata, and the configured minimum CLI version. The request origin is first in `urls`; an onion request receives no clearnet origins. `/api/v1/` redirects to `/api/v1`. |
@@ -38,12 +42,12 @@ separate operator-authenticated GraphQL response format.
 | `GET` | `/api/v1/server/preferences/sync/import` | Applies valid theme/language values only when preference-cookie consent is enabled; otherwise reports `consent_required`. Returns `applied` and `ignored` arrays, including when empty. |
 | `POST` | `/api/v1/server/preferences` | Applies a partial theme/language update from JSON or form data. It accepts no consent controls or CSRF token; writes still require existing preference-cookie consent. |
 | `POST` | `/api/v1/server/preferences/tokens/primary` | Creates the initial owner and primary token and returns the secret once. A valid operator or owner Bearer token returns `409`; per-IP strict limiting returns `429` with `Retry-After`. |
-| `GET` | `/api/v1/server/preferences/tokens` | Lists masked owner-token metadata for a primary-token Bearer credential. Missing/invalid credentials return `401`; linked tokens return `403`. |
+| `GET` | `/api/v1/server/preferences/tokens` | Lists masked owner-token metadata, including each token's scope, for a primary-token Bearer credential. Primary tokens report `global`; linked tokens report `read` or `read-write`. Missing/invalid credentials return `401`; linked tokens return `403`. |
 | `POST` | `/api/v1/server/preferences/tokens/primary/reveal` | Returns the encrypted primary token to its primary-token holder, audits the reveal, and sets `Cache-Control: no-store`; strict per-IP limiting applies. |
-| `POST` | `/api/v1/server/preferences/tokens` | Creates a linked token; primary-token authorization is required. The plaintext is returned only at creation. |
+| `POST` | `/api/v1/server/preferences/tokens` | Creates a linked token with a required name, optional `scope` (`read` or `read-write`, default `read-write`), and optional expiry. `global` is rejected. Primary-token authorization is required; the plaintext is returned only at creation. |
 | `POST` | `/api/v1/server/preferences/tokens/{id}/reveal` | Reveals a linked token to the primary-token holder with `Cache-Control: no-store`. |
 | `POST` | `/api/v1/server/preferences/tokens/{id}/rotate` | Rotates a linked token; primary-token authorization is required. |
-| `PATCH` | `/api/v1/server/preferences/tokens/{id}` | Updates a linked token's name or expiry; primary-token authorization is required. |
+| `PATCH` | `/api/v1/server/preferences/tokens/{id}` | Updates a linked token's name or expiry; scope cannot be changed. Primary-token authorization is required. |
 | `DELETE` | `/api/v1/server/preferences/tokens/{id}` | Revokes a linked token; primary-token authorization is required. |
 | `GET` | `/api/v1/users` | Lists virtual mailbox addresses, quotas, enabled state, and timestamps with standard pagination. Password verifiers are never returned. Requires the operator Bearer token. |
 | `GET` | `/api/v1/users/{id}` | Returns one virtual mailbox by opaque UUIDv7 ID without its password verifier. Requires the operator Bearer token. |
@@ -132,10 +136,11 @@ whose SHA-256 matches `sha256.txt`, together with the release version from
 The one-shot researcher status page is `/server/security/report/{tracking_id}`.
 Its emailed status token can be used once per day; the page exposes only
 triage status and sends `no-store` and `no-referrer` headers. It is not a
-general report-management API. PGP delivery to the security contact and
-researcher status-change email are still incomplete. Operator maintenance
-commands list/show report metadata, update forward-only triage, and export only
-stored ciphertext.
+general report-management API. Security reports are delivered encrypted to the
+configured security contact, with an AES-256-GCM attachment when no project
+PGP key is available; status changes send researchers notices containing only
+the tracking ID and status. Operator maintenance commands list/show report
+metadata, update forward-only triage, and export only stored ciphertext.
 
 The server-rendered token page is `/server/preferences/tokens`; it supports
 primary-token restore, reveal, rotation, and revocation plus linked-token

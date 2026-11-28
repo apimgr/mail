@@ -7,7 +7,11 @@ that token in an `Authorization: Bearer` header. Initial owner-token issuance
 is available at `POST /api/v1/server/preferences/tokens/primary`; a valid
 operator or owner Bearer token prevents duplicate issuance, and a strict
 per-IP rate limit applies. Primary-token authorization protects token
-management and linked-token lifecycle operations. Operator authorization
+management and linked-token lifecycle operations. Linked tokens carry an
+immutable `read` or `read-write` scope; primary tokens carry `global`.
+Owner API routes enforce the required scope and return
+`WWW-Authenticate: Bearer error="insufficient_scope"` when it is too narrow.
+Operator authorization
 protects mail domains, virtual mailboxes, aliases, forwards, queue operations,
 and service discovery/control. These mail records are global resources owned
 by the reserved `system` owner; owner tokens do not grant mail-stack access.
@@ -30,13 +34,17 @@ rejects path traversal patterns, applies the configured CORS policy, and uses
 a stateless
 double-submit CSRF token for server-rendered POST forms. Read, write, health,
 global-burst, and failed-authentication limits are enforced; valid Bearer
-tokens use per-token counters and unauthenticated requests use per-IP
-counters. Strict token actions currently use per-IP limits. CORS defaults to `*`
+tokens use per-token counters and unauthenticated requests use the source
+network identity (client IP, Tor circuit, or the overlay-wide fallback).
+Invalid bearer credentials share a generic error message and wait at least
+100 ms before the response is sent. Strict token actions currently use per-IP
+limits. CORS defaults to `*`
 without credentials; credentialed responses require an explicitly allowed
 origin. Strict token actions still need per-owner buckets, external cache
-fallback is not implemented, and full audit coverage and automated secure
-maintainer delivery remain incomplete. Future mail routes must retain operator
-authorization.
+fallback is not implemented, and full audit coverage remains incomplete.
+Security-report delivery sends only encrypted report content to the configured
+security address; an explicitly empty security address falls back to an
+admin-only summary. Future mail routes must retain operator authorization.
 The application is not ready for production exposure.
 
 The baseline response headers include `X-Content-Type-Options`,
@@ -73,12 +81,23 @@ the report with encrypted body and contact fields, and returns a tracking ID.
 When the acknowledgment email is successfully handed to SMTP, the response
 also says that a confirmation email is on its way. The email contains only the
 tracking ID and a one-shot status link. If SMTP is unavailable, the response
-does not promise an email. When a researcher PGP key is supplied, receipt
-delivery is skipped until PGP encryption is implemented. The status page shows triage state and
-does not disclose report content. Closed reports are removed after the
-configured retention period by the daily security cleanup task; open reports
-are retained. PGP delivery to the configured security contact and status-change
-email are not implemented yet. PGP rotation re-encrypts retained PGP reports in
+does not promise an email. When a researcher PGP key is supplied, the receipt
+contains only the tracking ID and one-shot status link and is encrypted to that
+key. The status page shows triage state and does not disclose report content.
+Researcher key URLs are fetched only over certificate-verified HTTPS, with
+bounded redirects and response size; private, loopback, link-local, and
+reserved destinations are rejected. The validated armored key is encrypted
+with the report contact data and is not fetched again.
+Closed reports are removed after the configured retention period by the daily
+security cleanup task; open reports are retained. Status-change notices go to
+the researcher when SMTP works and the encrypted contact is available; they
+contain only the tracking ID and status, encrypted to the researcher's key
+when supplied. PGP delivery of the full report to the configured security
+contact contains the PGP-encrypted report when the active project key exists.
+Without a project PGP key, the explicit security recipient receives the
+AES-256-GCM ciphertext as an attachment with a warning. If the security email
+is explicitly empty, the admin fallback receives summary metadata only. PGP
+rotation re-encrypts retained PGP reports in
 one database transaction, then installs the staged keypair with startup recovery.
 The previous encrypted private key is retained for 30 days and removed by daily
 security cleanup. Import accepts
@@ -92,8 +111,11 @@ encrypted to that key become unreadable. The operator-only
 `--maintenance security list [--status STATUS]` and `show TRACKING_ID`
 commands show permitted metadata without decrypting report content. The
 `update TRACKING_ID` command supports forward-only triage, researcher comments,
-disclosure dates, severity re-triage, and opted-in acknowledgments. Maintainers therefore do not receive the
-report through an automated secure delivery path. `export TRACKING_ID` writes
+disclosure dates, severity re-triage, and opted-in acknowledgments. When the
+status changes, the researcher receives a notice if SMTP is working and the
+encrypted contact is available. The notice contains only the tracking ID and
+status; it is PGP-encrypted to the researcher's submitted public key when one is
+configured. `export TRACKING_ID` writes
 the stored ciphertext only, using mode `0600` and refusing to overwrite an
 existing file; `--output -` writes ciphertext to stdout. The
 `/server/security/thanks` page lists public credits for disclosed reports only

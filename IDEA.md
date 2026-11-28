@@ -130,6 +130,11 @@ filtering services.
 - Unix mail-account and virtual-mailbox modes are both supported; selecting system
   users does not grant the panel permission to weaken operating-system account
   security.
+- Security report researcher key URLs are an explicit outbound-fetch exception:
+  accept HTTPS only, verify certificates, limit redirects and response size,
+  and reject destinations resolving to non-public IP addresses. Fetch and
+  validate the key during report review so later receipts and status notices
+  use the validated armored key rather than refetching a mutable URL.
 - Component detection is informational. A missing optional daemon does not
   prevent the management service from starting.
 - The product does not expose an account-based administration dashboard.

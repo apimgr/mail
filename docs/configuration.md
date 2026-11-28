@@ -42,7 +42,7 @@ does not mean the corresponding behavior is available.
 
 | Section | Current keys and purpose |
 |---|---|
-| `server` | Listener (`port`, `address`, `pidfile`, `daemonize`), mode/logging, FQDN, admin path, setup token, maintenance/debug flags, database and SSL settings, update channel/policy, scheduler, trusted proxies, CORS, request limits, session defaults, rate limits, notifications, token limits, i18n, tracking, contact addresses, branding content, help pages, privacy/consent/cookies/retention/third parties, and optional root health alias. |
+| `server` | Listener (`port`, `address`, `pidfile`, `daemonize`), `baseurl`, mode/logging, FQDN reference, admin path, setup token, maintenance/debug flags, database and SSL settings, update channel/policy, scheduler, trusted proxies, CORS, request limits, session defaults, rate limits, notifications, token limits, i18n, tracking, contact addresses, branding content, help pages, privacy/consent/cookies/retention/third parties, and optional root health alias. |
 | `cli` | `binary_download.dir` selects the operator-provisioned CLI release directory (default `{data_dir}/cli`); `binary_download.require_auth` optionally requires a Bearer token for downloads (default `false`). Configure this in `yaml.d/maintenance.yml`. |
 | `database` and `server.database` | Driver, URL, token, and connection pool limits. SQLite is the default; libSQL is remote-only. Legacy top-level settings are migrated into the server configuration. |
 | `ssl` and `server.ssl` | SSL enablement, certificate and key paths, Let's Encrypt enablement, contact email, and staging mode. Listener TLS and certificate lifecycle are not implemented. |
@@ -99,9 +99,31 @@ without stopping the server. The debug log is disabled by default.
 server:
   port: 8080
   address: "[::]"
+  baseurl: /mail
   pidfile: true
   daemonize: false
 ```
+
+`server.baseurl` sets a path prefix for direct deployments. The `--baseurl`
+flag overrides it. A trusted reverse proxy's `X-Forwarded-Prefix`,
+`X-Forwarded-Path`, or `X-Script-Name` takes precedence; forwarded prefix
+headers are ignored unless the immediate peer is a configured trusted proxy.
+Routes, redirects, generated links, assets, the web manifest, and the service
+worker use the resolved prefix. Use `/` for a root deployment.
+
+Trusted proxy configuration follows the nested AI.md schema:
+
+```yaml
+server:
+  trusted_proxies:
+    additional: []
+    client_ip_header: auto
+```
+
+Loopback, private, link-local, and the configured listener's local subnet are
+trusted automatically. Put public proxy IPs, CIDRs, or DNS names in
+`additional`; DNS names refresh every five minutes. Forwarded URL and client
+identity headers from other peers are ignored.
 
 Database configuration includes driver, connection details, and pool settings.
 SQLite is the default. The remote-only libSQL driver accepts a `libsql://` or
@@ -146,7 +168,8 @@ the installed binary, and re-executes. A process that did not start as root
 only notifies the operator and records the skipped installation. Manual
 `--update yes` is not gated by the scheduled defer window. `cli_min_version`
 is returned in autodiscover; the CLI blocks normal requests when its installed
-version is below that minimum.
+version is below that minimum. When shutdown email is enabled, a signal shutdown
+uses reason `signal`, and an updater-triggered restart uses `update restart`.
 
 The server's CLI release directory and download policy belong in
 `yaml.d/maintenance.yml`:

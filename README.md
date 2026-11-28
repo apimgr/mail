@@ -21,9 +21,12 @@ alias and forwarding CRUD, and Postfix queue operations through the API and
 CLI. Mail records are global operator-managed resources under the reserved
 `system` owner; owner tokens do not authorize mail-stack access. Queue actions
 that need Postfix privileges require those permissions for the server process.
-Tor hidden-service hosting is managed when a Tor binary is available. API/CLI
-discovery and checksum-verified CLI release downloads are supported; the CLI
-can check and install those releases with HTTPS verification.
+Tor hidden-service hosting is managed when a Tor binary is available. The I2P
+eepsite uses a managed `i2pd` process or an existing SAM bridge when enabled;
+`--status` reads published Tor/I2P hostnames locally while public health and
+discovery honor each overlay's `expose` setting. API/CLI discovery and
+checksum-verified CLI release downloads are supported; the CLI can check and
+install those releases with HTTPS verification.
 Unix mail-account management, live MTA synchronization, transport and filtering
 configuration and certificate management remain incomplete. Operator-only
 delivery, spam/virus, and arrival-period queue statistics are available; see
@@ -76,13 +79,18 @@ operator-provisioned binaries whose hashes match the release manifest. API text 
 `/api/v1/server/healthz`; `/healthz` is an optional alias. Public `robots.txt`,
 sitemap, feed, and AI/security discovery resources are also served. See the [API
 documentation](docs/api.md) and [documentation index](docs/index.md).
+Deployments under a URL prefix can set `server.baseurl` or `--baseurl`; trusted
+reverse-proxy prefix headers take precedence and are used for pages, forms,
+assets, discovery links, and the service worker.
 Mail APIs are operator-protected and cover domains, DNS/DKIM, virtual
 mailboxes, aliases, forwarding, Postfix queue operations, sanitized log reads, service management,
 and delivery, spam/virus, and period-based queue statistics. The contact form accepts security reports and stores encrypted
 report data. Operators can list, inspect, update triage, and export stored
-ciphertext; PGP delivery to the security contact and researcher status-change
-email remain incomplete. Live MTA synchronization and Unix mail-account management
-remain incomplete. Initial owner-token issuance,
+ciphertext. Reports are emailed encrypted to the configured security contact,
+using an AES-256-GCM attachment when no project PGP key is available; status
+changes send the researcher a notice containing only the tracking ID and
+status. Live MTA synchronization and Unix mail-account management remain
+incomplete. Initial owner-token issuance,
 token reveal/rotation/revocation, linked-token management, and the
 server-rendered token page are available. A companion `mail-cli` provides the
 Cobra command tree and an interactive Bubble Tea setup/menu. It supports

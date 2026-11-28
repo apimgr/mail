@@ -5,7 +5,10 @@
 The server binary uses Go's standard flag parser for `--help`, `--version`,
 `--status`, configuration paths, address, port, mode, color, language, and the
 shell, service, maintenance, and update command flags. `--status` checks the
-local JSON health endpoint with a bounded timeout. `--shell` completion and
+local JSON health endpoint with a bounded timeout and reads published Tor and
+I2P hostnames from the configured data directory for the local operator. This
+local output may include an address while public health hides it because the
+overlay `expose` setting is disabled. `--shell` completion and
 init commands work for bash, zsh, fish, POSIX-style shells, and PowerShell.
 On Unix, daemon re-execution is available for `--daemon` and
 `server.daemonize: true` outside application containers. The `--service`
@@ -44,8 +47,9 @@ content. `update TRACKING_ID` changes triage status, researcher-facing comment,
 disclosure date, and severity; status transitions move forward only. An opted-in
 credit is added to the acknowledgments page when status becomes `disclosed`.
 `export TRACKING_ID [--output FILE|-]` writes only the stored ciphertext; new
-files use mode `0600` and are never overwritten. Researcher status-change email
-remains incomplete.
+files use mode `0600` and are never overwritten. When SMTP and encrypted
+contact data are available, status changes email the researcher a notice with
+only the tracking ID and status.
 
 `--maintenance pgp generate` creates the configured project keypair and starts
 publication to `web.security.keyservers`; `publish` retries configured hosts.
@@ -67,21 +71,27 @@ removed by daily security cleanup.
 |---|---|
 | `--help`, `-h` | Show help. |
 | `--version`, `-v` | Show version and build information. |
-| `--status` | Query the local health endpoint. |
+| `--status` | Query local health and show local Tor/I2P public hostnames when their services are running. |
 | `--config`, `--data`, `--cache`, `--log`, `--backup` | Override runtime directories. |
 | `--pid` | Override the PID-file path. |
 | `--address`, `--port` | Set the listener IP and port. Port 0 is invalid. |
-| `--baseurl` | Set the URL path prefix. |
+| `--baseurl` | Override `server.baseurl` and set the URL path prefix. |
 | `--mode`, `--debug` | Select runtime mode and debug endpoints. |
 | `--daemon` | Re-execute as a background daemon outside containers. |
 | `--lang` | Set the output language. |
 | `--color auto\|yes\|no` | Set terminal color behavior. |
 | `--shell completions [SHELL]`, `--shell init [SHELL]` | Generate shell integration. |
 | `--service COMMAND` | Manage the detected system or per-user service (`status`, `install`, `start`, `stop`, `restart`, `reload`, `disable`, `uninstall`). |
-| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, `email test [--to ADDRESS] [--dry-run]`, PGP generate/rotate/publish/export/import/delete, and security-report list/show/update/export are implemented. Backup, restore, setup, secret rotation, PGP maintainer delivery, and researcher status-change email are incomplete. |
+| `--maintenance COMMAND` | Maintenance entrypoint; `update`, `mode`, `email test [--to ADDRESS] [--dry-run]`, PGP generate/rotate/publish/export/import/delete, and security-report list/show/update/export are implemented. Security report status changes email the researcher when SMTP and the encrypted contact are available. Backup, restore, setup, and secret rotation remain incomplete. |
 | `--update [check\|yes\|branch NAME]` | Check, install, or select the update channel. |
 
-`--i2p` is accepted, but I2P startup is not yet implemented.
+`--i2p` enables the I2P eepsite. It is opt-in outside application containers
+and defaults on inside them unless explicitly configured. The server manages a
+dedicated `i2pd` process when its binary is available, or connects to an
+existing SAM bridge as a fallback. The destination key and public hostname
+persist under the data directory; `expose` controls public health and discovery
+surfaces, not the hostname shown by local `--status`. I2P configuration is
+available through server configuration and the CLI, not a REST endpoint.
 
 `--port` accepts one port from 1 through 65535. Port `0` is rejected. A
 non-root process cannot bind ports below 1024. The listen address must be an IP

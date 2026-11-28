@@ -64,8 +64,10 @@ its implementation is complete and committed.
   Bearer authorization; primary reveal decrypts only on request, audits it,
   and sets `no-store`. Primary restore/reveal/rotate/revoke and linked-token
   create/reveal/rotate/update/revoke now exist in the server-rendered page and
-  API. The API/MCP bearer authorization model for other resources and token
-  expiry lifecycle remain incomplete. Global read/write/health/burst limits
+  API. The API/MCP bearer authorization model for other resources remains
+  incomplete. Linked-token scopes now persist through the database and token
+  API, and route middleware enforces read, read-write, or global scope.
+  Global read/write/health/burst limits
   now use per-token buckets for valid Bearer credentials and per-IP buckets
   otherwise; failed-authentication lockout is enforced per IP. Strict token
   action limits still need per-owner buckets and external-cache integration.
@@ -73,8 +75,8 @@ its implementation is complete and committed.
   `owners.last_seen_at` transactionally.
   Legacy token rows receive UUIDv7 public identifiers without losing their
   prior numeric key. The preserved legacy key still needs final schema
-  reconciliation; expiry lifecycle, management, full middleware authorization,
-  and rate-limit cache fallback remain incomplete. Startup creates the version 1
+  reconciliation; full middleware authorization and rate-limit cache fallback
+  remain incomplete. Startup creates the version 1
   32-byte AES key in `secrets.yml`; generated DKIM private keys and security
   report bodies/contact data now use AES-256-GCM encryption at rest when PGP
   report encryption is unavailable. Encryption coverage for other sensitive
@@ -104,8 +106,9 @@ its implementation is complete and committed.
 - [ ] Complete the public guest-token and cookie-consent flows from AI.md
   PARTS 8, 12, and 16. CSRF forms, consent banner/state, CCPA controls,
   consent-gated theme/language writes, reset and initial preference-sync
-  routes now exist. Owner and linked-token management, restore, reveal,
-  rotation, and revocation are available on the token-management page; the
+  routes now exist. Owner and linked-token management, scope selection,
+  restore, reveal, rotation, and revocation are available on the
+  token-management page; the
   public guest-token lifecycle and remaining cookie contract still need work.
   Preference sync still needs the full validation/redirect/cookie-attribute
   contract, API parity and complete edge-case coverage.
@@ -199,8 +202,8 @@ its implementation is complete and committed.
   POST, API discovery, and advertised URLs. The security API and security.txt
   expose only configured public channels, expiry, and a validated PGP v4
   fingerprint/key URL; `/server/security` renders those channels and links.
-  Nonsecurity contact workflows, PGP-encrypted maintainer delivery,
-  security-role routing, and maintenance update/export are incomplete. PGP v4
+  Nonsecurity contact workflows and broader security-role transports remain
+  incomplete. PGP v4
   key generation, public export, keyserver publication,
   and timestamped publication metadata are implemented. Retry state is durable
   in `config/security/keyservers.state` and the scheduler retries due entries.
@@ -208,29 +211,36 @@ its implementation is complete and committed.
   implemented. PGP rotation transactionally re-encrypts retained reports and
   recovers staged files at startup; security cleanup removes the retired
   encrypted private key after 30 days. Researcher acknowledgments now advertise email only after
-  SMTP accepts the message; acknowledgment email is skipped when a submitted
-  key requires unsupported PGP encryption. Closed-report retention cleanup follows the configured days.
+  SMTP accepts the message; submitted researcher keys receive a PGP-encrypted
+  tracking ID and status link. Closed-report retention cleanup follows the configured days.
   Maintenance security list/show now display only permitted metadata and the
   researcher comment, with a validated list status filter. Maintenance update
   now performs forward-only status changes, comment/date/severity updates,
   closure timestamps, and opt-in hall-of-fame insertion transactionally;
   maintenance export writes only stored ciphertext with mode `0600` and refuses
-  to overwrite files. PGP maintainer delivery and researcher status-change
-  email remain missing.
-  The complete page registry and route parity remain missing. A shared page
-  registry now covers
-  the current server-rendered GET routes and drives sub-page routes, hub/footer
-  links, the help API list, and sitemap inclusion. State-changing web routes,
-  API mirrors, and the larger API route inventory are not yet in that page
-  registry. An API registry covers current routes but is not build-generated
-  and lacks exact schemas and route-drift tests.
+  to overwrite files. The current uncommitted worktree now sends full reports
+  to the security address encrypted with the active project PGP key, or as an
+  AES-256-GCM attachment with a warning when no key exists. An explicitly empty
+  security address falls back to a summary-only admin email. Status changes
+  email the researcher with only tracking ID and status. The wrapped project
+  gate passes; keep this checklist open until these changes are committed and
+  remaining disclosure requirements are complete.
+  The shared page registry covers the current server-rendered GET routes and
+  drives sub-page routes, hub/footer links, the help API list, and sitemap
+  inclusion. Feature-enabled predicates now control route registration and
+  sitemap inclusion; full registry-driven conformance coverage remains.
+  State-changing web routes are action routes and do not
+  belong in the page registry; privileged mail operations are API/CLI-only
+  because this API project has no browser credential. The API registry covers
+  current routes but is not build-generated and lacks exact schemas and
+  route-drift tests.
   Consent controls and the first sync
   page are present but still need the full AI.md behavior. The token page
   supports owner/linked token workflows, restore, reveal, rotation, and
   revocation, but full route parity and the remaining credential lifecycle
   requirements are still incomplete. A first
   generated sitemap and configurable `web.robots` allow/deny rules now exist;
-  unified page/API route registry, full SEO metadata and the remaining discovery
+  the remaining page-registry requirements, full SEO metadata and discovery
   contract are still incomplete.
 - [ ] Complete the shared shell: final navigation and route parity, complete
   theme persistence/contrast review, mobile and RTL review, SEO edge cases,
@@ -324,7 +334,7 @@ its implementation is complete and committed.
   and Docker runs for `b7d7000b029d` succeeded; provider release workflows and
   branch-protection verification remain.
 - [ ] Expand the unit, integration, browser, and cross-platform coverage
-  required by AI.md PART 28. The latest wrapped `make test` gate passed with 60.6%
+  required by AI.md PART 28. The latest wrapped `make test` gate passed with 60.2%
   statement coverage; the Docker server/client smoke suite and all-platform
   `make build` also passed. Incus and browser E2E coverage and tests for
   complete product behavior are missing. Production and development image
